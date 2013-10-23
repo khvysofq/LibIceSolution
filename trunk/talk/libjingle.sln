@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Desktop
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjingle", "libjingle.vcxproj", "{25D1E45B-01B0-288C-2C5D-47E1AE97259B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjingle_p2p", "libjingle_p2p.vcxproj", "{9783DE4B-94E6-0FB3-5E94-880C7A8605DA}"
@@ -8,6 +8,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jsoncpp", "..\third_party\jsoncpp\jsoncpp.vcxproj", "{3DF2DF94-8FEB-532B-E0D0-87686E4D0544}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "expat", "..\third_party\expat\expat.vcxproj", "{D03D7705-3670-11A4-970E-A9708EB04101}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "p2p_slotion", "..\p2p_slotion\p2p_slotion.vcxproj", "{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +51,12 @@ Global
 		{D03D7705-3670-11A4-970E-A9708EB04101}.Release|Win32.Build.0 = Release|Win32
 		{D03D7705-3670-11A4-970E-A9708EB04101}.Release|x64.ActiveCfg = Release|x64
 		{D03D7705-3670-11A4-970E-A9708EB04101}.Release|x64.Build.0 = Release|x64
+		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Debug|Win32.Build.0 = Debug|Win32
+		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Debug|x64.ActiveCfg = Debug|Win32
+		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Release|Win32.ActiveCfg = Release|Win32
+		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Release|Win32.Build.0 = Release|Win32
+		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
