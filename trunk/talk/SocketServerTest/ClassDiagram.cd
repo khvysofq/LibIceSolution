@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MessageSendData" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>tunnelclient.cpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PeerConnectionObject" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="3.75" Y="4.25" Width="2.25" />
+    <NestedTypes>
+      <Enum Name="PeerConnectionObject::__unnamed_enum_0ea4_1" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>tunnelclient.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>gACGTAIKA8AAACAAQAhABCYQhAsLQYAQMACqIgAAIAA=</HashCode>
+      <FileName>tunnelclient.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PeerConnectionClient" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="1.5" Y="3" Width="2" />
+    <Members>
+      <Field Name="callback_" Hidden="true" />
+    </Members>
+    <NestedTypes>
+      <Enum Name="PeerConnectionClient::State" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>peer_connection_client.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>CABIAWACAACAAAQCwAAkiIIAAERGIAOEEAKoBECMIgA=</HashCode>
+      <FileName>peer_connection_client.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="PeerConnectionClientObserver" Collapsed="true">
+    <Position X="3.5" Y="3" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>ACAACAICAQAAACAAQAAABAAAAAAAAAAAAAAAAAAAIAA=</HashCode>
+      <FileName>peer_connection_client.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Typedef Name="Peers" Collapsed="true">
+    <Position X="1" Y="4.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>peer_connection_client.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Enum Name="TunnelMessageType" Collapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>tunnelclient.cpp</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SendDataState" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAAAAAAAAAQABAAAAAAAAgCAAAAAAAAA=</HashCode>
+      <FileName>tunnelclient.cpp</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei" Size="9" />
+</ClassDiagram>
