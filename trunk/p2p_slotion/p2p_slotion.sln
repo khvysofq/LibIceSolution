@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "p2p_slotion", "p2p_slotion.vcxproj", "{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Debug|Win32.Build.0 = Debug|Win32
+		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Release|Win32.ActiveCfg = Release|Win32
+		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

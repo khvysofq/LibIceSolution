@@ -11,6 +11,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "expat", "..\third_party\exp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "p2p_slotion", "..\p2p_slotion\p2p_slotion.vcxproj", "{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "serversocket_test", "..\serversocket_test\serversocket_test.vcxproj", "{55871815-9EE0-477D-BB9F-234C993E0E1D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clientsocket_test", "clientsocket_test\clientsocket_test.vcxproj", "{ABBA37A3-4C05-40F2-B187-820753291E9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -57,6 +61,18 @@ Global
 		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Release|Win32.ActiveCfg = Release|Win32
 		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Release|Win32.Build.0 = Release|Win32
 		{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}.Release|x64.ActiveCfg = Release|Win32
+		{55871815-9EE0-477D-BB9F-234C993E0E1D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{55871815-9EE0-477D-BB9F-234C993E0E1D}.Debug|Win32.Build.0 = Debug|Win32
+		{55871815-9EE0-477D-BB9F-234C993E0E1D}.Debug|x64.ActiveCfg = Debug|Win32
+		{55871815-9EE0-477D-BB9F-234C993E0E1D}.Release|Win32.ActiveCfg = Release|Win32
+		{55871815-9EE0-477D-BB9F-234C993E0E1D}.Release|Win32.Build.0 = Release|Win32
+		{55871815-9EE0-477D-BB9F-234C993E0E1D}.Release|x64.ActiveCfg = Release|Win32
+		{ABBA37A3-4C05-40F2-B187-820753291E9D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ABBA37A3-4C05-40F2-B187-820753291E9D}.Debug|Win32.Build.0 = Debug|Win32
+		{ABBA37A3-4C05-40F2-B187-820753291E9D}.Debug|x64.ActiveCfg = Debug|Win32
+		{ABBA37A3-4C05-40F2-B187-820753291E9D}.Release|Win32.ActiveCfg = Release|Win32
+		{ABBA37A3-4C05-40F2-B187-820753291E9D}.Release|Win32.Build.0 = Release|Win32
+		{ABBA37A3-4C05-40F2-B187-820753291E9D}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

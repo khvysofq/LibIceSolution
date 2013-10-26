@@ -12,7 +12,6 @@ class PeerConnectionIce
     public sigslot::has_slots<>,
     public talk_base::MessageHandler
 {
-
 public:     //user interface
     PeerConnectionIce(P2PMediator *p2p_mediator,
         talk_base::Thread *worker_thread,
@@ -45,11 +44,11 @@ public:
     ~PeerConnectionIce();
     void DestroyPeerConnectionIce();
 private:    //p2p server function and some help function
-    //recive messsage that from remote peer by p2p server
+    //receive messages that from remote peer by p2p server
     virtual void OnReciveMessage(std::string, int);
     buzz::Jid *GetJid();
 
-private:
+private:  //libjingle system function
     // implements the MessageHandler interface
     void OnMessage(talk_base::Message* msg);
 

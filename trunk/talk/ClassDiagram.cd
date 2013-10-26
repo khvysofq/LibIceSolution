@@ -8,7 +8,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncSocket" Collapsed="true">
-    <Position X="0.5" Y="2" Width="1.5" />
+    <Position X="5.75" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AIAAAAAEAAAAABAAQAAAAAAAAgAAAAAEAQAAAAAAAAA=</HashCode>
       <FileName>base\asyncsocket.h</FileName>
@@ -22,63 +22,69 @@
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncSocksProxySocket" Collapsed="true">
-    <Position X="10.25" Y="9.75" Width="1.75" />
+    <Position X="10.75" Y="9.75" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAEIAAAAAAQkAAAAECIAAAgAgIAgUAAAAAACAAAg=</HashCode>
       <FileName>base\socketadapters.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncSSLServerSocket" Collapsed="true">
-    <Position X="8" Y="9.75" Width="1.75" />
+    <Position X="8" Y="9.75" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAgAAAAAAAAAAAAAAg=</HashCode>
       <FileName>base\socketadapters.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncSSLSocket" Collapsed="true">
-    <Position X="12.25" Y="9.75" Width="1.75" />
+    <Position X="13.5" Y="9.75" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAIAAAAAAAAAAAAAAIAAAAAgAAAAAAAAAIAAAAg=</HashCode>
       <FileName>base\socketadapters.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncTCPSocket" Collapsed="true">
-    <Position X="14" Y="4.75" Width="2.25" />
+    <Position X="13.5" Y="7.25" Width="2.25" />
+    <InheritanceLine Type="talk_base::AsyncTCPSocketBase" FixedFromPoint="true">
+      <Path>
+        <Point X="14.625" Y="6.689" />
+        <Point X="14.625" Y="7.25" />
+      </Path>
+    </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAAIAAAAAAAAAABCEAAAAAAAAAgAEAAAAAAAAAAAAg=</HashCode>
       <FileName>base\asynctcpsocket.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AddressRestrictedNAT" Collapsed="true">
-    <Position X="5.75" Y="0.5" Width="2" />
+    <Position X="10.5" Y="0.5" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAACAAAAAAAAAAAgAA=</HashCode>
       <FileName>base\nattypes.cc</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncFile" Collapsed="true">
-    <Position X="10" Y="0.5" Width="1.5" />
+    <Position X="14.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAIAAAAEAAAABAAQQAAAAAACgAAAAAAAACAAAAAAQA=</HashCode>
       <FileName>base\asyncfile.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncHttpRequest" Collapsed="true">
-    <Position X="8" Y="0.5" Width="1.75" />
+    <Position X="12.75" Y="0.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AEAIIOwAAAQAAEhAAAFAAKCARAQCAAwIAIqaAICABAg=</HashCode>
       <FileName>base\asynchttprequest.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncHttpsProxySocket" Collapsed="true">
-    <Position X="14.25" Y="9.75" Width="1.75" />
+    <Position X="16" Y="9.75" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAEIAAAAAAQkYAgQAAICABhEgogEFAAAAAACCAAg=</HashCode>
       <FileName>base\socketadapters.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::Socket" Collapsed="true">
-    <Position X="0.5" Y="0.5" Width="1.5" />
+    <Position X="5.75" Y="1" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AIAAgFAAQAAQAECpAUgAAIAABoAAAQAAAAAAAACAAAg=</HashCode>
       <FileName>base\socket.h</FileName>
@@ -162,31 +168,139 @@
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncTCPSocketBase" Collapsed="true">
-    <Position X="14" Y="3.25" Width="2.25" />
+    <Position X="13.5" Y="6" Width="2.25" />
     <TypeIdentifier>
       <HashCode>IAIQAGIAQAAUABGFQEgCAICgBgAgoAAIAQAABACAAIg=</HashCode>
       <FileName>base\asynctcpsocket.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncPacketSocket" Collapsed="true">
-    <Position X="15.5" Y="1.5" Width="1.75" />
+    <Position X="15" Y="4.25" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAEAAQAAwAACBAEgAEQAIBgAAAAAAEAAIAQCAAAg=</HashCode>
       <FileName>base\asyncpacketsocket.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::AsyncUDPSocket" Collapsed="true">
-    <Position X="17" Y="3.25" Width="1.75" />
+    <Position X="16.5" Y="6" Width="1.75" />
     <TypeIdentifier>
       <HashCode>IAAQAEQAQCAQAACBAEgAAABgBgAAAEAAAAAAAACAAAE=</HashCode>
       <FileName>base\asyncudpsocket.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::NATServer" Collapsed="true">
-    <Position X="11.75" Y="0.5" Width="1.5" />
+    <Position X="16.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAgAAAACAAGQAAAAAAAAACAEBAAAAAAQBEMAAEAAAg=</HashCode>
       <FileName>base\natserver.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::SocketFactory" Collapsed="true">
+    <Position X="2.75" Y="13.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAQAA=</HashCode>
+      <FileName>base\socketfactory.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::NATSocketFactory" Collapsed="true">
+    <Position X="2.5" Y="15.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAECAAAAAAAAAAAAABAAAAEAAAAAAAAAAAQAg=</HashCode>
+      <FileName>base\natsocketfactory.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::SocketServer" Collapsed="true">
+    <Position X="5.25" Y="15.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAEAA=</HashCode>
+      <FileName>base\socketserver.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::SslSocketFactory" Collapsed="true">
+    <Position X="0.5" Y="15.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAEAEAoICQgRCAIABAACAAQgAACAAAgAAAAEQAA=</HashCode>
+      <FileName>base\sslsocketfactory.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::NATInternalSocketFactory" Collapsed="true">
+    <Position X="2.25" Y="17.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>base\natsocketfactory.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::NATSocketServer" Collapsed="true">
+    <Position X="5.5" Y="17.5" Width="2" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="talk_base::NATSocketServer::Translator" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>base\natsocketfactory.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="talk_base::NATSocketServer::TranslatorMap" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>base\natsocketfactory.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <InheritanceLine Type="talk_base::NATInternalSocketFactory" FixedFromPoint="true">
+      <Path>
+        <Point X="4.5" Y="17.75" />
+        <Point X="5.5" Y="17.75" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAEACAAAAAAABCAAAAAAQQEAAACRAAAQAAUIg=</HashCode>
+      <FileName>base\natsocketfactory.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::FirewallSocketServer" Collapsed="true">
+    <Position X="7.75" Y="17.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ABAAAQoAUAAAAAAABAABIMEAQgRBAAAAiAAAAQAI1AA=</HashCode>
+      <FileName>base\firewallsocketserver.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::NullSocketServer" Collapsed="true">
+    <Position X="12" Y="17.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAAAAAAAAAAAAQAAAIAAAAAAAAAUAA=</HashCode>
+      <FileName>base\nullsocketserver.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::PhysicalSocketServer" Collapsed="true">
+    <Position X="9.75" Y="17.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>QCICAQAAEAAQAAAgAAQAJEAAAAQBQAABAEAAAAgBUAA=</HashCode>
+      <FileName>base\physicalsocketserver.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::VirtualSocketServer" Collapsed="true">
+    <Position X="14" Y="17.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>SsQB5UAAEQKAAJAJoAQABpICEATkKAKDeEBlBQBBVyg=</HashCode>
+      <FileName>base\virtualsocketserver.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="talk_base::Win32SocketServer" Collapsed="true">
+    <Position X="16" Y="17.5" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="talk_base::Win32SocketServer::MessageWindow" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>base\win32socketserver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AQgAAQQJEAAAAgAAAAAAAAAAARQAAAAAABACAAIAUAA=</HashCode>
+      <FileName>base\win32socketserver.h</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Microsoft YaHei" Size="9" />
