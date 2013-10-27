@@ -9,7 +9,7 @@ class SocketClient : public sigslot::has_slots<>
 public:
   SocketClient(talk_base::Thread *main_thread):
     main_thread_(main_thread),
-    server_addr_(NULL),
+    remote_addr_(NULL),
     local_addr_(NULL),
     socket_(NULL)
   {
@@ -19,9 +19,9 @@ public:
   {
     //DestoryItself();
   }
-  void Initialize(const talk_base::SocketAddress &server_addr)
+  void Initialize(const talk_base::SocketAddress &remote_addr)
   {
-    server_addr_ = new talk_base::SocketAddress(server_addr);
+    remote_addr_ = new talk_base::SocketAddress(remote_addr);
     if(local_addr_)
       socket_ = main_thread_->socketserver()->CreateAsyncSocket(SOCK_STREAM);
     else
@@ -41,7 +41,7 @@ public:
   }
   void DestoryItself()
   {
-    delete server_addr_;
+    delete remote_addr_;
     delete local_addr_;
     delete socket_;
     delete tcp_socket_packet_;
@@ -82,7 +82,7 @@ public:
   }
 private:
   talk_base::Thread         *main_thread_;
-  talk_base::SocketAddress  *server_addr_;
+  talk_base::SocketAddress  *remote_addr_;
   talk_base::SocketAddress  *local_addr_;
   talk_base::AsyncSocket    *socket_;
   talk_base::AsyncTCPSocket *tcp_socket_packet_;
@@ -93,11 +93,11 @@ int main(void)
 {
   talk_base::Thread *main_thread 
     = talk_base::Thread::Current();
-  talk_base::SocketAddress  local_addr("127.0.0.1",1234);
+  talk_base::SocketAddress  remote_addr("127.0.0.1",1234);
   talk_base::SocketAddress  server_addr("127.0.0.1",5007);
 
   SocketClient  socket_client(main_thread);
-  socket_client.set_local_addr(local_addr);
+  socket_client.set_local_addr(remote_addr);
   std::cout << "This is a test that non-block listening ..." << std::endl;
   socket_client.Initialize(server_addr);
   main_thread->Run();
