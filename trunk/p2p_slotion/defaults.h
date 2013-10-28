@@ -34,15 +34,31 @@
 
 //////////////////////////////////////////////////////////
 //ICE help define
-const std::string HTTP_USER_AGENT = "HTTP_USER_AGENT";
-const std::string JID_DEFAULT_DOMAIN = "@p2p_solution.com";
+const std::string HTTP_USER_AGENT     = "HTTP_USER_AGENT";
+const std::string JID_DEFAULT_DOMAIN  = "@p2p_solution.com";
+const std::string DEFAULT_DECRIBE    = "p2p solution test";
+
 
 std::string GetEnvVarOrDefault(const char* env_var_name,
                                const char* default_value);
 //get user computer name
 std::string GetCurrentComputerUserName();
 
+enum StatesChangeType
+{
+  ///////////////////////////////////////////////
+  //p2p server states message
+  STATES_P2P_SERVER_LOGIN_SUCCEED,
+  STATES_P2P_PEER_CONNECTION,
 
+  ERROR_P2P_SERVER_TIME_OUT,
+  ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE,
+  ERROR_P2P_PEER_NO_THIS_PEER,
+  //////////////////////////////////////////////
+  
+  //////////////////////////////////////////////
+  STATES_ICE_START_PEER_CONNECTION
+};
 
 
 #endif  // PEERCONNECTION_SAMPLES_CLIENT_DEFAULTS_H_
