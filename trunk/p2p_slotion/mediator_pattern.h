@@ -3,6 +3,8 @@
 #include <iostream>
 #include <map>
 #include "talk/base/sigslot.h"
+#include "talk/base/socketaddress.h"
+
 #include "defaults.h"
 
 typedef std::map<int,std::string> Peers;
@@ -16,7 +18,7 @@ class AbstractICEConnection
   :public sigslot::has_slots<>
 {
 public:
-  AbstractICEConnection(AbstractP2PServerConnection *);
+  AbstractICEConnection();
   virtual ~AbstractICEConnection() {
     remote_peers_.clear();
   };
@@ -24,7 +26,8 @@ public:
   //user interface 
   sigslot::signal1<StatesChangeType>  SignalStatesChange;
 
-
+  void set_p2p_server_connection(AbstractP2PServerConnection
+    *p2p_server_connection);
   const Peers get_remote_peers() const { 
     return remote_peers_; 
   }
@@ -36,7 +39,7 @@ public:
   /////////////////////////////////////////////////////////
   //ice to p2p server interface
   virtual void OnReceiveMessageFromRemotePeer(std::string,int)  = 0;
-  sigslot::signal2<std::string,int> SignalSendMessageToRemote;
+  sigslot::signal2<std::string&,int> SignalSendMessageToRemote;
 
   /////////////////////////////////////////////////////////
   //ice to up layer interface
@@ -64,22 +67,37 @@ class AbstractP2PServerConnection
   :public sigslot::has_slots<>
 {
 public:
-  AbstractP2PServerConnection(AbstractICEConnection * ice_connection);
+  AbstractP2PServerConnection();
   virtual ~AbstractP2PServerConnection(){
     online_peers_.clear();
   }
 
   //user interface
+  void set_ice_connection(AbstractICEConnection * ice_connection);
+  void set_local_peer_name(std::string local_peer_name){
+    local_peer_name_ = local_peer_name;
+  }
+  void set_server_address(talk_base::SocketAddress server_address){
+    server_address_ = server_address;
+  }
+  void set_server_address(const std::string &server, int port){
+    server_address_.SetIP(server);
+    server_address_.SetPort(port);
+  }
+  virtual void ConnectP2PServer() = 0;
+  virtual bool SignOutP2PServer() = 0;
   sigslot::signal1<StatesChangeType>  SignalStatesChange;
-  sigslot::signal1<Peers>             SignalOnlinePeers;
+  sigslot::signal1<const Peers>       SignalOnlinePeers;
 
   //ice to p2p server interface
-  virtual void OnSendMessageToRemotePeer(std::string, int) = 0;
+  virtual void OnSendMessageToRemotePeer(std::string&, int) = 0;
   sigslot::signal2<std::string,int> SignalReceiveMessageFromRemotePeer;
 
 protected:
-  AbstractICEConnection     *ice_connection_;
+  AbstractICEConnection       *ice_connection_;
   Peers                       online_peers_;
+  talk_base::SocketAddress    server_address_;
+  std::string                 local_peer_name_;
   DISALLOW_EVIL_CONSTRUCTORS(AbstractP2PServerConnection);
 };
 #endif

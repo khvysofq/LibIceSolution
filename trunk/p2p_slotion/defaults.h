@@ -31,6 +31,9 @@
 
 #include <string>
 #include <map>
+//////////////////////////////////////////////////////////
+const int kDefaultServerPort = 8888;
+
 
 //////////////////////////////////////////////////////////
 //ICE help define
@@ -48,12 +51,17 @@ enum StatesChangeType
 {
   ///////////////////////////////////////////////
   //p2p server states message
+  STATES_P2P_SERVER_SEND_WAIT_SUCCEED,
   STATES_P2P_SERVER_LOGIN_SUCCEED,
   STATES_P2P_PEER_CONNECTION,
+  STATES_P2P_REMOTE_PEER_DISCONNECTED,
+  STATES_P2P_ONLINE_PEER_CONNECTION,
+  STATES_P2P_PEER_SIGNING_OUT,
 
   ERROR_P2P_SERVER_TIME_OUT,
   ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE,
   ERROR_P2P_PEER_NO_THIS_PEER,
+  ERROR_CAN_NOT_SEND_MESSAGE,
   //////////////////////////////////////////////
   
   //////////////////////////////////////////////

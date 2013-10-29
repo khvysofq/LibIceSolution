@@ -1,13 +1,17 @@
 #include "mediator_pattern.h"
 #include "talk/base/logging.h"
 
-AbstractICEConnection::AbstractICEConnection(
-  AbstractP2PServerConnection *p2p_server_connection)
-  :p2p_server_connection_(p2p_server_connection)
+AbstractICEConnection::AbstractICEConnection()
+  :p2p_server_connection_(NULL)
 {
   //p2p server to ice part initiator
-  p2p_server_connection_->SignalReceiveMessageFromRemotePeer.connect(
-    this,&AbstractICEConnection::OnReceiveMessageFromRemotePeer);
+}
+void AbstractICEConnection::set_p2p_server_connection(
+  AbstractP2PServerConnection
+  *p2p_server_connection){
+    p2p_server_connection_ = p2p_server_connection;
+    p2p_server_connection_->SignalReceiveMessageFromRemotePeer.connect(
+      this,&AbstractICEConnection::OnReceiveMessageFromRemotePeer);
 }
 
 int AbstractICEConnection::set_local_peer_name(
@@ -31,11 +35,17 @@ int AbstractICEConnection::GetRemotePeerIdByName(std::string peer_name) const
   return 0;
 }
 
-AbstractP2PServerConnection::AbstractP2PServerConnection(
-  AbstractICEConnection *ice_connection)
-  :ice_connection_(ice_connection)
+
+AbstractP2PServerConnection::AbstractP2PServerConnection()
+  :ice_connection_(NULL)
 {
   //ice to p2p server part initiator
+}
+void AbstractP2PServerConnection::set_ice_connection(
+  AbstractICEConnection * ice_connection)
+{
+  ice_connection_ = ice_connection;
   ice_connection_->SignalSendMessageToRemote.connect(this,
     &AbstractP2PServerConnection::OnSendMessageToRemotePeer);
+
 }

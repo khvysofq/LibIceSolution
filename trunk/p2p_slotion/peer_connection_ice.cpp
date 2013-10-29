@@ -11,14 +11,11 @@ public:
   int send_data_len_;
 };
 
-PeerConnectionIce::PeerConnectionIce(AbstractP2PServerConnection 
-                                     *p2p_server_connection,
-                                     talk_base::Thread *worker_thread,
+PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
                                      talk_base::Thread *signal_thread,
                                      std::string local_peer_name)
 
-                                     :AbstractICEConnection(p2p_server_connection),
-                                     worker_thread_(worker_thread),
+                                     :worker_thread_(worker_thread),
                                      signal_thread_(signal_thread),
                                      tunnel_session_client_(NULL),
                                      local_tunnel_(NULL),

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AbstractICEConnection" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAACAABAAAAAAEAAAAACAAYQIIAACAAAAAAQAAAMgAw=</HashCode>
+      <FileName>mediator_pattern.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PeerConnectionIce" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAFIAAAAAAABAEAAACQBAAAMQIAAEACMAAAMgAA=</HashCode>
+      <FileName>peer_connection_ice.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AbstractP2PServerConnection" Collapsed="true">
+    <Position X="4" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAgAAAAAAAAAACAUAIAAAAAAAAAAAAAAgAAQg=</HashCode>
+      <FileName>mediator_pattern.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Microsoft YaHei" Size="9" />
+</ClassDiagram>

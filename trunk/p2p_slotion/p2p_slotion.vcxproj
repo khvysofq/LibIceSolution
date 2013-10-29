@@ -58,7 +58,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Crypt32.lib;Secur32.lib;Iphlpapi.lib;libjingle.lib;ws2_32.lib;winmm.lib;libjingle_p2p.lib;expat.lib;Wininet.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>expat.lib;Crypt32.lib;Secur32.lib;Iphlpapi.lib;libjingle.lib;ws2_32.lib;winmm.lib;libjingle_p2p.lib;Wininet.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\build\Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -83,6 +83,8 @@
     <ClInclude Include="CoreP2PMediator.h" />
     <ClInclude Include="defaults.h" />
     <ClInclude Include="mediator_pattern.h" />
+    <ClInclude Include="p2p_user_client.h" />
+    <ClInclude Include="peer_connection_server.h" />
     <ClInclude Include="peer_connection_ice.h" />
   </ItemGroup>
   <ItemGroup>
@@ -90,7 +92,12 @@
     <ClCompile Include="defaults.cc" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mediator_pattern.cpp" />
+    <ClCompile Include="p2p_user_client.cpp" />
+    <ClCompile Include="peer_connection_server.cc" />
     <ClCompile Include="peer_connection_ice.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
