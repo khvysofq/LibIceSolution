@@ -61,7 +61,7 @@ enum StatesChangeType
   ERROR_P2P_SERVER_TIME_OUT,
   ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE,
   ERROR_P2P_PEER_NO_THIS_PEER,
-  ERROR_CAN_NOT_SEND_MESSAGE,
+  ERROR_P2P_CAN_NOT_SEND_MESSAGE,
   //////////////////////////////////////////////
   
   //////////////////////////////////////////////

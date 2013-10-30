@@ -4,6 +4,7 @@
 #include "talk/base/sigslot.h"
 #include "talk/base/messagehandler.h"
 #include "talk/base/thread.h"
+#include "talk/base/stream.h"
 
 #include "defaults.h"
 #include "mediator_pattern.h"
@@ -21,9 +22,11 @@ public:
   void Initiatlor();
   void StartRun();
   void Destory();
+
+  void ConnectionToPeer(int peer_id);
   //p2p ICE part
   void OnStatesChange(StatesChangeType states_type);
-  void OnReceiveDataFromLoweLayer(char *data, int len);
+  void OnReceiveDataFromLoweLayer(talk_base::StreamInterface* stream);
   sigslot::signal2<char *, int> SignalSendDataToLowLayer;
 
   //p2p server part

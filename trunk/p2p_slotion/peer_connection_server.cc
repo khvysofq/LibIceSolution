@@ -108,7 +108,7 @@ const Peers& PeerConnectionServer::peers() const {
 }
 
 
-void PeerConnectionServer::ConnectP2PServer() 
+void PeerConnectionServer::SignInP2PServer() 
 {
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
 
@@ -156,6 +156,11 @@ void PeerConnectionServer::DoConnect() {
   control_socket_.reset(CreateClientSocket(server_address_.ipaddr().family()));
   hanging_get_.reset(CreateClientSocket(server_address_.ipaddr().family()));
   InitSocketSignals();
+
+  if(local_peer_name_.empty()){
+    local_peer_name_ = GetCurrentComputerUserName();
+    local_peer_name_ += JID_DEFAULT_DOMAIN;
+  }
   char buffer[1024];
   sprintfn(buffer, sizeof(buffer),
     "GET /sign_in?%s HTTP/1.0\r\n\r\n", local_peer_name_.c_str());
@@ -594,7 +599,7 @@ void PeerConnectionServer::OnMessage(talk_base::Message* msg) {
       if (!SendToPeer(params->remote_peer_id_, *send_msg) 
         && params->remote_peer_id_ != -1) {
           LOG(LS_ERROR) << "SendToPeer failed";
-          SignalStatesChange(ERROR_CAN_NOT_SEND_MESSAGE);
+          SignalStatesChange(ERROR_P2P_CAN_NOT_SEND_MESSAGE);
       }
       delete send_msg;
       delete params;

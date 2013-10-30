@@ -44,7 +44,7 @@ public:
   /////////////////////////////////////////////////////////
   //ice to up layer interface
   virtual void OnReceiveDataFromUpLayer(char *, int) = 0;
-  sigslot::signal2<char *, int> SignalSendDataToUpLayer;
+  sigslot::signal1<talk_base::StreamInterface*> SignalSendDataToUpLayer;
 protected:
   void Add_remote_peer(int peer_id, std::string peer_name){
     remote_peers_.insert(
@@ -84,7 +84,7 @@ public:
     server_address_.SetIP(server);
     server_address_.SetPort(port);
   }
-  virtual void ConnectP2PServer() = 0;
+  virtual void SignInP2PServer() = 0;
   virtual bool SignOutP2PServer() = 0;
   sigslot::signal1<StatesChangeType>  SignalStatesChange;
   sigslot::signal1<const Peers>       SignalOnlinePeers;
@@ -92,6 +92,7 @@ public:
   //ice to p2p server interface
   virtual void OnSendMessageToRemotePeer(std::string&, int) = 0;
   sigslot::signal2<std::string,int> SignalReceiveMessageFromRemotePeer;
+
 
 protected:
   AbstractICEConnection       *ice_connection_;

@@ -19,6 +19,8 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "python_socketserver", "pyth
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "python_fileserver", "..\python_fileserver\python_fileserver.pyproj", "{38A78EA2-8DA0-471A-83B1-6FB1E0C94897}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SocketServerTest", "SocketServerTest\SocketServerTest.vcxproj", "{06F4C656-8760-44C6-BED3-52AF82F4EBDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,6 +149,18 @@ Global
 		{38A78EA2-8DA0-471A-83B1-6FB1E0C94897}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{38A78EA2-8DA0-471A-83B1-6FB1E0C94897}.Release|Win32.ActiveCfg = Release|Any CPU
 		{38A78EA2-8DA0-471A-83B1-6FB1E0C94897}.Release|x64.ActiveCfg = Release|Any CPU
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Debug|Win32.Build.0 = Debug|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Debug|x64.ActiveCfg = Debug|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Release|Any CPU.ActiveCfg = Release|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Release|Win32.ActiveCfg = Release|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Release|Win32.Build.0 = Release|Win32
+		{06F4C656-8760-44C6-BED3-52AF82F4EBDC}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

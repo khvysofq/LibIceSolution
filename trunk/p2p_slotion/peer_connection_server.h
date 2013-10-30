@@ -77,7 +77,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
 
 
   //connect check the state and then call the doconnect function
-  virtual void ConnectP2PServer();
+  virtual void SignInP2PServer();
 
   virtual void OnSendMessageToRemotePeer(std::string& message, int peer_id);
   //call the SendToPeer function the peer_id is it

@@ -46,7 +46,16 @@ void P2PUserClient::StartRun(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
   p2p_server_connection_->set_server_address(ServerAddr);
   p2p_server_connection_->set_local_peer_name("GuangleiHe@p2p_solution.com");
-  p2p_server_connection_->ConnectP2PServer();
+  p2p_server_connection_->SignInP2PServer();
+
+  p2p_ICE_connection_->set_local_peer_name("GuangleiHe@p2p_solution.com");
+
+}
+
+void P2PUserClient::ConnectionToPeer(int peer_id){
+  LOG(LS_INFO) << "+++" << __FUNCTION__;
+
+
 }
 
 void P2PUserClient::Destory(){
@@ -71,6 +80,8 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
       std::cout << "\tSTATES_ICE_START_PEER_CONNECTION" << std::endl;
       break;
     }
+
+
   case STATES_P2P_SERVER_LOGIN_SUCCEED:
     {
       std::cout << "\tSTATES_P2P_SERVER_LOGIN_SUCCEED" << std::endl;
@@ -111,7 +122,7 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
       std::cout << "\tERROR_P2P_PEER_NO_THIS_PEER" << std::endl;
       break;
     }
-  case ERROR_CAN_NOT_SEND_MESSAGE:
+  case ERROR_P2P_CAN_NOT_SEND_MESSAGE:
     {
       std::cout << "\tERROR_CAN_NOT_SEND_MESSAGE" << std::endl;
       break;
@@ -120,7 +131,7 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
   }
 }
 
-void P2PUserClient::OnReceiveDataFromLoweLayer(char *data, int len){
+void P2PUserClient::OnReceiveDataFromLoweLayer(talk_base::StreamInterface* stream){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
 
 }

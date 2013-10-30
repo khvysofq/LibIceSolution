@@ -108,7 +108,16 @@ void PeerConnectionIce::OnReceiveMessageFromRemotePeer(std::string msg,
 
 void PeerConnectionIce::OnReceiveDataFromUpLayer(char *data, int len)
 {
-
+  LOG(LS_INFO) << "===" << __FUNCTION__;
+  size_t total = 0;
+  size_t res = 0;
+  while((int)total < len)
+  {
+    local_tunnel_->Write(&data[total],len - total,
+      &res,NULL);
+    total += res;
+    LOG(LS_INFO) << "\tTunnelMessageType::SEND_DATA. write date length \t" <<res;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -159,6 +168,9 @@ void PeerConnectionIce::OnStreamEvent(talk_base::StreamInterface* stream,
   if (events & talk_base::SE_READ) {
     if (stream == local_tunnel_) {
       LOG(LS_INFO) <<"\ttalk_base::SE_READ";
+      if(error != 0){
+
+      }
     }
   }
 
@@ -185,10 +197,8 @@ void PeerConnectionIce::OnMessage(talk_base::Message* msg){
       LOG(LS_INFO) << "\tREMOTE_PEER_MESSAGE";
       MessageSendData* params = 
         static_cast<MessageSendData*>(msg->pdata);
-      //第一，先把数据转换成XML格式。
       buzz::XmlElement* data = 
         buzz::XmlElement::ForStr(params->send_data_);
-      //判断消息的格式，是一个请求，还是一个响应？
       bool response = data->Attr(buzz::QN_TYPE) == buzz::STR_RESULT;
       if(!response)
       {
