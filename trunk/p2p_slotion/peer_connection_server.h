@@ -67,6 +67,13 @@ class PeerConnectionServer : public talk_base::MessageHandler,
     SIGNING_OUT,
   };
 
+  struct PendMessage{
+    PendMessage(int remote_id, std::string *message)
+      :remote_id_(remote_id),message_(message){}
+    int         remote_id_;
+    std::string *message_;
+  };
+
   PeerConnectionServer();
   ~PeerConnectionServer();
   
@@ -157,7 +164,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
   State state_;
   Peers peers_;
   int   my_id_;
-  std::deque<std::string*>       pending_messages_;
+  std::deque<PendMessage *>       pending_messages_;
 };
 
 #endif  // PEERCONNECTION_SAMPLES_CLIENT_PEER_CONNECTION_CLIENT_H_

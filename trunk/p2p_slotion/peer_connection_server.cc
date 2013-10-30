@@ -181,11 +181,11 @@ void PeerConnectionServer::OnSendMessageToRemotePeer(std::string& message,
     // For convenience, we always run the message through the queue.
     // This way we can be sure that messages are sent to the server
     // in the same order they were signaled without much hassle.
-    pending_messages_.push_back(msg);
+    pending_messages_.push_back(new PendMessage(peer_id,msg));
   }
   if(!pending_messages_.empty())
     talk_base::Thread::Current()->PostDelayed(20,this,
-    P2P_SEND_PENDING_MESSAGE,new MessageDataRemoteID(peer_id));
+    P2P_SEND_PENDING_MESSAGE);
 }
 
 bool PeerConnectionServer::SendToPeer(int peer_id, const std::string& message) {
@@ -244,7 +244,6 @@ bool PeerConnectionServer::SignOutP2PServer() {
   } else {
     state_ = SIGNING_OUT_WAITING;
   }
-
   return true;
 }
 
@@ -261,11 +260,8 @@ void PeerConnectionServer::Close() {
   my_id_ = -1;
   state_ = NOT_CONNECTED;
 }
-int ConnectControlSocket_count = 0;
-int OnConnect_count = 0;
 bool PeerConnectionServer::ConnectControlSocket() {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__ << " ConnectControlSocket_count = "
-    << ConnectControlSocket_count ++;
+  LOG(LS_INFO) <<"@@@"<<__FUNCTION__ ;
   ASSERT(control_socket_->GetState() == talk_base::Socket::CS_CLOSED);
   int err = control_socket_->Connect(server_address_);
   if (err == SOCKET_ERROR) {
@@ -277,8 +273,7 @@ bool PeerConnectionServer::ConnectControlSocket() {
 }
 
 void PeerConnectionServer::OnConnect(talk_base::AsyncSocket* socket) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__ << " OnConnect_count = "
-    << OnConnect_count++;
+  LOG(LS_INFO) <<"@@@"<<__FUNCTION__ ;
   ASSERT(!onconnect_data_.empty());
   size_t sent = socket->Send(onconnect_data_.c_str(), 
     onconnect_data_.length());
@@ -294,7 +289,7 @@ void PeerConnectionServer::OnHangingGetConnect(talk_base::AsyncSocket* socket) {
     "GET /wait?peer_id=%i HTTP/1.0\r\n\r\n", my_id_);
   int len = strlen(buffer);
   int sent = socket->Send(buffer, len);
-  SignalStatesChange(STATES_P2P_SERVER_SEND_WAIT_SUCCEED);
+  //SignalStatesChange(STATES_P2P_SERVER_SEND_WAIT_SUCCEED);
   ASSERT(sent == len);
   UNUSED2(sent, len);
 }
@@ -432,9 +427,6 @@ void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
     if (state_ == SIGNING_IN) {
       ASSERT(hanging_get_->GetState() == talk_base::Socket::CS_CLOSED);
       state_ = CONNECTED;
-      if(!pending_messages_.empty())
-        talk_base::Thread::Current()->PostDelayed(20,this,
-        P2P_SEND_PENDING_MESSAGE);
       hanging_get_->Connect(server_address_);
     }
   }
@@ -592,17 +584,15 @@ void PeerConnectionServer::OnMessage(talk_base::Message* msg) {
   {
     if (!pending_messages_.empty() && !IsSendingMessage()) {
 
-      MessageDataRemoteID* params = 
-        static_cast<MessageDataRemoteID*>(msg->pdata);
-      std::string *send_msg = pending_messages_.front();
+      PendMessage *send_msg = pending_messages_.front();
       pending_messages_.pop_front();
-      if (!SendToPeer(params->remote_peer_id_, *send_msg) 
-        && params->remote_peer_id_ != -1) {
+      if (!SendToPeer(send_msg->remote_id_, *send_msg->message_) 
+        && send_msg->remote_id_ != -1) {
           LOG(LS_ERROR) << "SendToPeer failed";
           SignalStatesChange(ERROR_P2P_CAN_NOT_SEND_MESSAGE);
       }
       delete send_msg;
-      delete params;
+
     }
     if(!pending_messages_.empty())
       talk_base::Thread::Current()->PostDelayed(20,this,
