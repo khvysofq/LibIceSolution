@@ -14,6 +14,7 @@ class PeerConnectionIce
 public:     //user interface
   PeerConnectionIce(talk_base::Thread *worker_thread,
     talk_base::Thread *signal_thread,
+    AbstractP2PServerConnection *p2p_server_connection,
     std::string local_peer_name = "");
 
 public:

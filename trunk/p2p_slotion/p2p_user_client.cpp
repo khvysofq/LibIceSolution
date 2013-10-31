@@ -19,14 +19,14 @@ P2PUserClient::~P2PUserClient(){
 
 void P2PUserClient::Initiatlor(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
-
-  p2p_ICE_connection_   = new PeerConnectionIce(worker_thread_,
-    signal_thread_);
-  p2p_server_connection_ = new PeerConnectionServer();
-  p2p_ICE_connection_->set_p2p_server_connection(p2p_server_connection_);
-  p2p_server_connection_->set_ice_connection(p2p_ICE_connection_);
   
-  //p2p ICE part
+  p2p_server_connection_ = new PeerConnectionServer();
+  p2p_ICE_connection_   = new PeerConnectionIce(worker_thread_,
+    signal_thread_,p2p_server_connection_);
+  //p2p_ICE_connection_->set_p2p_server_connection(p2p_server_connection_);
+  //p2p_server_connection_->set_ice_connection(p2p_ICE_connection_);
+  
+  //p2p ICE user client part
   p2p_ICE_connection_->SignalStatesChange.connect(this,
     &P2PUserClient::OnStatesChange);
   p2p_ICE_connection_->SignalSendDataToUpLayer.connect(this,
@@ -34,7 +34,7 @@ void P2PUserClient::Initiatlor(){
   SignalSendDataToLowLayer.connect(p2p_ICE_connection_,
     &AbstractICEConnection::OnReceiveDataFromUpLayer);
 
-  //p2p server part
+  //p2p server user client part
   p2p_server_connection_->SignalStatesChange.connect(this,
     &P2PUserClient::OnStatesChange);
   p2p_server_connection_->SignalOnlinePeers.connect(this,

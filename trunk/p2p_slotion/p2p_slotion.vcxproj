@@ -86,6 +86,7 @@
     <ClInclude Include="p2p_user_client.h" />
     <ClInclude Include="peer_connection_server.h" />
     <ClInclude Include="peer_connection_ice.h" />
+    <ClInclude Include="virtual_network.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreP2PMediator.cpp" />
@@ -95,6 +96,7 @@
     <ClCompile Include="p2p_user_client.cpp" />
     <ClCompile Include="peer_connection_server.cc" />
     <ClCompile Include="peer_connection_ice.cpp" />
+    <ClCompile Include="virtual_network.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
