@@ -54,7 +54,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////
-//  Abstract p2p server class declaration
+//  Abstract p2p ICE class declaration
 ////////////////////////////////////////////////////////////////////////
 class AbstractICEConnection
   :public sigslot::has_slots<>
@@ -122,16 +122,45 @@ public:
   }
 public:
   //application layer
-  sigslot::signal3<int ,char *, int> SignalSendDataToUpLayer;
-  virtual void OnReceiveDataFromUpLayer(int,char *, int) = 0;
+  sigslot::signal4<int ,SocketType,char *, int> SignalSendDataToUpLayer;
+  virtual void OnReceiveDataFromUpLayer(int,SocketType,char *, int) = 0;
 public:
   //ice part 
   sigslot::signal2<char *, int> SignalSendDataToLowLayer;
   virtual void OnReceiveDataFromLowLayer(talk_base::StreamInterface* ) = 0;
-private:
-  
+
 private:
   AbstractICEConnection *p2p_ice_connection_;
+  DISALLOW_EVIL_CONSTRUCTORS(AbstractVirtualNetwork);
+};
+
+
+
+////////////////////////////////////////////////////////////////////////
+//  Abstract Virtual Application Layer
+////////////////////////////////////////////////////////////////////////
+class AbstarctVirtualApplication :public sigslot::has_slots<>
+{
+public:
+  AbstarctVirtualApplication(AbstractVirtualNetwork *virtual_network)
+    :virtual_network_(virtual_network){
+
+      virtual_network_->SignalSendDataToUpLayer.connect(this,
+        &AbstarctVirtualApplication::OnReceiveDateFromLowLayer);
+      SignalSendDataToLowLayer.connect(virtual_network_,
+        &AbstractVirtualNetwork::OnReceiveDataFromUpLayer);
+  }
+  virtual bool ListenATcpPort(int port) = 0;
+  //public:
+  //  virtual void BindTcpPort(int tcp_port) = 0;
+  //  virtual void BindUdpPort(int udp_port) = 0;
+public: // virtual network interface
+  sigslot::signal4<int ,SocketType,char *, int> SignalSendDataToLowLayer;
+  virtual void OnReceiveDateFromLowLayer(int socket, SocketType socket_type,
+    char *data, int len) = 0;
+private:
+  AbstractVirtualNetwork  *virtual_network_;
+  DISALLOW_EVIL_CONSTRUCTORS(AbstarctVirtualApplication);
 };
 
 #endif

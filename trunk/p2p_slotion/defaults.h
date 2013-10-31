@@ -41,6 +41,11 @@ const std::string HTTP_USER_AGENT     = "HTTP_USER_AGENT";
 const std::string JID_DEFAULT_DOMAIN  = "@p2p_solution.com";
 const std::string DEFAULT_DECRIBE    = "p2p solution test";
 
+//virtual network layer help define
+const int NON_SOCKET                =  0;
+typedef unsigned short SocketType;
+const SocketType          TCP_SOCKET = 1;
+const SocketType          UDP_SOCKET = 2;
 
 std::string GetEnvVarOrDefault(const char* env_var_name,
                                const char* default_value);
