@@ -10,6 +10,7 @@
 #include "mediator_pattern.h"
 
 const talk_base::SocketAddress ServerAddr("192.168.1.116",8888);
+const int RECEIVE_BUFFER_LENGTH   = 1024 * 8;
 
 class P2PUserClient :public sigslot::has_slots<>,
   public talk_base::MessageHandler
@@ -27,7 +28,7 @@ public:
   //p2p ICE part
   void OnStatesChange(StatesChangeType states_type);
   void OnReceiveDataFromLoweLayer(talk_base::StreamInterface* stream);
-  sigslot::signal2<char *, int> SignalSendDataToLowLayer;
+  sigslot::signal2<const char *, int> SignalSendDataToLowLayer;
 
   //p2p server part
   void OnOnlinePeers(const Peers peers);
@@ -35,11 +36,16 @@ public:
   // implements the MessageHandler interface
   void OnMessage(talk_base::Message* msg);
 private:
+  void SendRandomData();
+private:
+  AbstractVirtualNetwork      *p2p_virtual_network_;
   AbstractICEConnection       *p2p_ICE_connection_;
   AbstractP2PServerConnection *p2p_server_connection_;
 
   talk_base::Thread           *worker_thread_;
   talk_base::Thread           *signal_thread_;
+  bool                        initiator_;
+  char                        *receive_buffer_;
 };
 
 #endif

@@ -104,7 +104,7 @@ bool PeerConnectionServer::is_connected() const {
 
 const Peers& PeerConnectionServer::peers() const {
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
-  return peers_;
+  return online_peers_;
 }
 
 
@@ -173,7 +173,7 @@ void PeerConnectionServer::DoConnect() {
     SignalStatesChange(ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE);
   }
 }
-void PeerConnectionServer::OnSendMessageToRemotePeer(std::string& message, 
+void PeerConnectionServer::OnSendMessageToRemotePeer(const std::string& message, 
                                                      int peer_id)
 {
   std::string* msg = new std::string(message);
@@ -252,7 +252,7 @@ void PeerConnectionServer::Close() {
   control_socket_->Close();
   hanging_get_->Close();
   onconnect_data_.clear();
-  peers_.clear();
+  online_peers_.clear();
   if (resolver_ != NULL) {
     ((talk_base::AsyncResolver*)(resolver_))->Destroy(false);
     resolver_ = NULL;
@@ -405,9 +405,9 @@ void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
             bool connected;
             if (ParseEntry(control_data_.substr(pos, eol - pos), &name, &id,
               &connected) && id != my_id_) {
-                peers_[id] = name;
+                online_peers_[id] = name;
                 LOG(LS_INFO)<<"Current Connection Peer\t"<<id<<"\t"<<name;
-                SignalOnlinePeers(peers_);
+                SignalOnlinePeers(online_peers_);
             }
             pos = eol + 1;
           }
@@ -434,8 +434,8 @@ void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
 //void PeerConnectionServer::ShowServerConnectionPeer()
 //{
 //  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
-//  for(Peers::iterator iter =  peers_.begin();
-//    iter != peers_.end();iter++)
+//  for(Peers::iterator iter =  online_peers_.begin();
+//    iter != online_peers_.end();iter++)
 //    LOG(LS_INFO)<<iter->first<<"\t"<<iter->second;
 //}
 //void PeerConnectionServer::set_server_ip(talk_base::SocketAddress server_address)
@@ -466,11 +466,11 @@ void PeerConnectionServer::OnHangingGetRead(talk_base::AsyncSocket* socket) {
         if (ParseEntry(notification_data_.substr(pos), &name, &id,
           &connected)) {
             if (connected) {
-              peers_[id] = name;
-              SignalOnlinePeers(peers_);
+              online_peers_[id] = name;
+              SignalOnlinePeers(online_peers_);
             } else {
-              peers_.erase(id);
-              SignalOnlinePeers(peers_);
+              online_peers_.erase(id);
+              SignalOnlinePeers(online_peers_);
             }
         }
       } else {

@@ -1,5 +1,6 @@
-#include "mediator_pattern.h"
 #include "talk/base/logging.h"
+#include "mediator_pattern.h"
+#include "defaults.h"
 
 AbstractICEConnection::AbstractICEConnection(AbstractP2PServerConnection *
                                              p2p_server_connection)
@@ -16,12 +17,12 @@ AbstractICEConnection::AbstractICEConnection(AbstractP2PServerConnection *
 int AbstractICEConnection::set_local_peer_name(
   std::string local_peer_name)
 {
-  if(local_peer_name.find('/')
-    || local_peer_name.find('@')
-    || local_peer_name.find('.')){
-    LOG(LS_ERROR) << "the peer_name string can't occur '/', '@' or '.' character";
-    return -1;
-  }
+  //if(local_peer_name.find('/')
+  //  || local_peer_name.find('@')
+  //  || local_peer_name.find('.')){
+  //  LOG(LS_ERROR) << "the peer_name string can't occur '/', '@' or '.' character";
+  //  return -1;
+  //}
   local_peer_name_ = local_peer_name;
   return 0;
 }
@@ -38,13 +39,16 @@ int AbstractICEConnection::GetRemotePeerIdByName(std::string peer_name) const
 AbstractP2PServerConnection::AbstractP2PServerConnection()
 //  :ice_connection_(NULL)
 {
+    local_peer_name_ = GetCurrentComputerUserName();
+    local_peer_name_ += JID_DEFAULT_DOMAIN;
   //ice to p2p server part initiator
 }
-//void AbstractP2PServerConnection::set_ice_connection(
-//  AbstractICEConnection * ice_connection)
-//{
-//  ice_connection_ = ice_connection;
-//  ice_connection_->SignalSendMessageToRemote.connect(this,
-//    &AbstractP2PServerConnection::OnSendMessageToRemotePeer);
-//
-//}
+std::string AbstractP2PServerConnection::get_local_name(){
+  return local_peer_name_;
+}
+std::string AbstractP2PServerConnection::get_remote_name(int peer_id) const{
+  Peers::const_iterator iter = online_peers_.find(peer_id);
+  if(iter == online_peers_.end())
+    return "";
+  return iter->second;
+}

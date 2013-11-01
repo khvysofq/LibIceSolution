@@ -2,6 +2,7 @@
 #include "peer_connection_ice.h"
 #include "defaults.h"
 
+talk_base::SocketAddress  KStunAddr("stun.endigovoip.com",3478);
 class MessageSendData : public talk_base::MessageData
 {
 public:
@@ -22,7 +23,10 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
                                      signal_thread_(signal_thread),
                                      tunnel_session_client_(NULL),
                                      local_tunnel_(NULL),
-                                     local_peer_name_(local_peer_name)
+                                     local_peer_name_(local_peer_name),
+                                     remote_id_(-1),
+                                     remote_jid_(NULL),
+                                     local_jid_(NULL)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
   //-----------------------Part 1: initialize P2PMediator part
@@ -31,6 +35,8 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
   basic_network_manager_  =   new talk_base::BasicNetworkManager();
   http_allocator_         =   new cricket::HttpPortAllocator(
     basic_network_manager_,HTTP_USER_AGENT);
+  stun_hosts_.push_back(KStunAddr);
+  http_allocator_->SetStunHosts(stun_hosts_);
 
   //initialize session manager
   session_manager_        =   new cricket::SessionManager(http_allocator_,
@@ -39,9 +45,9 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
     &PeerConnectionIce::OnRequestSignaling);
   session_manager_->SignalOutgoingMessage.connect(this,
     &PeerConnectionIce::OnOutgoingMessage);
-
-  //initialize tunnel session client
-  local_jid_ = GetJid();
+  
+  
+  local_jid_ = new buzz::Jid(local_peer_name_);
   tunnel_session_client_  =   new cricket::TunnelSessionClient(
     *local_jid_,session_manager_);
   tunnel_session_client_->SignalIncomingTunnel.connect(this,
@@ -49,11 +55,14 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
 };
 
 void PeerConnectionIce::DestroyPeerConnectionIce(){
+  if(remote_jid_)
+    delete remote_jid_;
   LOG(LS_INFO) << "===" << __FUNCTION__;
   delete basic_network_manager_;
   LOG(LS_INFO) << "\t" << "delete basic_network_manager succeed";
   delete http_allocator_;
   LOG(LS_INFO) << "\t" << "delete http_allocator_ succeed";
+  if(local_jid_)
   delete local_jid_;
   LOG(LS_INFO) << "\t" << "delete local_jid_ succeed";
 
@@ -76,12 +85,19 @@ PeerConnectionIce::~PeerConnectionIce(){
 void PeerConnectionIce::ConnectionToRemotePeer(int remote_peer_id, 
                                          std::string remote_peer_name)
 {
+  LOG(LS_INFO) << "===" << __FUNCTION__;
+  ASSERT(remote_id_ == -1);
+  remote_id_ = remote_peer_id;
+
   //TODO:(guangleiHe) there has a bug.
   //The current peer connection only connect one peer
   Add_remote_peer(remote_peer_id,remote_peer_name);
-  buzz::Jid current_remote_jid(remote_peer_name);
+  
+  //initialize tunnel session client
+  remote_jid_ = new buzz::Jid(remote_peer_name);
+  LOG(LS_INFO) << "\t remote jid is" << remote_jid_->Str();
   local_tunnel_ = tunnel_session_client_->CreateTunnel(
-    current_remote_jid,DEFAULT_DECRIBE);
+    *remote_jid_,DEFAULT_DECRIBE);
   local_tunnel_->SignalEvent.connect(this,
     &PeerConnectionIce::OnStreamEvent);
   SignalStatesChange(STATES_ICE_START_PEER_CONNECTION);
@@ -97,19 +113,22 @@ buzz::Jid *PeerConnectionIce::GetJid(){
   return new buzz::Jid(jid_string);
 }
 
-void PeerConnectionIce::OnReceiveMessageFromRemotePeer(std::string msg, 
+void PeerConnectionIce::OnReceiveMessageFromRemotePeer(const std::string msg, 
                                                        int peer_id)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
-  LOG(LS_VERBOSE) << "==============================================";
-  LOG(LS_VERBOSE) << "\t debug information for out going message";
-  LOG(LS_VERBOSE) << msg;
-  LOG(LS_VERBOSE) << "==============================================";
+  LOG(LS_INFO) << "**********************************************";
+  LOG(LS_INFO) << "\t debug information for out going message";
+  LOG(LS_INFO) << msg;
+  LOG(LS_INFO) << "**********************************************";
+
+  if(remote_id_ == -1)
+    remote_id_ = peer_id;
   signal_thread_->Post(this,REMOTE_PEER_MESSAGE,
     new MessageSendData(msg));
 }
 
-void PeerConnectionIce::OnReceiveDataFromUpLayer(char *data, int len)
+void PeerConnectionIce::OnReceiveDataFromUpLayer(const char *data, int len)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
   size_t total = 0;
@@ -137,16 +156,16 @@ void PeerConnectionIce::OnOutgoingMessage(cricket::SessionManager* manager,
   LOG(LS_INFO) << "===" << __FUNCTION__;
   buzz::XmlElement* new_stanza    
     =   new buzz::XmlElement(*stanza);
-  std::string remote_name = stanza->Attr(buzz::QN_NAME);
   new_stanza->AddAttr(buzz::QN_FROM, tunnel_session_client_->jid().Str());
   
   SignalSendMessageToRemote(new_stanza->Str(),
-    GetRemotePeerIdByName(remote_name));
+    remote_id_);
 
-  LOG(LS_VERBOSE) << "==============================================";
-  LOG(LS_VERBOSE) << "\t debug information for out going message";
-  LOG(LS_VERBOSE) << new_stanza->Str();
-  LOG(LS_VERBOSE) << "==============================================";
+  LOG(LS_INFO) << "==============================================";
+  LOG(LS_INFO) << "\t debug information for out going message";
+  LOG(LS_INFO) << new_stanza->Str();
+  LOG(LS_INFO) << tunnel_session_client_->jid().Str();
+  LOG(LS_INFO) << "==============================================";
 
   delete new_stanza;
 
@@ -161,18 +180,20 @@ void PeerConnectionIce::OnIncomingTunnel(cricket::TunnelSessionClient* client,
   local_tunnel_ = client->AcceptTunnel(session);
   local_tunnel_->SignalEvent.connect(this,
     &PeerConnectionIce::OnStreamEvent);
+
 }
 void PeerConnectionIce::OnStreamEvent(talk_base::StreamInterface* stream, 
                                       int events,
                                       int error)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
+  LOG(LS_INFO) << "\t Error code is >>>>>>>>>>>>>>>\t" << error;
 
   if (events & talk_base::SE_READ) {
     if (stream == local_tunnel_) {
       LOG(LS_INFO) <<"\ttalk_base::SE_READ";
-      if(error != 0){
-
+      if(error == 0){
+        SignalSendDataToUpLayer(stream);
       }
     }
   }
@@ -180,12 +201,15 @@ void PeerConnectionIce::OnStreamEvent(talk_base::StreamInterface* stream,
   if (events & talk_base::SE_WRITE) {
     if (stream == local_tunnel_) {
       LOG(LS_INFO) << "\ttalk_base::SE_WRITE";
+      SignalStatesChange(STATES_ICE_TUNNEL_SEND_DATA);
+      
     }
   }
 
   if (events & talk_base::SE_CLOSE) {
     if (stream == local_tunnel_) {
       LOG(LS_INFO) << "\ttalk_base::SE_CLOSE";
+      SignalStatesChange(STATES_ICE_TUNNEL_CLOSED);
     }
   }
 }

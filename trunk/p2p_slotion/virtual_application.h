@@ -2,17 +2,43 @@
 #define VIRTUAL_APPLICATION__H_
 #include "talk/base/asyncpacketsocket.h"
 #include "mediator_pattern.h"
-typedef std::vector<talk_base::AsyncPacketSocket> PacketSockets;
+
+const int P2PSC_CREATE_CLIENT_CONNECTION_     = 0XFF;
+const int P2PSC_CREATE_CLIENT_CONNECTION_OK_  = 0XFF01;
+
+struct P2PSystemCommand{
+  int command_type_;
+  int local_port_;
+  int remote_port_;
+};
+
+const talk_base::SocketAddress KLocalServerAddr("127.0.0.1",554);
+//typedef std::vector<talk_base::AsyncPacketSocket> PacketSockets;
 class VirtualApplication : public AbstarctVirtualApplication{
 public:
   VirtualApplication(AbstractVirtualNetwork *virtual_network);
+  void Destory();
+  ~VirtualApplication();
+public:
+  virtual bool ListenATcpPort(int port);
 public:
   void OnReceiveDateFromLowLayer(int socket, SocketType socket_type,
-    char *data, int len);
-  virtual bool ListenATcpPort(int port);
+    const char *data, int len);
+  /////tcp socket call back function
+  void OnNewConnection(talk_base::AsyncPacketSocket* socket, 
+    talk_base::AsyncPacketSocket* new_socket);
+  void OnReadyToSend(talk_base::AsyncPacketSocket *socket);
+  void OnReadPacket(talk_base::AsyncPacketSocket* socket, const char* data, 
+    size_t len, const talk_base::SocketAddress& addr);
 private:
-  talk_base::Thread   *current_thread_;
-  PacketSockets       packet_sockets_;
+  void CreateSystemCommand(int command_type,int local_port,int remote_prot);
+  void CreateClientSocket(talk_base::SocketAddress &server_addr);
+private:
+  talk_base::Thread            *current_thread_;
+  //PacketSockets       packet_sockets_;
+  talk_base::AsyncSocket       *socket_;
+  talk_base::AsyncPacketSocket *tcp_packet_socket_;
+  P2PSystemCommand             *p2p_system_command_;
 };
 
 

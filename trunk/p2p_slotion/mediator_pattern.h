@@ -27,6 +27,8 @@ public:
   void set_local_peer_name(std::string local_peer_name){
     local_peer_name_ = local_peer_name;
   }
+  std::string get_local_name();
+
   void set_server_address(talk_base::SocketAddress server_address){
     server_address_ = server_address;
   }
@@ -34,18 +36,20 @@ public:
     server_address_.SetIP(server);
     server_address_.SetPort(port);
   }
+
+  std::string get_remote_name(int peer_id) const;
+
   virtual void SignInP2PServer() = 0;
   virtual bool SignOutP2PServer() = 0;
   sigslot::signal1<StatesChangeType>  SignalStatesChange;
   sigslot::signal1<const Peers>       SignalOnlinePeers;
 
   //ice to p2p server interface
-  virtual void OnSendMessageToRemotePeer(std::string&, int) = 0;
-  sigslot::signal2<std::string,int> SignalReceiveMessageFromRemotePeer;
+  virtual void OnSendMessageToRemotePeer(const std::string&, int) = 0;
+  sigslot::signal2<const std::string,int> SignalReceiveMessageFromRemotePeer;
 
 
 protected:
-  //AbstractICEConnection     *ice_connection_;
   Peers                       online_peers_;
   talk_base::SocketAddress    server_address_;
   std::string                 local_peer_name_;
@@ -67,7 +71,10 @@ public:
   /////////////////////////////////////////////////////////
   //user interface 
   sigslot::signal1<StatesChangeType>  SignalStatesChange;
-
+  
+  virtual void DestroyPeerConnectionIce() = 0;
+  virtual void ConnectionToRemotePeer(int remote_peer_id, 
+    std::string remote_peer_name) = 0;
   //void set_p2p_server_connection(AbstractP2PServerConnection
   //  *p2p_server_connection);
   const Peers get_remote_peers() const { 
@@ -80,12 +87,12 @@ public:
 
   /////////////////////////////////////////////////////////
   //ice to p2p server interface
-  virtual void OnReceiveMessageFromRemotePeer(std::string,int)  = 0;
-  sigslot::signal2<std::string&,int> SignalSendMessageToRemote;
+  virtual void OnReceiveMessageFromRemotePeer(const std::string,int)  = 0;
+  sigslot::signal2<const std::string&,int> SignalSendMessageToRemote;
 
   /////////////////////////////////////////////////////////
   //ice to up layer interface
-  virtual void OnReceiveDataFromUpLayer(char *, int) = 0;
+  virtual void OnReceiveDataFromUpLayer(const char *, int) = 0;
   sigslot::signal1<talk_base::StreamInterface*> SignalSendDataToUpLayer;
 protected:
   void Add_remote_peer(int peer_id, std::string peer_name){
@@ -122,11 +129,11 @@ public:
   }
 public:
   //application layer
-  sigslot::signal4<int ,SocketType,char *, int> SignalSendDataToUpLayer;
-  virtual void OnReceiveDataFromUpLayer(int,SocketType,char *, int) = 0;
+  sigslot::signal4<int ,SocketType,const char *, int> SignalSendDataToUpLayer;
+  virtual void OnReceiveDataFromUpLayer(int,SocketType,const char *, int) = 0;
 public:
   //ice part 
-  sigslot::signal2<char *, int> SignalSendDataToLowLayer;
+  sigslot::signal2<const char *, int> SignalSendDataToLowLayer;
   virtual void OnReceiveDataFromLowLayer(talk_base::StreamInterface* ) = 0;
 
 private:
@@ -155,9 +162,9 @@ public:
   //  virtual void BindTcpPort(int tcp_port) = 0;
   //  virtual void BindUdpPort(int udp_port) = 0;
 public: // virtual network interface
-  sigslot::signal4<int ,SocketType,char *, int> SignalSendDataToLowLayer;
+  sigslot::signal4<int ,SocketType,const char *, int> SignalSendDataToLowLayer;
   virtual void OnReceiveDateFromLowLayer(int socket, SocketType socket_type,
-    char *data, int len) = 0;
+    const char *data, int len) = 0;
 private:
   AbstractVirtualNetwork  *virtual_network_;
   DISALLOW_EVIL_CONSTRUCTORS(AbstarctVirtualApplication);

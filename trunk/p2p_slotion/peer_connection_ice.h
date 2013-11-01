@@ -24,8 +24,8 @@ public:
 
   
   //receive messages that from remote peer by p2p server
-  virtual void OnReceiveMessageFromRemotePeer(std::string, int);
-  virtual void OnReceiveDataFromUpLayer(char *, int);
+  virtual void OnReceiveMessageFromRemotePeer(const std::string, int);
+  virtual void OnReceiveDataFromUpLayer(const char *, int);
 private:    //p2p server function and some help function
   buzz::Jid *GetJid();
 
@@ -62,6 +62,9 @@ private:    //ICE part member
 private:    //p2p server member
   std::string                     local_peer_name_;
   buzz::Jid                       *local_jid_;
+  buzz::Jid                       *remote_jid_;
+  int                             remote_id_;
+  std::vector<talk_base::SocketAddress> stun_hosts_;
 };
 
 

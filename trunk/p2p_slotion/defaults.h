@@ -38,7 +38,7 @@ const int kDefaultServerPort = 8888;
 //////////////////////////////////////////////////////////
 //ICE help define
 const std::string HTTP_USER_AGENT     = "HTTP_USER_AGENT";
-const std::string JID_DEFAULT_DOMAIN  = "@p2p_solution.com";
+const std::string JID_DEFAULT_DOMAIN  = "@Test.com/p2p";
 const std::string DEFAULT_DECRIBE    = "p2p solution test";
 
 //virtual network layer help define
@@ -70,7 +70,9 @@ enum StatesChangeType
   //////////////////////////////////////////////
   
   //////////////////////////////////////////////
-  STATES_ICE_START_PEER_CONNECTION
+  STATES_ICE_START_PEER_CONNECTION,
+  STATES_ICE_TUNNEL_SEND_DATA,
+  STATES_ICE_TUNNEL_CLOSED
 };
 
 

@@ -86,7 +86,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
   //connect check the state and then call the doconnect function
   virtual void SignInP2PServer();
 
-  virtual void OnSendMessageToRemotePeer(std::string& message, int peer_id);
+  virtual void OnSendMessageToRemotePeer(const std::string& message, int peer_id);
   //call the SendToPeer function the peer_id is it
   //the messages is a magical hangup signal.
   //const char kByeMessage[] = "BYE";
@@ -162,7 +162,6 @@ class PeerConnectionServer : public talk_base::MessageHandler,
   std::string control_data_;
   std::string notification_data_;
   State state_;
-  Peers peers_;
   int   my_id_;
   std::deque<PendMessage *>       pending_messages_;
 };
