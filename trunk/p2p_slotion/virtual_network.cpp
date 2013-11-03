@@ -7,8 +7,9 @@ VirtualNetwork::VirtualNetwork(AbstractICEConnection *p2p_ice_connection):
   network_header_ = new NetworkHeader();
   network_header_->header_ide_ = P2P_NETWORKER_HEADER_IDE;
   receive_buffer_ = new char[RECEIVE_BUFFER_LEN];
-  receive_data_len_ = 0;
+  receive_up_buffer_  = new char[RECEIVE_BUFFER_LEN];;
   receive_current_len_ = 0;
+  reading_states_ = READING_HEADER_ID;
 }
 void VirtualNetwork::Destory(){
   LOG(LS_INFO) << "^^^" << __FUNCTION__;
@@ -23,37 +24,119 @@ VirtualNetwork::~VirtualNetwork(){
   Destory();
 }
 
+int VirtualNetwork::ReadInt(const char *data, int len){
+  int result = 0;
+  if(len < sizeof(int))
+    return -1;
+  for(int i = 0; i < sizeof(int); i++){
+    result <<= (8*i);
+    result += data[i];
+  }
+  return result;
+}
+
 void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
                                                stream)
 {
   LOG(LS_INFO) << "^^^" << __FUNCTION__;
+  size_t res = 0;
+  int    error = 0;
+  stream->Read(receive_buffer_,RECEIVE_BUFFER_LEN,&res,&error);
+  if(res && error != 0){
+    size_t current_reading = 0;
+    while(current_reading < res){
+      if(reading_states_ == READING_HEADER_ID){
+        int result = ReadInt(&receive_buffer_[current_reading],
+          res - current_reading);
+        if(result == P2P_NETWORKER_HEADER_IDE){
+          reading_states_ = READING_REMOTE_SOCKET;
+          current_reading += sizeof(int);
+        }
+      }
+      if(reading_states_ == READING_REMOTE_SOCKET){
+        int result = ReadInt(&receive_buffer_[current_reading],
+          res - current_reading);
+        if(res != -1){
+          network_header_->remote_socket_ = res;
+          reading_states_ = READING_LOCAL_SOCKET;
+          current_reading += sizeof(int);
+        }
+      }
+      if(reading_states_ == READING_LOCAL_SOCKET){
+        int result = ReadInt(&receive_buffer_[current_reading],
+          res - current_reading);
+        if(res != -1){
+          network_header_->remote_socket_ = result;
+          reading_states_ = READING_SOCKET_TYPE;
+          current_reading += sizeof(int);
+        }
+      }
+      if(reading_states_ == READING_SOCKET_TYPE){
+        int result = ReadInt(&receive_buffer_[current_reading],
+          res - current_reading);
+        if(res != -1){
+          network_header_->socket_type_ = result;
+          reading_states_ = READING_DATA_LENGTH;
+          current_reading += sizeof(int);
+        }
+      }
+      if(reading_states_ == READING_DATA_LENGTH){
+        int result = ReadInt(&receive_buffer_[current_reading],
+          res - current_reading);
+        if(res != -1){
+          network_header_->data_len_ = result;
+          reading_states_ = READING_DATA;
+          current_reading += sizeof(int);
+        }
+      }
+      if(reading_states_ == READING_DATA){
+        if(res - current_reading >= 
+          network_header_->data_len_ - receive_current_len_){
+
+          memccpy(receive_up_buffer_,&receive_buffer_[current_reading],
+            sizeof(char),network_header_->data_len_ - receive_current_len_);
+          SignalSendDataToUpLayer(network_header_->remote_socket_,
+            network_header_->socket_type_,receive_up_buffer_,
+            network_header_->data_len_);
+          reading_states_ = READING_HEADER_ID;
+          current_reading += network_header_->data_len_;
+          receive_current_len_ = 0;
+        }
+        else{
+          receive_current_len_ = res - current_reading;
+          memccpy(receive_up_buffer_,&receive_buffer_[current_reading],
+            sizeof(char),receive_current_len_);
+        }
+      }
+    }
+  }
   //size_t res = 0;
   //int error = 0;
   //stream->ReadAll(receive_buffer_,RECEIVE_BUFFER_LEN,&res,&error);
   //LOG(LS_INFO) << "\t receive data \t =" << res;
   //LOG(LS_INFO) << "\t receive error code \t =" << error;
-  if(!receive_data_len_){
-    receive_data_len_ = ParserSocketHeader(stream);
-    LOG(LS_INFO) << "\t data length is \t" << receive_data_len_; 
-  }
-  else{
-    size_t res = 0;
-    stream_->Read(&receive_buffer_[receive_current_len_],
-      receive_data_len_ - receive_current_len_,&res,NULL);
-    receive_current_len_ += res;
-    if(receive_current_len_ == receive_data_len_)
-    {
-      LOG(LS_INFO) << "\t receive net worker header \t" << receive_current_len_;
-      //!!!!There is inverse
-      int local_socket = get_local_socket(
-        ((NetworkHeader *)parser_network_header_)->local_socket_);
-      SocketType socket_type =  
-        ((NetworkHeader *)parser_network_header_)->socket_type_;
-      SignalSendDataToUpLayer(local_socket,socket_type,receive_buffer_,
-        receive_data_len_);
-      receive_data_len_ = receive_current_len_ = 0;
-    }
-  }
+  //if(!receive_data_len_){
+  //  receive_data_len_ = ParserSocketHeader(stream);
+  //  LOG(LS_INFO) << "\t data length is \t" << receive_data_len_; 
+  //}
+  //else{
+  //  size_t res = 0;
+  //  stream_->Read(&receive_buffer_[receive_current_len_],
+  //    receive_data_len_ - receive_current_len_,&res,NULL);
+  //  receive_current_len_ += res;
+  //  if(receive_current_len_ == receive_data_len_)
+  //  {
+  //    LOG(LS_INFO) << "\t receive net worker header \t" << receive_current_len_;
+  //    //!!!!There is inverse
+  //    int local_socket = get_local_socket(
+  //      ((NetworkHeader *)parser_network_header_)->local_socket_);
+  //    SocketType socket_type =  
+  //      ((NetworkHeader *)parser_network_header_)->socket_type_;
+  //    SignalSendDataToUpLayer(local_socket,socket_type,receive_buffer_,
+  //      receive_data_len_);
+  //    receive_data_len_ = receive_current_len_ = 0;
+  //  }
+  //}
 }
 SocketTable *VirtualNetwork::HasNonSocket(){
   

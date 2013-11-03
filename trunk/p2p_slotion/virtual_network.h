@@ -29,8 +29,8 @@ struct NetworkHeader{
   int header_ide_;
   int remote_socket_;
   int local_socket_;
-  unsigned short socket_type_;
-  unsigned short data_len_;
+  int socket_type_;
+  int data_len_;
 };
 const int NETWORKHEADER_LENGTH = sizeof(NetworkHeader);
 
@@ -48,6 +48,15 @@ public:
   void OnMessage(talk_base::Message* msg);
 
 private:
+  enum ReadingStates{
+    READING_HEADER_ID,
+    READING_REMOTE_SOCKET,
+    READING_LOCAL_SOCKET,
+    READING_SOCKET_TYPE,
+    READING_DATA_LENGTH,
+    READING_DATA
+  };
+  int ReadInt(const char * data,int len);
   void AddSocketHeader(int local_socket, SocketType socket_type,int len);
   int ParserSocketHeader(talk_base::StreamInterface *stream);
   bool set_socket_table(int local_socket,int remote_socket);
@@ -61,8 +70,9 @@ private:
   SocketTables     socket_tables_;
 
 private:
-  int                         receive_data_len_;
   int                         receive_current_len_;
-  talk_base::StreamInterface  *stream_;
+  ReadingStates               reading_states_;
+
+  char             *receive_up_buffer_;
 };
 #endif

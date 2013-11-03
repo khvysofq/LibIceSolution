@@ -9,7 +9,7 @@
 #include "defaults.h"
 #include "mediator_pattern.h"
 
-const talk_base::SocketAddress ServerAddr("192.168.1.116",8888);
+const talk_base::SocketAddress ServerAddr("42.121.127.71",8888);
 const int RECEIVE_BUFFER_LENGTH   = 1024 * 8;
 
 class P2PUserClient :public sigslot::has_slots<>,
