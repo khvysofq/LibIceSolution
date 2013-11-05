@@ -1,29 +1,16 @@
+# Echo server program
 import socket
-import sys
-#################################
-SERVER_HOST = "127.0.0.1"
-SERVER_PORT = 3214
-CLIENT_HOST = "127.0.0.1"
-CLIENT_PORT = 1234
-#################################
-FILE_NAME = "E:\\google"
-CHUNKSIZE = 1024
 
-s = socket.socket()
-s.bind((SERVER_HOST,SERVER_PORT))
-
-while True:
-    sc, address = s.accept()
-
-    print address
-    i=1
-    f = open('file_'+ str(i)+".pdf",'wb') #open in binary
-    i=i+1
-    while (True):
-        l = sc.recv(1024)
-        while (l):
-                f.write(l)
-                l = sc.recv(1024)
-    f.close()
-    sc.close()
-s.close()
+HOST = '127.0.0.1'                 # Symbolic name meaning all available interfaces
+PORT = 554              # Arbitrary non-privileged port
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind((HOST, PORT))
+print HOST,PORT
+s.listen(5)
+conn, addr = s.accept()
+print 'Connected by', addr
+while 1:
+    data = conn.recv(1024)
+    if not data: break
+    print data
+conn.close()

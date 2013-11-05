@@ -17,7 +17,7 @@ struct SocketTable{
 
 typedef std::vector<SocketTable*> SocketTables;
 const int P2P_NETWORKER_HEADER_IDE =  0X1032FBAE;
-const int RECEIVE_BUFFER_LEN       =  1024 * 8;
+const int RECEIVE_BUFFER_LEN       =  1024 * 32;
 struct SOCKETHeader{
   int header_ide_;
   int remote_socket_;
@@ -68,6 +68,8 @@ private:
   char            parser_network_header_[NETWORKHEADER_LENGTH];
   char            *receive_buffer_;
   SocketTables     socket_tables_;
+
+  //talk_base::ByteBuffer byte_buffer_;
 
 private:
   int                         receive_current_len_;

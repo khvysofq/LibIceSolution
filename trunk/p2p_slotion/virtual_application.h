@@ -7,12 +7,13 @@ const int P2PSC_CREATE_CLIENT_CONNECTION_     = 0XFF;
 const int P2PSC_CREATE_CLIENT_CONNECTION_OK_  = 0XFF01;
 
 struct P2PSystemCommand{
-  int command_type_;
-  int local_port_;
-  int remote_port_;
+  uint32 command_type_;
+  uint32 local_port_;
+  uint32 remote_port_;
 };
 
 const talk_base::SocketAddress KLocalServerAddr("127.0.0.1",554);
+const talk_base::SocketAddress KBindAddr("127.0.0.1",5540);
 //typedef std::vector<talk_base::AsyncPacketSocket> PacketSockets;
 class VirtualApplication : public AbstarctVirtualApplication{
 public:
@@ -39,6 +40,8 @@ private:
   talk_base::AsyncSocket       *socket_;
   talk_base::AsyncPacketSocket *tcp_packet_socket_;
   P2PSystemCommand             *p2p_system_command_;
+private:
+  bool                          realy_to_send_;
 };
 
 

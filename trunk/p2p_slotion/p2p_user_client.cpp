@@ -25,6 +25,7 @@ P2PUserClient::~P2PUserClient(){
 void P2PUserClient::Initiatlor(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
   
+  //p2p server
   p2p_server_connection_ = new PeerConnectionServer();
   //p2p server user client part
   p2p_server_connection_->SignalStatesChange.connect(this,
@@ -32,14 +33,19 @@ void P2PUserClient::Initiatlor(){
   p2p_server_connection_->SignalOnlinePeers.connect(this,
     &P2PUserClient::OnOnlinePeers);
   
+  //p2p ice
   std::string local_peer_name = p2p_server_connection_->get_local_name();
   p2p_ICE_connection_   = new PeerConnectionIce(worker_thread_,
     signal_thread_,p2p_server_connection_,local_peer_name);
-
   p2p_ICE_connection_->SignalStatesChange.connect(this,
     &P2PUserClient::OnStatesChange);
 
+  //p2p virtual network
   p2p_virtual_network_ = new VirtualNetwork(p2p_ICE_connection_);
+  //p2p virtual application
+  p2p_virtual_application_ = new VirtualApplication(p2p_virtual_network_);
+  //p2p_virtual_network_->SignalSendDataToUpLayer.connect(this,
+  //  &P2PUserClient::OnReceiveDataFromVirtualNetwokr);
   //p2p_ICE_connection_->SignalSendDataToUpLayer.connect(this,
   //  &P2PUserClient::OnReceiveDataFromLoweLayer);
   //SignalSendDataToLowLayer.connect(p2p_ICE_connection_,
@@ -47,6 +53,7 @@ void P2PUserClient::Initiatlor(){
 
 
 }
+
 
 void P2PUserClient::StartRun(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
@@ -66,6 +73,7 @@ void P2PUserClient::ConnectionToPeer(int peer_id){
   }
   LOG(LS_INFO) << "\t remote peer name is\t" << remote_peer_name;
   p2p_ICE_connection_->ConnectionToRemotePeer(peer_id,remote_peer_name);
+  p2p_virtual_application_->ListenATcpPort(554);
 }
 
 void P2PUserClient::Destory(){
@@ -87,6 +95,19 @@ void P2PUserClient::Destory(){
     delete p2p_server_connection_;
     p2p_server_connection_ = NULL;
   }
+}
+
+void P2PUserClient::OnReceiveDataFromVirtualNetwokr(int socket,SocketType socket_type,
+                                                    const char *data, int len)
+{
+  LOG(LS_INFO) << "---------------------------------";
+  LOG(LS_INFO) << "\t socket number\t" << socket;
+  LOG(LS_INFO) << "\t socket_type\t" << socket_type;
+  for(int i = 0; i < len ; i++){
+    std::cout << data[i] ;
+  }
+  std::cout << std::endl;
+  LOG(LS_INFO) << "---------------------------------";
 }
 
 void P2PUserClient::OnStatesChange(StatesChangeType states_type){
@@ -147,8 +168,8 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
   case STATES_ICE_TUNNEL_SEND_DATA:
     {
       std::cout << "\tSTATES_ICE_TUNNEL_SEND_DATA" << std::endl;
-      if(initiator_)
-        SendRandomData();
+      //if(initiator_)
+      //  SendRandomData();
       break;
     }
   case STATES_ICE_TUNNEL_CLOSED:
@@ -170,7 +191,12 @@ void P2PUserClient::OnReceiveDataFromLoweLayer(talk_base::StreamInterface* strea
 void P2PUserClient::SendRandomData(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
   //SignalSendDataToLowLayer(receive_buffer_,1024);
-  p2p_virtual_network_->OnReceiveDataFromUpLayer(1,TCP_SOCKET,receive_buffer_,1024);
+  std::string msg = "Hello world Hello world Hello world Hello world \
+                    Hello world Hello world Hello world Hello world";
+  p2p_virtual_application_->SignalSendDataToLowLayer(1,TCP_SOCKET,
+    receive_buffer_,8000);
+  //p2p_virtual_network_->OnReceiveDataFromUpLayer(1,1000,msg.c_str(),
+  //  msg.length());
 }
 
 void P2PUserClient::OnOnlinePeers(const Peers peers){

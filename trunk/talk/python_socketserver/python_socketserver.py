@@ -1,21 +1,15 @@
+# Echo client program
 import socket
-#################################
-SERVER_HOST = "127.0.0.1"
-SERVER_PORT = 3214
-CLIENT_HOST = "127.0.0.1"
-CLIENT_PORT = 1234
-#################################
+import time
 
-FILE_NAME   = "E:\\DBankFile\\p2pchanneltest.txt"
-
-s = socket.socket()
-s.connect((SERVER_HOST,SERVER_PORT))
-print "connection succeed..."
-f=open (FILE_NAME, "rb") 
-l = f.read(1024)
-while (l):
-    s.send(l)
-    print "send 1024 bytes"
-    l = f.read(1024)
+HOST = '127.0.0.1'    # The remote host
+PORT = 554              # The same port as used by the server
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((HOST, PORT))
+while True:
+  s.sendall('Hello, world')
+  print "send data ..."
+  #data = s.recv(1024)
+  time.sleep(1);
 s.close()
-f.close()
+print 'Received', repr(data)

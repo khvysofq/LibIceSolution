@@ -42,101 +42,74 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
   size_t res = 0;
   int    error = 0;
   stream->Read(receive_buffer_,RECEIVE_BUFFER_LEN,&res,&error);
-  if(res && error != 0){
+  if(res && error == 0){
+    LOG(LS_INFO) << "\t receive data length is " << res;
+    talk_base::ByteBuffer byte_buffer(receive_buffer_,res);
+
     size_t current_reading = 0;
-    while(current_reading < res){
+    while(byte_buffer.Length() > 0 ){
       if(reading_states_ == READING_HEADER_ID){
-        int result = ReadInt(&receive_buffer_[current_reading],
-          res - current_reading);
+        uint32 result;
+        byte_buffer.ReadUInt32(&result);
         if(result == P2P_NETWORKER_HEADER_IDE){
           reading_states_ = READING_REMOTE_SOCKET;
-          current_reading += sizeof(int);
         }
       }
       if(reading_states_ == READING_REMOTE_SOCKET){
-        int result = ReadInt(&receive_buffer_[current_reading],
-          res - current_reading);
+        uint32 result;
+        byte_buffer.ReadUInt32(&result);
         if(res != -1){
-          network_header_->remote_socket_ = res;
+          network_header_->remote_socket_ = result;
           reading_states_ = READING_LOCAL_SOCKET;
-          current_reading += sizeof(int);
         }
       }
       if(reading_states_ == READING_LOCAL_SOCKET){
-        int result = ReadInt(&receive_buffer_[current_reading],
-          res - current_reading);
+        uint32 result;
+        byte_buffer.ReadUInt32(&result);
         if(res != -1){
-          network_header_->remote_socket_ = result;
+          network_header_->local_socket_ = result;
           reading_states_ = READING_SOCKET_TYPE;
-          current_reading += sizeof(int);
         }
       }
       if(reading_states_ == READING_SOCKET_TYPE){
-        int result = ReadInt(&receive_buffer_[current_reading],
-          res - current_reading);
+        uint32 result;
+        byte_buffer.ReadUInt32(&result);
         if(res != -1){
           network_header_->socket_type_ = result;
           reading_states_ = READING_DATA_LENGTH;
-          current_reading += sizeof(int);
         }
       }
       if(reading_states_ == READING_DATA_LENGTH){
-        int result = ReadInt(&receive_buffer_[current_reading],
-          res - current_reading);
+        uint32 result;
+        byte_buffer.ReadUInt32(&result);
         if(res != -1){
           network_header_->data_len_ = result;
           reading_states_ = READING_DATA;
-          current_reading += sizeof(int);
         }
       }
       if(reading_states_ == READING_DATA){
-        if(res - current_reading >= 
+        if(byte_buffer.Length() >= 
           network_header_->data_len_ - receive_current_len_){
 
-          memccpy(receive_up_buffer_,&receive_buffer_[current_reading],
-            sizeof(char),network_header_->data_len_ - receive_current_len_);
+            byte_buffer.ReadBytes(&receive_up_buffer_[receive_current_len_],
+              network_header_->data_len_ - receive_current_len_);
+
           SignalSendDataToUpLayer(network_header_->remote_socket_,
             network_header_->socket_type_,receive_up_buffer_,
             network_header_->data_len_);
           reading_states_ = READING_HEADER_ID;
-          current_reading += network_header_->data_len_;
           receive_current_len_ = 0;
         }
-        else{
-          receive_current_len_ = res - current_reading;
-          memccpy(receive_up_buffer_,&receive_buffer_[current_reading],
-            sizeof(char),receive_current_len_);
+        else if (byte_buffer.Length()){
+          int t = byte_buffer.Length();
+          byte_buffer.ReadBytes(&receive_up_buffer_[receive_current_len_],
+            byte_buffer.Length());
+          receive_current_len_ += t;
         }
       }
     }
   }
-  //size_t res = 0;
-  //int error = 0;
-  //stream->ReadAll(receive_buffer_,RECEIVE_BUFFER_LEN,&res,&error);
-  //LOG(LS_INFO) << "\t receive data \t =" << res;
-  //LOG(LS_INFO) << "\t receive error code \t =" << error;
-  //if(!receive_data_len_){
-  //  receive_data_len_ = ParserSocketHeader(stream);
-  //  LOG(LS_INFO) << "\t data length is \t" << receive_data_len_; 
-  //}
-  //else{
-  //  size_t res = 0;
-  //  stream_->Read(&receive_buffer_[receive_current_len_],
-  //    receive_data_len_ - receive_current_len_,&res,NULL);
-  //  receive_current_len_ += res;
-  //  if(receive_current_len_ == receive_data_len_)
-  //  {
-  //    LOG(LS_INFO) << "\t receive net worker header \t" << receive_current_len_;
-  //    //!!!!There is inverse
-  //    int local_socket = get_local_socket(
-  //      ((NetworkHeader *)parser_network_header_)->local_socket_);
-  //    SocketType socket_type =  
-  //      ((NetworkHeader *)parser_network_header_)->socket_type_;
-  //    SignalSendDataToUpLayer(local_socket,socket_type,receive_buffer_,
-  //      receive_data_len_);
-  //    receive_data_len_ = receive_current_len_ = 0;
-  //  }
-  //}
+  LOG(LS_INFO) << "\tdata receive end";
 }
 SocketTable *VirtualNetwork::HasNonSocket(){
   
@@ -166,6 +139,12 @@ void VirtualNetwork::OnReceiveDataFromUpLayer(int socket,SocketType socket_type,
     set_socket_table(socket,NON_SOCKET);
   }
   AddSocketHeader(socket,socket_type,len);
+  talk_base::ByteBuffer byte_buffer;
+  byte_buffer.WriteUInt32(network_header_->header_ide_);
+  byte_buffer.WriteUInt32(network_header_->remote_socket_);
+  byte_buffer.WriteUInt32(network_header_->local_socket_);
+  byte_buffer.WriteUInt32(network_header_->socket_type_);
+  byte_buffer.WriteUInt32(network_header_->data_len_);
   LOG(LS_INFO) << "\t network_header_->data_len_\t=" 
     << network_header_->data_len_;
   LOG(LS_INFO) << "\t network_header_->header_ide\t=" 
@@ -176,8 +155,9 @@ void VirtualNetwork::OnReceiveDataFromUpLayer(int socket,SocketType socket_type,
     << network_header_->remote_socket_;
   LOG(LS_INFO) << "\t network_header_->socket_type_\t=" 
     << network_header_->socket_type_;
-  SignalSendDataToLowLayer((char *)network_header_,
-    NETWORKHEADER_LENGTH);
+
+  SignalSendDataToLowLayer(byte_buffer.Data(),
+    byte_buffer.Length());
   SignalSendDataToLowLayer(data,len);
 }
 
@@ -236,21 +216,21 @@ int VirtualNetwork::ParserSocketHeader(talk_base::StreamInterface*
 void VirtualNetwork::OnMessage(talk_base::Message* msg){
     size_t res = 0;
     size_t pos = 0;
-    while(pos < receive_data_len_)
-    {
-      stream_->ReadAll(&receive_buffer_[pos],receive_data_len_ - pos,&res,NULL);
-      pos += res;
-    }
-    if(pos)
-    {
-      LOG(LS_INFO) << "\t receive net worker header \t" << res;
-      //!!!!There is inverse
-      int local_socket = get_local_socket(
-        ((NetworkHeader *)parser_network_header_)->local_socket_);
-      SocketType socket_type =  
-        ((NetworkHeader *)parser_network_header_)->socket_type_;
-      SignalSendDataToUpLayer(local_socket,socket_type,receive_buffer_,
-        receive_data_len_);
-      receive_data_len_ = 0;
-    }
+    //while(pos < receive_data_len_)
+    //{
+    //  stream_->ReadAll(&receive_buffer_[pos],receive_data_len_ - pos,&res,NULL);
+    //  pos += res;
+    //}
+    //if(pos)
+    //{
+    //  LOG(LS_INFO) << "\t receive net worker header \t" << res;
+    //  //!!!!There is inverse
+    //  int local_socket = get_local_socket(
+    //    ((NetworkHeader *)parser_network_header_)->local_socket_);
+    //  SocketType socket_type =  
+    //    ((NetworkHeader *)parser_network_header_)->socket_type_;
+    //  SignalSendDataToUpLayer(local_socket,socket_type,receive_buffer_,
+    //    receive_data_len_);
+    //  receive_data_len_ = 0;
+    //}
 }
