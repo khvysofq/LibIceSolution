@@ -35,6 +35,16 @@
 const int kDefaultServerPort = 8888;
 
 
+struct PeerInfor{
+  PeerInfor(){};
+  PeerInfor(const std::string &peer_name, const std::string &resource)
+    :peer_name_(peer_name),resource_(resource){}
+  std::string peer_name_;
+  std::string resource_;
+};
+
+typedef std::map<int,PeerInfor> PeerInfors;
+
 //////////////////////////////////////////////////////////
 //ICE help define
 const std::string HTTP_USER_AGENT     = "HTTP_USER_AGENT";

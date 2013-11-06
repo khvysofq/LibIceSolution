@@ -28,9 +28,9 @@ int AbstractICEConnection::set_local_peer_name(
 }
 int AbstractICEConnection::GetRemotePeerIdByName(std::string peer_name) const
 {
-  for(Peers::const_iterator iter = remote_peers_.begin();
+  for(PeerInfors::const_iterator iter = remote_peers_.begin();
     iter != remote_peers_.end(); ++iter)
-    if(iter->second == peer_name)
+    if(iter->second.peer_name_ == peer_name)
       return iter->first;
   return 0;
 }
@@ -39,16 +39,17 @@ int AbstractICEConnection::GetRemotePeerIdByName(std::string peer_name) const
 AbstractP2PServerConnection::AbstractP2PServerConnection()
 //  :ice_connection_(NULL)
 {
-    local_peer_name_ = GetCurrentComputerUserName();
-    local_peer_name_ += JID_DEFAULT_DOMAIN;
+    //local_peer_name_ = GetCurrentComputerUserName();
+    //local_peer_name_ += JID_DEFAULT_DOMAIN;
   //ice to p2p server part initiator
 }
+
 std::string AbstractP2PServerConnection::get_local_name(){
   return local_peer_name_;
 }
 std::string AbstractP2PServerConnection::get_remote_name(int peer_id) const{
-  Peers::const_iterator iter = online_peers_.find(peer_id);
+  PeerInfors::const_iterator iter = online_peers_.find(peer_id);
   if(iter == online_peers_.end())
     return "";
-  return iter->second;
+  return iter->second.peer_name_;
 }

@@ -102,7 +102,7 @@ bool PeerConnectionServer::is_connected() const {
   return my_id_ != -1;
 }
 
-const Peers& PeerConnectionServer::peers() const {
+const PeerInfors& PeerConnectionServer::peers() const {
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   return online_peers_;
 }
@@ -181,11 +181,10 @@ void PeerConnectionServer::OnSendMessageToRemotePeer(const std::string& message,
     // For convenience, we always run the message through the queue.
     // This way we can be sure that messages are sent to the server
     // in the same order they were signaled without much hassle.
-    pending_messages_.push_back(new PendMessage(peer_id,msg));
+    pending_messages_.push_back(new PendMessage(peer_id,P2P_SEND_REMOTE_MESSAGE,msg));
   }
   if(!pending_messages_.empty())
-    talk_base::Thread::Current()->PostDelayed(20,this,
-    P2P_SEND_PENDING_MESSAGE);
+    talk_base::Thread::Current()->Post(this);
 }
 
 bool PeerConnectionServer::SendToPeer(int peer_id, const std::string& message) {
@@ -252,7 +251,6 @@ void PeerConnectionServer::Close() {
   control_socket_->Close();
   hanging_get_->Close();
   onconnect_data_.clear();
-  online_peers_.clear();
   if (resolver_ != NULL) {
     ((talk_base::AsyncResolver*)(resolver_))->Destroy(false);
     resolver_ = NULL;
@@ -402,10 +400,12 @@ void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
               break;
             int id = 0;
             std::string name;
+            std::string resource;
             bool connected;
             if (ParseEntry(control_data_.substr(pos, eol - pos), &name, &id,
-              &connected) && id != my_id_) {
-                online_peers_[id] = name;
+              &resource,&connected) && id != my_id_) {
+                online_peers_[id].peer_name_ = name;
+                online_peers_[id].resource_ = resource;
                 LOG(LS_INFO)<<"Current Connection Peer\t"<<id<<"\t"<<name;
                 SignalOnlinePeers(online_peers_);
             }
@@ -462,11 +462,13 @@ void PeerConnectionServer::OnHangingGetRead(talk_base::AsyncSocket* socket) {
         // disconnected.
         int id = 0;
         std::string name;
+        std::string resource;
         bool connected = false;
-        if (ParseEntry(notification_data_.substr(pos), &name, &id,
+        if (ParseEntry(notification_data_.substr(pos), &name, &id,&resource,
           &connected)) {
             if (connected) {
-              online_peers_[id] = name;
+              online_peers_[id].peer_name_ = name;
+              online_peers_[id].resource_ = resource;
               SignalOnlinePeers(online_peers_);
             } else {
               online_peers_.erase(id);
@@ -490,6 +492,7 @@ void PeerConnectionServer::OnHangingGetRead(talk_base::AsyncSocket* socket) {
 bool PeerConnectionServer::ParseEntry(const std::string& entry,
                                       std::string* name,
                                       int* id,
+                                      std::string *resource,
                                       bool* connected) 
 {
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
@@ -506,6 +509,10 @@ bool PeerConnectionServer::ParseEntry(const std::string& entry,
     separator = entry.find(',', separator + 1);
     if (separator != std::string::npos) {
       *connected = atoi(&entry[separator + 1]) ? true : false;
+      separator = entry.find(',', separator + 1);
+      if (separator != std::string::npos) {
+        resource->assign(entry.substr(separator + 1, std::string::npos));
+      }
     }
   }
   return !name->empty();
@@ -577,27 +584,73 @@ void PeerConnectionServer::OnClose(talk_base::AsyncSocket* socket, int err) {
   }
 }
 
-void PeerConnectionServer::OnMessage(talk_base::Message* msg) {
+bool PeerConnectionServer::UpdataPeerInfor(std::string infor){
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
 
-  if(msg->message_id == P2PServerMessageType::P2P_SEND_PENDING_MESSAGE)
-  {
-    if (!pending_messages_.empty() && !IsSendingMessage()) {
+  std::string* msg = new std::string(infor);
+  if (msg) {
+    // For convenience, we always run the message through the queue.
+    // This way we can be sure that messages are sent to the server
+    // in the same order they were signaled without much hassle.
+    pending_messages_.push_back(new PendMessage(0,P2P_UPDATE_MESSAGE,msg));
+  }
+  if(!pending_messages_.empty())
+    talk_base::Thread::Current()->Post(this);
+  return true;
+}
 
-      PendMessage *send_msg = pending_messages_.front();
-      pending_messages_.pop_front();
+bool PeerConnectionServer::SendUpdateMessage(std::string infor){
+  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  if (state_ != CONNECTED)
+    return false;
+
+  ASSERT(is_connected());
+  ASSERT(control_socket_->GetState() == talk_base::Socket::CS_CLOSED);
+  if (!is_connected())
+    return false;
+  char headers[2048];
+  sprintfn(headers, sizeof(headers),
+    "POST /update?peer_id=%i HTTP/1.0\r\n"
+    "Content-Length: %i\r\n"
+    "Content-Type: text/plain\r\n"
+    "\r\n",my_id_,infor.length());
+  onconnect_data_ = headers;
+  onconnect_data_ += infor;
+  return ConnectControlSocket();
+}
+
+bool PeerConnectionServer::SendMessageToP2PServer(){
+  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+
+  if (!pending_messages_.empty() && !IsSendingMessage()) {
+
+    PendMessage *send_msg = pending_messages_.front();
+    pending_messages_.pop_front();
+    if(send_msg->message_type_ == P2P_SEND_REMOTE_MESSAGE){
       if (!SendToPeer(send_msg->remote_id_, *send_msg->message_) 
         && send_msg->remote_id_ != -1) {
           LOG(LS_ERROR) << "SendToPeer failed";
           SignalStatesChange(ERROR_P2P_CAN_NOT_SEND_MESSAGE);
+      } 
+    } 
+    else if(send_msg->message_type_ == P2P_UPDATE_MESSAGE){
+      if (!SendUpdateMessage(*send_msg->message_)) {
+        LOG(LS_ERROR) << "SendToPeer failed";
+        SignalStatesChange(ERROR_P2P_CAN_NOT_SEND_MESSAGE);
       }
-      delete send_msg;
-
     }
-    if(!pending_messages_.empty())
-      talk_base::Thread::Current()->PostDelayed(20,this,
-      P2P_SEND_PENDING_MESSAGE,msg->pdata);
+    delete send_msg->message_;
+    delete send_msg;
+  } 
+  else {
+    std::cout << "\tCann't Send Message ..." << std::endl;
   }
-  else
-    DoConnect();
+  return true;
+}
+
+void PeerConnectionServer::OnMessage(talk_base::Message* msg) {
+  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  SendMessageToP2PServer();
+  if(!pending_messages_.empty())
+    talk_base::Thread::Current()->PostDelayed(20,this);
 }

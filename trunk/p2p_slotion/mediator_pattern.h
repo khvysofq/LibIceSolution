@@ -42,15 +42,16 @@ public:
   virtual void SignInP2PServer() = 0;
   virtual bool SignOutP2PServer() = 0;
   sigslot::signal1<StatesChangeType>  SignalStatesChange;
-  sigslot::signal1<const Peers>       SignalOnlinePeers;
+  sigslot::signal1<const PeerInfors>  SignalOnlinePeers;
 
+  virtual bool UpdataPeerInfor(std::string ) = 0;
   //ice to p2p server interface
   virtual void OnSendMessageToRemotePeer(const std::string&, int) = 0;
   sigslot::signal2<const std::string,int> SignalReceiveMessageFromRemotePeer;
 
 
 protected:
-  Peers                       online_peers_;
+  PeerInfors                  online_peers_;
   talk_base::SocketAddress    server_address_;
   std::string                 local_peer_name_;
   DISALLOW_EVIL_CONSTRUCTORS(AbstractP2PServerConnection);
@@ -77,7 +78,7 @@ public:
     std::string remote_peer_name) = 0;
   //void set_p2p_server_connection(AbstractP2PServerConnection
   //  *p2p_server_connection);
-  const Peers get_remote_peers() const { 
+  const PeerInfors get_remote_peers() const { 
     return remote_peers_; 
   }
   int set_local_peer_name(std::string local_peer_name);
@@ -96,13 +97,13 @@ public:
   sigslot::signal1<talk_base::StreamInterface*> SignalSendDataToUpLayer;
 protected:
   void Add_remote_peer(int peer_id, std::string peer_name){
-    remote_peers_.insert(
-      std::pair<int,std::string>(peer_id,peer_name));
+    //remote_peers_.insert(
+    //  std::pair<int,std::string>(peer_id,PeerInfor(peer_name,"")));
   };
   int GetRemotePeerIdByName(std::string peer_name) const;
 protected:
   AbstractP2PServerConnection *p2p_server_connection_;
-  Peers                       remote_peers_;
+  PeerInfors                  remote_peers_;
   //the peer_name string don't occur '/', '@' or '.' character
   std::string                 local_peer_name_;
   DISALLOW_EVIL_CONSTRUCTORS(AbstractICEConnection);

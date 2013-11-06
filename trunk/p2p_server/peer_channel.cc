@@ -50,7 +50,7 @@
 static const char kPeerIdHeader[] = "Pragma: ";
 
 static const char* kRequestPaths[] = {
-  "/wait", "/sign_out", "/message",
+  "/wait", "/sign_out", "/message","/update"
 };
 
 enum RequestPathIndex {
@@ -102,8 +102,9 @@ bool ChannelMember::NotifyOfOtherMember(const ChannelMember& other) {
 
 // Returns a string in the form "name,id\n".
 std::string ChannelMember::GetEntry() const {
-  char entry[1024] = {0};
-  sprintf(entry, "%s,%i,%i\n", name_.c_str(), id_, connected_);  // NOLINT
+  char entry[2048] = {0};
+  sprintf(entry, "%s,%i,%i,%s\n", name_.c_str(), id_, 
+    connected_,source_describe_.c_str());  // NOLINT
   return entry;
 }
 
@@ -168,6 +169,11 @@ void ChannelMember::SetWaitingSocket(DataSocket* ds) {
     waiting_socket_ = ds;
   }
 }
+
+void ChannelMember::set_source_describe(const std::string &source_describe){
+  source_describe_ = source_describe;
+}
+
 
 
 //
@@ -366,4 +372,12 @@ std::string PeerChannel::BuildResponseForNewMember(const ChannelMember& member,
   }
 
   return response;
+}
+
+void PeerChannel::UpdateMemberInfor(DataSocket *ds,ChannelMember *member){
+  member->set_source_describe(ds->data());
+  Members failures;
+  BroadcastChangedState(*member, &failures);
+  HandleDeliveryFailures(&failures);
+  ds->Send("200 OK", true, "text/plain", "", "");
 }

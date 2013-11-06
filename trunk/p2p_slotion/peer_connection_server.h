@@ -46,7 +46,8 @@ class talk_base::SocketAddress;
 
 enum P2PServerMessageType
 {
-    P2P_SEND_PENDING_MESSAGE
+    P2P_SEND_REMOTE_MESSAGE,
+    P2P_UPDATE_MESSAGE
 };
 class MessageDataRemoteID : public talk_base::MessageData
 {
@@ -68,9 +69,10 @@ class PeerConnectionServer : public talk_base::MessageHandler,
   };
 
   struct PendMessage{
-    PendMessage(int remote_id, std::string *message)
-      :remote_id_(remote_id),message_(message){}
+    PendMessage(int remote_id, P2PServerMessageType message_type,std::string *message)
+      :remote_id_(remote_id),message_(message),message_type_(message_type){}
     int         remote_id_;
+    P2PServerMessageType    message_type_;
     std::string *message_;
   };
 
@@ -80,7 +82,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
 
   int id() const;
   bool is_connected() const;
-  const Peers& peers() const;
+  const PeerInfors& peers() const;
 
 
   //connect check the state and then call the doconnect function
@@ -104,8 +106,13 @@ class PeerConnectionServer : public talk_base::MessageHandler,
 
   //void ShowServerConnectionPeer();
   //void set_server_ip(talk_base::SocketAddress server_address);
+  virtual bool UpdataPeerInfor(std::string infor);
 
  protected:
+   //send message to p2p server
+   bool SendMessageToP2PServer();
+   //send update message
+   bool SendUpdateMessage(std::string infor);
   //check the message
   bool IsSendingMessage();
      //initialize onconnect_data_ and then call the connectontrolSocket function
@@ -144,7 +151,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
 
   // Parses a single line entry in the form "<name>,<id>,<connected>"
   bool ParseEntry(const std::string& entry, std::string* name, int* id,
-                  bool* connected);
+    std::string *resource,bool* connected);
 
   int GetResponseStatus(const std::string& response);
 

@@ -67,6 +67,11 @@ class ChannelMember {
 
   void SetWaitingSocket(DataSocket* ds);
 
+  void set_source_describe(const std::string &source_describe);
+  std::string GetSourceDescribe() const{
+    return source_describe_;
+  }
+
  protected:
   struct QueuedResponse {
     std::string status, content_type, extra_headers, data;
@@ -77,6 +82,7 @@ class ChannelMember {
   bool connected_;
   time_t timestamp_;
   std::string name_;
+  std::string source_describe_;
   std::queue<QueuedResponse> queue_;
   static int s_member_id_;
 };
@@ -119,6 +125,10 @@ class PeerChannel {
   void OnClosing(DataSocket* ds);
 
   void CheckForTimeout();
+
+  // member update information
+  //new method
+  void UpdateMemberInfor(DataSocket *ds,ChannelMember *member);
 
  protected:
   void DeleteAll();

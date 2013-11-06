@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ChannelMember">
+    <Position X="3.5" Y="3" Width="1.5" />
+    <NestedTypes>
+      <Struct Name="ChannelMember::QueuedResponse" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>peer_channel.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>EABAAABIABAAAQAAQgBgkUAAAIAEAgAUECAgAAAAIgA=</HashCode>
+      <FileName>peer_channel.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DataSocket">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="DataSocket::RequestMethod" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>data_socket.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AEQAAKAQAAAgBCAgCEAEIQAAAAAjAAAAAAEQAAFAgAQ=</HashCode>
+      <FileName>data_socket.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ListeningSocket" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AKAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>data_socket.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PeerChannel">
+    <Position X="5.25" Y="3" Width="1.5" />
+    <NestedTypes>
+      <Typedef Name="PeerChannel::Members" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>peer_channel.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AACAAAgAABAAAAAgAACAogAAAQAAQQQAAAAECAAAAAI=</HashCode>
+      <FileName>peer_channel.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SocketBase" Collapsed="true">
+    <Position X="1.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAAAAAAAAAgAAABAEAAAAEAAACAAAQ=</HashCode>
+      <FileName>data_socket.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WinsockInitializer" Collapsed="true">
+    <Position X="5.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAAAAAAAAQAAAAAAAAAAQAAAAAA=</HashCode>
+      <FileName>data_socket.cc</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="RequestPathIndex" Collapsed="true">
+    <Position X="5.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAAAACAAAAAAAAEAAAAAAAAAAAA=</HashCode>
+      <FileName>peer_channel.cc</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei" Size="9" />
+</ClassDiagram>

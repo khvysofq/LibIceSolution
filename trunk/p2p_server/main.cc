@@ -98,18 +98,19 @@ int main(int argc, char** argv) {
   while (!quit) {
     fd_set socket_set;
     FD_ZERO(&socket_set);
+    //1. add listener(8888 server port) to the set
     if (listener.valid())
       FD_SET(listener.socket(), &socket_set);
-
+    //2. add client socket to the set
     for (SocketArray::iterator i = sockets.begin(); i != sockets.end(); ++i)
       FD_SET((*i)->socket(), &socket_set);
-
+    //select the event
     struct timeval timeout = { 10, 0 };
     if (select(FD_SETSIZE, &socket_set, NULL, NULL, &timeout) == SOCKET_ERROR) {
       printf("select failed\n");
       break;
     }
-
+    //1. For all client sockets
     for (SocketArray::iterator i = sockets.begin(); i != sockets.end(); ++i) {
       DataSocket* s = *i;
       bool socket_done = true;
@@ -129,7 +130,9 @@ int main(int argc, char** argv) {
             } else if (member->is_wait_request(s)) {
               // no need to do anything.
               socket_done = false;
-            } else {
+            } else if (s->PathEquals("/update")){
+              clients.UpdateMemberInfor(s,member);
+            }else {
               ChannelMember* target = clients.IsTargetedRequest(s);
               if (target) {
                 member->ForwardRequestToPeer(s, target);
@@ -137,9 +140,9 @@ int main(int argc, char** argv) {
                 s->Send("200 OK", true, "text/plain", "", "");
               } else {
                 printf("Couldn't find target for request: %s\n",
-                    s->request_path().c_str());
+                  s->request_path().c_str());
                 s->Send("500 Error", true, "text/plain", "",
-                        "Peer most likely gone.");
+                  "Peer most likely gone.");
               }
             }
           } else {
@@ -167,9 +170,10 @@ int main(int argc, char** argv) {
           break;
       }
     }
-
+    //2. Check whether the socket alive.
     clients.CheckForTimeout();
-
+    
+    //3. Check the listen socket
     if (FD_ISSET(listener.socket(), &socket_set)) {
       DataSocket* s = listener.Accept();
       if (sockets.size() >= kMaxConnections) {
