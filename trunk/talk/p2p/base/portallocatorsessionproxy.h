@@ -104,7 +104,6 @@ class PortAllocatorSessionProxy : public PortAllocatorSession {
     return impl_->generation();
   }
 
-
  private:
   void OnPortReady(PortAllocatorSession* session, PortInterface* port);
   void OnCandidatesReady(PortAllocatorSession* session,

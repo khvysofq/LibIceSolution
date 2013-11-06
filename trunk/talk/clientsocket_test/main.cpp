@@ -57,11 +57,10 @@ public:
     for(size_t i = 0; i < len; i++)
       std::cout << data[i];
     std::cout << std::endl;
-    SendData(socket);
   }
   void OnReadyToSend(talk_base::AsyncPacketSocket *socket)
   {
-    SendData(socket);
+    //SendData(socket);
   }
   void OnNewConnection(talk_base::AsyncPacketSocket* socket, 
     talk_base::AsyncPacketSocket* new_socket)
@@ -93,7 +92,7 @@ int main(void)
 {
   talk_base::Thread *main_thread 
     = talk_base::Thread::Current();
-  talk_base::SocketAddress  remote_addr("127.0.0.1",1234);
+  talk_base::SocketAddress  remote_addr("127.0.0.1",554);
   talk_base::SocketAddress  server_addr("127.0.0.1",5007);
 
   SocketClient  socket_client(main_thread);

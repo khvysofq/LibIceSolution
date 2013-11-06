@@ -102,18 +102,18 @@ HttpPortAllocatorBase::HttpPortAllocatorBase(
     talk_base::PacketSocketFactory* socket_factory,
     const std::string &user_agent)
     : BasicPortAllocator(network_manager, socket_factory), agent_(user_agent) {
-  //relay_hosts_.push_back("relay.google.com");
-  //stun_hosts_.push_back(
-  //    talk_base::SocketAddress("stun.l.google.com", 19302));
+  relay_hosts_.push_back("relay.google.com");
+  stun_hosts_.push_back(
+      talk_base::SocketAddress("stun.l.google.com", 19302));
 }
 
 HttpPortAllocatorBase::HttpPortAllocatorBase(
     talk_base::NetworkManager* network_manager,
     const std::string &user_agent)
     : BasicPortAllocator(network_manager), agent_(user_agent) {
-  //relay_hosts_.push_back("relay.google.com");
-  //stun_hosts_.push_back(
-  //    talk_base::SocketAddress("stun.l.google.com", 19302));
+  relay_hosts_.push_back("relay.google.com");
+  stun_hosts_.push_back(
+      talk_base::SocketAddress("stun.l.google.com", 19302));
 }
 
 HttpPortAllocatorBase::~HttpPortAllocatorBase() {

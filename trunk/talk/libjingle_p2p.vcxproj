@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>libjingle_p2p</RootNamespace>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -31,12 +31,12 @@
   <PropertyGroup Label="Locals">
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
-  <ImportGroup Label="ExtensionSettings"/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="PropertySheets">
-    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros"/>
+  <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\third_party\cygwin\bin\;$(MSBuildProjectDirectory)\..\third_party\python_26\</ExecutablePath>
     <OutDir>..\build\$(Configuration)\</OutDir>
@@ -50,7 +50,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..;..\third_party;..\third_party\webrtc;..\webrtc;..\third_party\wtl\include;..\testing\gtest\include;..\third_party\libsrtp\config;..\third_party\libsrtp\srtp\include;..\third_party\libsrtp\srtp\crypto\include;..\third_party\expat\files\lib;..\third_party\jsoncpp\overrides\include;..\third_party\jsoncpp\source\include;..\third_party\libyuv\include;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\winrt;$(VSInstallDir)\VC\atlmfc\include;$(WDK_DIR)\inc\atl71;$(WDK_DIR)\inc\mfc42;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\third_party;..\trunk;..\testing\gtest\include;..\third_party\libsrtp\config;..\third_party\libsrtp\srtp\include;..\third_party\libsrtp\srtp\crypto\include;..\third_party\expat\files\lib;..\third_party\jsoncpp\overrides\include;..\third_party\jsoncpp\source\include;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\winrt;$(VSInstallDir)\VC\atlmfc\include;$(WDK_DIR)\inc\atl71;$(WDK_DIR)\inc\mfc42;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -60,7 +60,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;ANGLE_DX11;EXPAT_RELATIVE_PATH;FEATURE_ENABLE_VOICEMAIL;GTEST_RELATIVE_PATH;JSONCPP_RELATIVE_PATH;LOGGING=1;SRTP_RELATIVE_PATH;FEATURE_ENABLE_SSL;FEATURE_ENABLE_PSTN;HAVE_SRTP;HAVE_WEBRTC_VIDEO;HAVE_WEBRTC_VOICE;USE_WEBRTC_DEV_BRANCH;_WIN32_WINNT=0x0602;WINVER=0x0602;WIN32;_WINDOWS;NOMINMAX;PSAPI_VERSION=1;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_ATL_NO_OPENGL;_HAS_EXCEPTIONS=0;CHROMIUM_BUILD;TOOLKIT_VIEWS=1;USE_LIBJPEG_TURBO=1;ENABLE_ONE_CLICK_SIGNIN;ENABLE_REMOTING=1;ENABLE_WEBRTC=1;ENABLE_PEPPER_CDMS;ENABLE_CONFIGURATION_POLICY;ENABLE_INPUT_SPEECH;ENABLE_NOTIFICATIONS;ENABLE_GPU=1;ENABLE_EGLIMAGE=1;__STD_C;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;NTDDI_VERSION=0x06020000;ENABLE_TASK_MANAGER=1;ENABLE_EXTENSIONS=1;ENABLE_PLUGIN_INSTALLATION=1;ENABLE_PLUGINS=1;ENABLE_SESSION_SERVICE=1;ENABLE_THEMES=1;ENABLE_AUTOFILL_DIALOG=1;ENABLE_BACKGROUND=1;ENABLE_AUTOMATION=1;ENABLE_GOOGLE_NOW=1;ENABLE_FULL_PRINTING=1;ENABLE_PRINTING=1;ENABLE_SPELLCHECK=1;ENABLE_CAPTIVE_PORTAL_DETECTION=1;ENABLE_APP_LIST=1;ENABLE_SETTINGS_APP=1;ENABLE_MANAGED_USERS=1;ENABLE_MDNS=1;LIBPEERCONNECTION_LIB=1;INLINE=__inline;HAVE_BYTESWAP_METHODS_H;SIZEOF_UNSIGNED_LONG=4;SIZEOF_UNSIGNED_LONG_LONG=8;CPU_CISC;XML_STATIC;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DYNAMIC_ANNOTATIONS_ENABLED=1;WTF_USE_DYNAMIC_ANNOTATIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;_DEBUG;ANGLE_DX11;EXPAT_RELATIVE_PATH;FEATURE_ENABLE_VOICEMAIL;GTEST_RELATIVE_PATH;JSONCPP_RELATIVE_PATH;LOGGING=1;SRTP_RELATIVE_PATH;FEATURE_ENABLE_SSL;FEATURE_ENABLE_PSTN;HAVE_WEBRTC_VIDEO;HAVE_WEBRTC_VOICE;USE_WEBRTC_DEV_BRANCH;_WIN32_WINNT=0x0602;WINVER=0x0602;WIN32;_WINDOWS;NOMINMAX;PSAPI_VERSION=1;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_ATL_NO_OPENGL;_HAS_EXCEPTIONS=0;CHROMIUM_BUILD;TOOLKIT_VIEWS=1;USE_LIBJPEG_TURBO=1;ENABLE_ONE_CLICK_SIGNIN;ENABLE_REMOTING=1;ENABLE_WEBRTC=1;ENABLE_PEPPER_CDMS;ENABLE_CONFIGURATION_POLICY;ENABLE_INPUT_SPEECH;ENABLE_NOTIFICATIONS;ENABLE_GPU=1;ENABLE_EGLIMAGE=1;__STD_C;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;NTDDI_VERSION=0x06020000;ENABLE_TASK_MANAGER=1;ENABLE_EXTENSIONS=1;ENABLE_PLUGIN_INSTALLATION=1;ENABLE_PLUGINS=1;ENABLE_SESSION_SERVICE=1;ENABLE_THEMES=1;ENABLE_AUTOFILL_DIALOG=1;ENABLE_BACKGROUND=1;ENABLE_AUTOMATION=1;ENABLE_GOOGLE_NOW=1;ENABLE_FULL_PRINTING=1;ENABLE_PRINTING=1;ENABLE_SPELLCHECK=1;ENABLE_CAPTIVE_PORTAL_DETECTION=1;ENABLE_APP_LIST=1;ENABLE_SETTINGS_APP=1;ENABLE_MANAGED_USERS=1;ENABLE_MDNS=1;LIBPEERCONNECTION_LIB=1;INLINE=__inline;HAVE_BYTESWAP_METHODS_H;SIZEOF_UNSIGNED_LONG=4;SIZEOF_UNSIGNED_LONG_LONG=8;CPU_CISC;XML_STATIC;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DYNAMIC_ANNOTATIONS_ENABLED=1;WTF_USE_DYNAMIC_ANNOTATIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -267,133 +267,143 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="libjingle.gyp"/>
+    <None Include="libjingle.gyp" />
+    <None Include="session\media\typewrapping.h.pump" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="session\tunnel\securetunnelsessionclient.h"/>
-    <ClInclude Include="session\tunnel\tunnelsessionclient.h"/>
-    <ClInclude Include="session\tunnel\pseudotcpchannel.h"/>
-    <ClInclude Include="session\media\ssrcmuxfilter.h"/>
-    <ClInclude Include="session\media\channel.h"/>
-    <ClInclude Include="session\media\audiomonitor.h"/>
-    <ClInclude Include="session\media\soundclip.h"/>
-    <ClInclude Include="session\media\mediarecorder.h"/>
-    <ClInclude Include="session\media\voicechannel.h"/>
-    <ClInclude Include="session\media\mediamonitor.h"/>
-    <ClInclude Include="session\media\mediamessages.h"/>
-    <ClInclude Include="session\media\srtpfilter.h"/>
-    <ClInclude Include="session\media\call.h"/>
-    <ClInclude Include="session\media\mediasession.h"/>
-    <ClInclude Include="session\media\currentspeakermonitor.h"/>
-    <ClInclude Include="session\media\channelmanager.h"/>
-    <ClInclude Include="session\media\mediasink.h"/>
-    <ClInclude Include="session\media\mediasessionclient.h"/>
-    <ClInclude Include="session\media\rtcpmuxfilter.h"/>
-    <ClInclude Include="session\media\typingmonitor.h"/>
-    <ClInclude Include="p2p\base\transportdescription.h"/>
-    <ClInclude Include="p2p\base\common.h"/>
-    <ClInclude Include="p2p\base\sessionid.h"/>
-    <ClInclude Include="p2p\base\udpport.h"/>
-    <ClInclude Include="p2p\base\candidate.h"/>
-    <ClInclude Include="p2p\base\stun.h"/>
-    <ClInclude Include="p2p\base\basicpacketsocketfactory.h"/>
-    <ClInclude Include="p2p\base\transportchannelimpl.h"/>
-    <ClInclude Include="p2p\base\portallocatorsessionproxy.h"/>
-    <ClInclude Include="p2p\base\pseudotcp.h"/>
-    <ClInclude Include="p2p\base\transportdescriptionfactory.h"/>
-    <ClInclude Include="p2p\base\portproxy.h"/>
-    <ClInclude Include="p2p\base\transportchannel.h"/>
-    <ClInclude Include="p2p\base\portallocator.h"/>
-    <ClInclude Include="p2p\base\packetsocketfactory.h"/>
-    <ClInclude Include="p2p\base\rawtransport.h"/>
-    <ClInclude Include="p2p\base\relayserver.h"/>
-    <ClInclude Include="p2p\base\turnport.h"/>
-    <ClInclude Include="p2p\base\stunserver.h"/>
-    <ClInclude Include="p2p\base\parsing.h"/>
-    <ClInclude Include="p2p\base\tcpport.h"/>
-    <ClInclude Include="p2p\base\port.h"/>
-    <ClInclude Include="p2p\base\portinterface.h"/>
-    <ClInclude Include="p2p\base\sessiondescription.h"/>
-    <ClInclude Include="p2p\base\stunport.h"/>
-    <ClInclude Include="p2p\base\stunrequest.h"/>
-    <ClInclude Include="p2p\base\rawtransportchannel.h"/>
-    <ClInclude Include="p2p\base\p2ptransport.h"/>
-    <ClInclude Include="p2p\base\relayport.h"/>
-    <ClInclude Include="p2p\base\transportinfo.h"/>
-    <ClInclude Include="p2p\base\constants.h"/>
-    <ClInclude Include="p2p\base\sessionmessages.h"/>
-    <ClInclude Include="p2p\base\sessionclient.h"/>
-    <ClInclude Include="p2p\base\session.h"/>
-    <ClInclude Include="p2p\base\asyncstuntcpsocket.h"/>
-    <ClInclude Include="p2p\base\p2ptransportchannel.h"/>
-    <ClInclude Include="p2p\base\transport.h"/>
-    <ClInclude Include="p2p\base\dtlstransportchannel.h"/>
-    <ClInclude Include="p2p\base\turnserver.h"/>
-    <ClInclude Include="p2p\base\transportchannelproxy.h"/>
-    <ClInclude Include="p2p\base\sessionmanager.h"/>
-    <ClInclude Include="p2p\client\socketmonitor.h"/>
-    <ClInclude Include="p2p\client\sessionmanagertask.h"/>
-    <ClInclude Include="p2p\client\autoportallocator.h"/>
-    <ClInclude Include="p2p\client\connectivitychecker.h"/>
-    <ClInclude Include="p2p\client\sessionsendtask.h"/>
-    <ClInclude Include="p2p\client\basicportallocator.h"/>
-    <ClInclude Include="p2p\client\httpportallocator.h"/>
+    <ClInclude Include="p2p\base\dtlstransport.h" />
+    <ClInclude Include="p2p\base\fakesession.h" />
+    <ClInclude Include="p2p\base\testrelayserver.h" />
+    <ClInclude Include="p2p\base\teststunserver.h" />
+    <ClInclude Include="p2p\base\testturnserver.h" />
+    <ClInclude Include="p2p\client\fakeportallocator.h" />
+    <ClInclude Include="session\tunnel\securetunnelsessionclient.h" />
+    <ClInclude Include="session\tunnel\tunnelsessionclient.h" />
+    <ClInclude Include="session\tunnel\pseudotcpchannel.h" />
+    <ClInclude Include="session\media\ssrcmuxfilter.h" />
+    <ClInclude Include="session\media\channel.h" />
+    <ClInclude Include="session\media\audiomonitor.h" />
+    <ClInclude Include="session\media\soundclip.h" />
+    <ClInclude Include="session\media\mediarecorder.h" />
+    <ClInclude Include="session\media\voicechannel.h" />
+    <ClInclude Include="session\media\mediamonitor.h" />
+    <ClInclude Include="session\media\mediamessages.h" />
+    <ClInclude Include="session\media\srtpfilter.h" />
+    <ClInclude Include="session\media\call.h" />
+    <ClInclude Include="session\media\mediasession.h" />
+    <ClInclude Include="session\media\currentspeakermonitor.h" />
+    <ClInclude Include="session\media\channelmanager.h" />
+    <ClInclude Include="session\media\mediasink.h" />
+    <ClInclude Include="session\media\mediasessionclient.h" />
+    <ClInclude Include="session\media\rtcpmuxfilter.h" />
+    <ClInclude Include="session\media\typingmonitor.h" />
+    <ClInclude Include="p2p\base\transportdescription.h" />
+    <ClInclude Include="p2p\base\common.h" />
+    <ClInclude Include="p2p\base\sessionid.h" />
+    <ClInclude Include="p2p\base\udpport.h" />
+    <ClInclude Include="p2p\base\candidate.h" />
+    <ClInclude Include="p2p\base\stun.h" />
+    <ClInclude Include="p2p\base\basicpacketsocketfactory.h" />
+    <ClInclude Include="p2p\base\transportchannelimpl.h" />
+    <ClInclude Include="p2p\base\portallocatorsessionproxy.h" />
+    <ClInclude Include="p2p\base\pseudotcp.h" />
+    <ClInclude Include="p2p\base\transportdescriptionfactory.h" />
+    <ClInclude Include="p2p\base\portproxy.h" />
+    <ClInclude Include="p2p\base\transportchannel.h" />
+    <ClInclude Include="p2p\base\portallocator.h" />
+    <ClInclude Include="p2p\base\packetsocketfactory.h" />
+    <ClInclude Include="p2p\base\rawtransport.h" />
+    <ClInclude Include="p2p\base\relayserver.h" />
+    <ClInclude Include="p2p\base\turnport.h" />
+    <ClInclude Include="p2p\base\stunserver.h" />
+    <ClInclude Include="p2p\base\parsing.h" />
+    <ClInclude Include="p2p\base\tcpport.h" />
+    <ClInclude Include="p2p\base\port.h" />
+    <ClInclude Include="p2p\base\portinterface.h" />
+    <ClInclude Include="p2p\base\sessiondescription.h" />
+    <ClInclude Include="p2p\base\stunport.h" />
+    <ClInclude Include="p2p\base\stunrequest.h" />
+    <ClInclude Include="p2p\base\rawtransportchannel.h" />
+    <ClInclude Include="p2p\base\p2ptransport.h" />
+    <ClInclude Include="p2p\base\relayport.h" />
+    <ClInclude Include="p2p\base\transportinfo.h" />
+    <ClInclude Include="p2p\base\constants.h" />
+    <ClInclude Include="p2p\base\sessionmessages.h" />
+    <ClInclude Include="p2p\base\sessionclient.h" />
+    <ClInclude Include="p2p\base\session.h" />
+    <ClInclude Include="p2p\base\asyncstuntcpsocket.h" />
+    <ClInclude Include="p2p\base\p2ptransportchannel.h" />
+    <ClInclude Include="p2p\base\transport.h" />
+    <ClInclude Include="p2p\base\dtlstransportchannel.h" />
+    <ClInclude Include="p2p\base\turnserver.h" />
+    <ClInclude Include="p2p\base\transportchannelproxy.h" />
+    <ClInclude Include="p2p\base\sessionmanager.h" />
+    <ClInclude Include="p2p\client\socketmonitor.h" />
+    <ClInclude Include="p2p\client\sessionmanagertask.h" />
+    <ClInclude Include="p2p\client\autoportallocator.h" />
+    <ClInclude Include="p2p\client\connectivitychecker.h" />
+    <ClInclude Include="p2p\client\sessionsendtask.h" />
+    <ClInclude Include="p2p\client\basicportallocator.h" />
+    <ClInclude Include="p2p\client\httpportallocator.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="session\tunnel\pseudotcpchannel.cc"/>
-    <ClCompile Include="session\tunnel\tunnelsessionclient.cc"/>
-    <ClCompile Include="session\tunnel\securetunnelsessionclient.cc"/>
-    <ClCompile Include="session\media\soundclip.cc"/>
-    <ClCompile Include="session\media\mediasessionclient.cc"/>
-    <ClCompile Include="session\media\currentspeakermonitor.cc"/>
-    <ClCompile Include="session\media\mediamessages.cc"/>
-    <ClCompile Include="session\media\ssrcmuxfilter.cc"/>
-    <ClCompile Include="session\media\srtpfilter.cc"/>
-    <ClCompile Include="session\media\mediarecorder.cc"/>
-    <ClCompile Include="session\media\call.cc"/>
-    <ClCompile Include="session\media\audiomonitor.cc"/>
-    <ClCompile Include="session\media\mediamonitor.cc"/>
-    <ClCompile Include="session\media\mediasession.cc"/>
-    <ClCompile Include="session\media\rtcpmuxfilter.cc"/>
-    <ClCompile Include="session\media\channel.cc"/>
-    <ClCompile Include="session\media\typingmonitor.cc"/>
-    <ClCompile Include="session\media\channelmanager.cc"/>
-    <ClCompile Include="p2p\base\asyncstuntcpsocket.cc"/>
-    <ClCompile Include="p2p\base\transport.cc"/>
-    <ClCompile Include="p2p\base\sessionmanager.cc"/>
-    <ClCompile Include="p2p\base\p2ptransport.cc"/>
-    <ClCompile Include="p2p\base\stunport.cc"/>
-    <ClCompile Include="p2p\base\stunrequest.cc"/>
-    <ClCompile Include="p2p\base\portallocatorsessionproxy.cc"/>
-    <ClCompile Include="p2p\base\transportchannel.cc"/>
-    <ClCompile Include="p2p\base\parsing.cc"/>
-    <ClCompile Include="p2p\base\pseudotcp.cc"/>
-    <ClCompile Include="p2p\base\tcpport.cc"/>
-    <ClCompile Include="p2p\base\sessionmessages.cc"/>
-    <ClCompile Include="p2p\base\portproxy.cc"/>
-    <ClCompile Include="p2p\base\rawtransportchannel.cc"/>
-    <ClCompile Include="p2p\base\port.cc"/>
-    <ClCompile Include="p2p\base\basicpacketsocketfactory.cc"/>
-    <ClCompile Include="p2p\base\session.cc"/>
-    <ClCompile Include="p2p\base\rawtransport.cc"/>
-    <ClCompile Include="p2p\base\turnport.cc"/>
-    <ClCompile Include="p2p\base\relayport.cc"/>
-    <ClCompile Include="p2p\base\constants.cc"/>
-    <ClCompile Include="p2p\base\stunserver.cc"/>
-    <ClCompile Include="p2p\base\p2ptransportchannel.cc"/>
-    <ClCompile Include="p2p\base\transportchannelproxy.cc"/>
-    <ClCompile Include="p2p\base\turnserver.cc"/>
-    <ClCompile Include="p2p\base\dtlstransportchannel.cc"/>
-    <ClCompile Include="p2p\base\sessiondescription.cc"/>
-    <ClCompile Include="p2p\base\relayserver.cc"/>
-    <ClCompile Include="p2p\base\stun.cc"/>
-    <ClCompile Include="p2p\base\portallocator.cc"/>
-    <ClCompile Include="p2p\base\transportdescriptionfactory.cc"/>
-    <ClCompile Include="p2p\client\basicportallocator.cc"/>
-    <ClCompile Include="p2p\client\httpportallocator.cc"/>
-    <ClCompile Include="p2p\client\socketmonitor.cc"/>
-    <ClCompile Include="p2p\client\connectivitychecker.cc"/>
+    <ClCompile Include="p2p\base\relayport_unittest.cc" />
+    <ClCompile Include="p2p\base\transportdescription.cc" />
+    <ClCompile Include="session\tunnel\pseudotcpchannel.cc" />
+    <ClCompile Include="session\tunnel\tunnelsessionclient.cc" />
+    <ClCompile Include="session\tunnel\securetunnelsessionclient.cc" />
+    <ClCompile Include="session\media\soundclip.cc" />
+    <ClCompile Include="session\media\mediasessionclient.cc" />
+    <ClCompile Include="session\media\currentspeakermonitor.cc" />
+    <ClCompile Include="session\media\mediamessages.cc" />
+    <ClCompile Include="session\media\ssrcmuxfilter.cc" />
+    <ClCompile Include="session\media\srtpfilter.cc" />
+    <ClCompile Include="session\media\mediarecorder.cc" />
+    <ClCompile Include="session\media\call.cc" />
+    <ClCompile Include="session\media\audiomonitor.cc" />
+    <ClCompile Include="session\media\mediamonitor.cc" />
+    <ClCompile Include="session\media\mediasession.cc" />
+    <ClCompile Include="session\media\rtcpmuxfilter.cc" />
+    <ClCompile Include="session\media\channel.cc" />
+    <ClCompile Include="session\media\typingmonitor.cc" />
+    <ClCompile Include="session\media\channelmanager.cc" />
+    <ClCompile Include="p2p\base\asyncstuntcpsocket.cc" />
+    <ClCompile Include="p2p\base\transport.cc" />
+    <ClCompile Include="p2p\base\sessionmanager.cc" />
+    <ClCompile Include="p2p\base\p2ptransport.cc" />
+    <ClCompile Include="p2p\base\stunport.cc" />
+    <ClCompile Include="p2p\base\stunrequest.cc" />
+    <ClCompile Include="p2p\base\portallocatorsessionproxy.cc" />
+    <ClCompile Include="p2p\base\transportchannel.cc" />
+    <ClCompile Include="p2p\base\parsing.cc" />
+    <ClCompile Include="p2p\base\pseudotcp.cc" />
+    <ClCompile Include="p2p\base\tcpport.cc" />
+    <ClCompile Include="p2p\base\sessionmessages.cc" />
+    <ClCompile Include="p2p\base\portproxy.cc" />
+    <ClCompile Include="p2p\base\rawtransportchannel.cc" />
+    <ClCompile Include="p2p\base\port.cc" />
+    <ClCompile Include="p2p\base\basicpacketsocketfactory.cc" />
+    <ClCompile Include="p2p\base\session.cc" />
+    <ClCompile Include="p2p\base\rawtransport.cc" />
+    <ClCompile Include="p2p\base\turnport.cc" />
+    <ClCompile Include="p2p\base\relayport.cc" />
+    <ClCompile Include="p2p\base\constants.cc" />
+    <ClCompile Include="p2p\base\stunserver.cc" />
+    <ClCompile Include="p2p\base\p2ptransportchannel.cc" />
+    <ClCompile Include="p2p\base\transportchannelproxy.cc" />
+    <ClCompile Include="p2p\base\turnserver.cc" />
+    <ClCompile Include="p2p\base\dtlstransportchannel.cc" />
+    <ClCompile Include="p2p\base\sessiondescription.cc" />
+    <ClCompile Include="p2p\base\relayserver.cc" />
+    <ClCompile Include="p2p\base\stun.cc" />
+    <ClCompile Include="p2p\base\portallocator.cc" />
+    <ClCompile Include="p2p\base\transportdescriptionfactory.cc" />
+    <ClCompile Include="p2p\client\basicportallocator.cc" />
+    <ClCompile Include="p2p\client\httpportallocator.cc" />
+    <ClCompile Include="p2p\client\socketmonitor.cc" />
+    <ClCompile Include="p2p\client\connectivitychecker.cc" />
+    <ClCompile Include="session\tunnel\tunnelsessionclient_unittest.cc" />
   </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
-  <ImportGroup Label="ExtensionTargets"/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

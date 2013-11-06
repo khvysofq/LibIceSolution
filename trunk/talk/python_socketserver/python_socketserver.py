@@ -7,9 +7,19 @@ PORT = 554              # The same port as used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 while True:
-  s.sendall('Hello, world')
+  s.sendall('Hello, worldHello, worldHello, \
+worldHello, worldHello, worldHello, worldHello,\
+worldHello, worldHello, worldHello, worldHello, \
+worldHello, worldHello, worldHello, worldHello, \
+worldHello, worldHello, worldHello, worldHello, \
+worldHello, worldHello, worldHello, worldHello, \
+worldHello, worldHello, worldHello, worldHello, \
+worldHello, worldHello, worldHello, worldHello, \
+worldHello, worldHello, worldHello, worldHello,\
+worldHello, worldHello, worldHello, worldHello, \
+worldHello, world')
   print "send data ..."
   #data = s.recv(1024)
-  time.sleep(1);
+  time.sleep(0.2)
 s.close()
 print 'Received', repr(data)

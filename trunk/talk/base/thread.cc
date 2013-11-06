@@ -51,8 +51,6 @@ namespace talk_base {
 
 ThreadManager* ThreadManager::Instance() {
   LIBJINGLE_DEFINE_STATIC_LOCAL(ThreadManager, thread_manager, ());
-  //此处代码原本是一个宏，已经经过翻译
-  //static ThreadManager &thread_manager = *(new ThreadManager());
   return &thread_manager;
 }
 
@@ -148,7 +146,6 @@ Thread::Thread(SocketServer* ss)
     : MessageQueue(ss),
       priority_(PRIORITY_NORMAL),
       started_(false),
-      has_sends_(false),
 #if defined(WIN32)
       thread_(NULL),
       thread_id_(0),
@@ -385,8 +382,6 @@ void Thread::Send(MessageHandler *phandler, uint32 id, MessageData *pdata) {
   // of "thread", like Win32 SendMessage. If in the right context,
   // call the handler directly.
 
-  //If this is the Current Thread
-  //Then call the handler directly
   Message msg;
   msg.phandler = phandler;
   msg.message_id = id;
@@ -396,9 +391,7 @@ void Thread::Send(MessageHandler *phandler, uint32 id, MessageData *pdata) {
     return;
   }
 
-  //set the thread object to the current thread
   AutoThread thread;
-  //get the current thread pointer
   Thread *current_thread = Thread::Current();
   ASSERT(current_thread != NULL);  // AutoThread ensures this
 
@@ -411,7 +404,6 @@ void Thread::Send(MessageHandler *phandler, uint32 id, MessageData *pdata) {
     smsg.msg = msg;
     smsg.ready = &ready;
     sendlist_.push_back(smsg);
-    has_sends_ = true;
   }
 
   // Wait for a reply
@@ -419,11 +411,15 @@ void Thread::Send(MessageHandler *phandler, uint32 id, MessageData *pdata) {
   ss_->WakeUp();
 
   bool waited = false;
+  crit_.Enter();
   while (!ready) {
+    crit_.Leave();
     current_thread->ReceiveSends();
     current_thread->socketserver()->Wait(kForever, false);
     waited = true;
+    crit_.Enter();
   }
+  crit_.Leave();
 
   // Our Wait loop above may have consumed some WakeUp events for this
   // MessageQueue, that weren't relevant to this Send.  Losing these WakeUps can
@@ -442,11 +438,6 @@ void Thread::Send(MessageHandler *phandler, uint32 id, MessageData *pdata) {
 }
 
 void Thread::ReceiveSends() {
-  // Before entering critical section, check boolean.
-
-  if (!has_sends_)
-    return;
-
   // Receive a sent message. Cleanup scenarios:
   // - thread sending exits: We don't allow this, since thread can exit
   //   only via Join, so Send must complete.
@@ -462,7 +453,6 @@ void Thread::ReceiveSends() {
     *smsg.ready = true;
     smsg.thread->socketserver()->WakeUp();
   }
-  has_sends_ = false;
   crit_.Leave();
 }
 
@@ -567,6 +557,7 @@ AutoThread::AutoThread(SocketServer* ss) : Thread(ss) {
 }
 
 AutoThread::~AutoThread() {
+  Stop();
   if (ThreadManager::Instance()->CurrentThread() == this) {
     ThreadManager::Instance()->SetCurrentThread(NULL);
   }

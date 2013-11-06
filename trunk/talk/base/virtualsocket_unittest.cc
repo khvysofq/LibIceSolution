@@ -46,7 +46,7 @@ struct Sender : public MessageHandler {
   Sender(Thread* th, AsyncSocket* s, uint32 rt)
       : thread(th), socket(new AsyncUDPSocket(s)),
         done(false), rate(rt), count(0) {
-    last_send = Time();
+    last_send = talk_base::Time();
     thread->PostDelayed(NextDelay(), this, 1);
   }
 
@@ -61,7 +61,7 @@ struct Sender : public MessageHandler {
     if (done)
       return;
 
-    uint32 cur_time = Time();
+    uint32 cur_time = talk_base::Time();
     uint32 delay = cur_time - last_send;
     uint32 size = rate * delay / 1000;
     size = std::min<uint32>(size, 4096);
@@ -69,7 +69,7 @@ struct Sender : public MessageHandler {
 
     count += size;
     memcpy(dummy, &cur_time, sizeof(cur_time));
-    socket->Send(dummy, size);
+    socket->Send(dummy, size, DSCP_NO_CHANGE);
 
     last_send = cur_time;
     thread->PostDelayed(NextDelay(), this, 1);
@@ -105,7 +105,7 @@ struct Receiver : public MessageHandler, public sigslot::has_slots<> {
     sec_count += size;
 
     uint32 send_time = *reinterpret_cast<const uint32*>(data);
-    uint32 recv_time = Time();
+    uint32 recv_time = talk_base::Time();
     uint32 delay = recv_time - send_time;
     sum += delay;
     sum_sq += delay * delay;
@@ -863,7 +863,8 @@ TEST_F(VirtualSocketServerTest, delay_v4) {
   DelayTest(ipv4_test_addr);
 }
 
-TEST_F(VirtualSocketServerTest, delay_v6) {
+// See: https://code.google.com/p/webrtc/issues/detail?id=2409
+TEST_F(VirtualSocketServerTest, DISABLED_delay_v6) {
   SocketAddress ipv6_test_addr(IPAddress(in6addr_any), 1000);
   DelayTest(ipv6_test_addr);
 }

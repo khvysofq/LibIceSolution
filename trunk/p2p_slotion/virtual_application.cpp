@@ -2,6 +2,7 @@
 #include "talk/base/thread.h"
 #include "talk/base/asynctcpsocket.h"
 #include "talk/base/bytebuffer.h"
+#include "talk/base/dscp.h"
 
 VirtualApplication::VirtualApplication(AbstractVirtualNetwork *virtual_network)
   :AbstarctVirtualApplication(virtual_network),
@@ -56,7 +57,8 @@ void VirtualApplication::OnReceiveDateFromLowLayer(int socket,
   }
   else{
     if(realy_to_send_)
-      tcp_packet_socket_->Send(data,len);
+      tcp_packet_socket_->Send(data,len
+      ,talk_base::DiffServCodePoint::DSCP_CS0);
     else{
 
     }

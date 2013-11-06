@@ -86,8 +86,7 @@ class FakeViEWrapper : public cricket::ViEWrapper {
 
 // Test fixture to test WebRtcVideoEngine with a fake webrtc::VideoEngine.
 // Useful for testing failure paths.
-class WebRtcVideoEngineTestFake :
-  public testing::Test,
+class WebRtcVideoEngineTestFake : public testing::Test,
   public sigslot::has_slots<> {
  public:
   WebRtcVideoEngineTestFake()
@@ -119,7 +118,7 @@ class WebRtcVideoEngineTestFake :
     }
     cricket::WebRtcVideoFrame frame;
     size_t size = width * height * 3 / 2;  // I420
-    talk_base::scoped_array<uint8> pixel(new uint8[size]);
+    talk_base::scoped_ptr<uint8[]> pixel(new uint8[size]);
     if (!frame.Init(cricket::FOURCC_I420,
                     width, height, width, height,
                     pixel.get(), size, 1, 1, 0, 0, 0)) {
@@ -139,7 +138,7 @@ class WebRtcVideoEngineTestFake :
     }
     cricket::WebRtcVideoFrame frame;
     size_t size = width * height * 3 / 2;  // I420
-    talk_base::scoped_array<uint8> pixel(new uint8[size]);
+    talk_base::scoped_ptr<uint8[]> pixel(new uint8[size]);
     if (!frame.Init(cricket::FOURCC_I420,
                     width, height, width, height,
                     pixel.get(), size, 1, 1, 0, timestamp, 0)) {
@@ -379,6 +378,25 @@ TEST_F(WebRtcVideoEngineTestFake, SetOptionsWithMaxBitrate) {
   EXPECT_TRUE(channel_->SetOptions(options));
   VerifyVP8SendCodec(
       channel_num, kVP8Codec.width, kVP8Codec.height, 0, 20, 10, 20);
+}
+
+TEST_F(WebRtcVideoEngineTestFake, SetOptionsWithLoweredBitrate) {
+  EXPECT_TRUE(SetupEngine());
+  int channel_num = vie_.GetLastChannel();
+  std::vector<cricket::VideoCodec> codecs(engine_.codecs());
+  codecs[0].params[cricket::kCodecParamMinBitrate] = "50";
+  codecs[0].params[cricket::kCodecParamMaxBitrate] = "100";
+  EXPECT_TRUE(channel_->SetSendCodecs(codecs));
+
+  VerifyVP8SendCodec(
+      channel_num, kVP8Codec.width, kVP8Codec.height, 0, 100, 50, 100);
+
+  // Verify that min bitrate changes after SetOptions().
+  cricket::VideoOptions options;
+  options.lower_min_bitrate.Set(true);
+  EXPECT_TRUE(channel_->SetOptions(options));
+  VerifyVP8SendCodec(
+      channel_num, kVP8Codec.width, kVP8Codec.height, 0, 100, 30, 100);
 }
 
 TEST_F(WebRtcVideoEngineTestFake, MaxBitrateResetWithConferenceMode) {
@@ -1162,7 +1180,8 @@ TEST_F(WebRtcVideoEngineTestFake, SetOptionsWithDenoising) {
 }
 
 
-TEST_F(WebRtcVideoEngineTestFake, SendReceiveBitratesStats) {
+// Disabled since its flaky: b/11288120
+TEST_F(WebRtcVideoEngineTestFake, DISABLED_SendReceiveBitratesStats) {
   EXPECT_TRUE(SetupEngine());
   cricket::VideoOptions options;
   options.conference_mode.Set(true);
@@ -1489,6 +1508,21 @@ TEST_F(WebRtcVideoMediaChannelTest, AddRemoveCapturerMultipleSources) {
   Base::AddRemoveCapturerMultipleSources();
 }
 
+// This test verifies DSCP settings are properly applied on video media channel.
+TEST_F(WebRtcVideoMediaChannelTest, TestSetDscpOptions) {
+  talk_base::scoped_ptr<cricket::FakeNetworkInterface> network_interface(
+      new cricket::FakeNetworkInterface);
+  channel_->SetInterface(network_interface.get());
+  cricket::VideoOptions options;
+  options.dscp.Set(true);
+  EXPECT_TRUE(channel_->SetOptions(options));
+  EXPECT_EQ(talk_base::DSCP_AF41, network_interface->dscp());
+  options.dscp.Set(false);
+  EXPECT_TRUE(channel_->SetOptions(options));
+  EXPECT_EQ(talk_base::DSCP_DEFAULT, network_interface->dscp());
+  channel_->SetInterface(NULL);
+}
+
 
 TEST_F(WebRtcVideoMediaChannelTest, SetOptionsSucceedsWhenSending) {
   cricket::VideoOptions options;
@@ -1759,16 +1793,59 @@ TEST_F(WebRtcVideoEngineTestFake, FeedbackParamsForNonVP8) {
   EXPECT_TRUE(SetupEngine());
 
   std::vector<cricket::VideoCodec> codecs(engine_.codecs());
-  EXPECT_EQ("GENERIC", codecs[0].name);
-  EXPECT_TRUE(codecs[0].HasFeedbackParam(
+  // The external codec will appear at last.
+  size_t pos = codecs.size() - 1;
+  EXPECT_EQ("GENERIC", codecs[pos].name);
+  EXPECT_TRUE(codecs[pos].HasFeedbackParam(
       cricket::FeedbackParam(cricket::kRtcpFbParamNack,
                              cricket::kParamValueEmpty)));
-  EXPECT_TRUE(codecs[0].HasFeedbackParam(
+  EXPECT_TRUE(codecs[pos].HasFeedbackParam(
       cricket::FeedbackParam(cricket::kRtcpFbParamRemb,
                              cricket::kParamValueEmpty)));
-  EXPECT_TRUE(codecs[0].HasFeedbackParam(
+  EXPECT_TRUE(codecs[pos].HasFeedbackParam(
       cricket::FeedbackParam(cricket::kRtcpFbParamCcm,
                              cricket::kRtcpFbCcmParamFir)));
+}
+
+// Test external codec with be added to the end of the supported codec list.
+TEST_F(WebRtcVideoEngineTestFake, ExternalCodecAddedToTheEnd) {
+  EXPECT_TRUE(SetupEngine());
+
+  std::vector<cricket::VideoCodec> codecs(engine_.codecs());
+  EXPECT_EQ("VP8", codecs[0].name);
+
+  encoder_factory_.AddSupportedVideoCodecType(webrtc::kVideoCodecGeneric,
+                                              "GENERIC");
+  engine_.SetExternalEncoderFactory(&encoder_factory_);
+  encoder_factory_.NotifyCodecsAvailable();
+
+  codecs = engine_.codecs();
+  cricket::VideoCodec internal_codec = codecs[0];
+  cricket::VideoCodec external_codec = codecs[codecs.size() - 1];
+  // The external codec will appear at last.
+  EXPECT_EQ("GENERIC", external_codec.name);
+  // The internal codec is preferred.
+  EXPECT_GE(internal_codec.preference, external_codec.preference);
+}
+
+// Test that external codec with be ignored if it has the same name as one of
+// the internal codecs.
+TEST_F(WebRtcVideoEngineTestFake, ExternalCodecIgnored) {
+  EXPECT_TRUE(SetupEngine());
+
+  std::vector<cricket::VideoCodec> internal_codecs(engine_.codecs());
+  EXPECT_EQ("VP8", internal_codecs[0].name);
+
+  encoder_factory_.AddSupportedVideoCodecType(webrtc::kVideoCodecVP8, "VP8");
+  engine_.SetExternalEncoderFactory(&encoder_factory_);
+  encoder_factory_.NotifyCodecsAvailable();
+
+  std::vector<cricket::VideoCodec> codecs = engine_.codecs();
+  EXPECT_EQ("VP8", codecs[0].name);
+  EXPECT_EQ(internal_codecs[0].height, codecs[0].height);
+  EXPECT_EQ(internal_codecs[0].width, codecs[0].width);
+  // Verify the last codec is not the external codec.
+  EXPECT_NE("VP8", codecs[codecs.size() - 1].name);
 }
 
 TEST_F(WebRtcVideoEngineTestFake, UpdateEncoderCodecsAfterSetFactory) {

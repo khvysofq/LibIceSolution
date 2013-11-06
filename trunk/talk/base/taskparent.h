@@ -55,7 +55,7 @@ class TaskParent {
 
  protected:
   void OnStopped(Task *task);
-  void AbortAllChildren(); 
+  void AbortAllChildren();
   TaskParent *parent() {
     return parent_;
   }

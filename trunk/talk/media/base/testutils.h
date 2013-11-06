@@ -30,6 +30,7 @@
 
 #include <string>
 #include <vector>
+
 #if !defined(DISABLE_YUV)
 #include "libyuv/compare.h"
 #endif
@@ -236,7 +237,6 @@ bool ContainsMatchingCodec(const std::vector<C>& codecs, const C& codec) {
   }
   return false;
 }
-
 }  // namespace cricket
 
 #endif  // TALK_MEDIA_BASE_TESTUTILS_H_
