@@ -5,6 +5,8 @@
 #include "talk/base/bytebuffer.h"
 #include "talk/base/dscp.h"
 
+static const int SEND_BUFFER_LENGTH = 64 * 1024;
+
 VirtualApplication::VirtualApplication(AbstractVirtualNetwork *virtual_network)
   :AbstarctVirtualApplication(virtual_network),
   socket_(NULL)
@@ -15,9 +17,13 @@ VirtualApplication::VirtualApplication(AbstractVirtualNetwork *virtual_network)
   realy_to_send_ = false;
   is_server_    = false;
   new_socket_ = NULL;
+  receive_momery_buffer_ = new talk_base::FifoBuffer(SEND_BUFFER_LENGTH);
+  send_buffer_           = new char[SEND_BUFFER_LENGTH];
 }
 void VirtualApplication::Destory(){
   LOG(LS_INFO) << "---" << __FUNCTION__;
+  delete receive_momery_buffer_;
+  delete send_buffer_;
   delete socket_;
   delete tcp_packet_socket_;
   delete p2p_system_command_;
@@ -72,23 +78,23 @@ void VirtualApplication::OnReceiveDateFromLowLayer(int socket,
   else{
     if(is_server_){
       if(new_socket_){
-        int res = new_socket_->Send(data,len,
-          talk_base::DiffServCodePoint::DSCP_CS0);
-        LOG(LS_INFO) << "\t  new_socket_\t" << res;
-        if(res <= 0 || res != len){
-          LOG(LS_ERROR) << "\t send date to client error" << res;
-        }
+        SendData(new_socket_,data,len);
+        //int res = new_socket_->Send(data,len,
+        //  talk_base::DiffServCodePoint::DSCP_CS0);
+        //LOG(LS_INFO) << "\t  new_socket_\t" << res;
+        //if(res <= 0 || res != len){
+        //  LOG(LS_ERROR) << "\t send date to client error" << res;
       }
-    }
-    else{
+    } else {
       LOG(LS_INFO) << "\t  send data_________\t" ;
       if(realy_to_send_){
-        int res = tcp_packet_socket_->Send(data,len,
-          talk_base::DiffServCodePoint::DSCP_CS0);
-        LOG(LS_INFO) << "\t  tcp_packet_socket_\t" <<  res;
-        if(res <= 0 || res != len){
-          LOG(LS_ERROR) << "\t send date to server error" << res;
-        }
+        SendData(tcp_packet_socket_,data,len);
+        //int res = tcp_packet_socket_->Send(data,len,
+        //  talk_base::DiffServCodePoint::DSCP_CS0);
+        //LOG(LS_INFO) << "\t  tcp_packet_socket_\t" <<  res;
+        //if(res <= 0 || res != len){
+        //  LOG(LS_ERROR) << "\t send date to server error" << res;
+        //}
       }
       else{
         char *msg = new char[len];
@@ -108,6 +114,54 @@ void VirtualApplication::OnReceiveDateFromLowLayer(int socket,
   }
   LOG(LS_INFO) << ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
 }
+
+void VirtualApplication::SendData(talk_base::AsyncPacketSocket *socket,
+                                  const char *data,int len)
+{
+  size_t count = 0;
+  talk_base::StreamResult res;
+  //1. write data to FIFO buffer
+  int write_fifo_count = 0;
+  while(write_fifo_count < len){
+    res = receive_momery_buffer_->Write(data + write_fifo_count,
+      len - write_fifo_count,&count,NULL);
+    if(res != talk_base::SR_SUCCESS){
+      LOG(LS_ERROR) << "write data to FIFO buffer error, the write length is " 
+        << count;
+      break;
+    }
+    write_fifo_count += len;
+  }
+  LOG(LS_INFO) << "\t 1. write data to FIFO buffer length " << write_fifo_count;
+
+  //2. get FIFO buffer reading position
+  size_t readable_fifo_length = 0;
+  size_t send_data_length = 0;
+  const void *fifo_buffer 
+    = receive_momery_buffer_->GetReadData(&readable_fifo_length);
+  LOG(LS_INFO) << "\t 2. get FIFO buffer reading position " << readable_fifo_length;
+
+  //3. send data to remote peer
+
+  send_data_length = socket->Send(fifo_buffer,readable_fifo_length,
+    talk_base::DiffServCodePoint::DSCP_CS0);
+  if(send_data_length <= 0){
+    LOG(LS_ERROR) << "send data to remote peer, the write length is " 
+      << readable_fifo_length;
+  }
+  LOG(LS_INFO) << "\t 3. send data to remote peer " << send_data_length;
+
+  //4. flush data in FIFO buffer
+  size_t flush_length;
+  res = receive_momery_buffer_->Read(send_buffer_,
+    send_data_length,&flush_length,NULL);
+  if(res != talk_base::SR_SUCCESS || flush_length < send_data_length){
+    LOG(LS_ERROR) << "flush data in FIFO buffer error, the write length is " 
+      << flush_length;
+  }
+  LOG(LS_INFO) << "\t 4. flush data in FIFO buffer " << flush_length;
+}
+
 bool VirtualApplication::ListenATcpPort(int port){
   LOG(LS_INFO) << "---" << __FUNCTION__;
   is_server_  = true;

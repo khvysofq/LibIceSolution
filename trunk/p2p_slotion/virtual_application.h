@@ -44,6 +44,8 @@ public:
 private:
   void CreateSystemCommand(int command_type,int local_port,int remote_prot);
   void CreateClientSocket(talk_base::SocketAddress &server_addr);
+  void SendData(talk_base::AsyncPacketSocket *socket,const char *data,
+    int len);
 private:
   talk_base::Thread            *current_thread_;
   //PacketSockets       packet_sockets_;
@@ -55,6 +57,11 @@ private:
   bool                          realy_to_send_;
   bool                          is_server_;
   std::deque<ReceiveDataTem>       pending_messages_;
+  
+  talk_base::FifoBuffer           *receive_momery_buffer_;
+  char                            *send_buffer_;
+private:
+
 };
 
 #endif
