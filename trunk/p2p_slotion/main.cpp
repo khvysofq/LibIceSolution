@@ -23,11 +23,14 @@ int main(void)
 //    _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 //    _CrtSetBreakAlloc(816);
   //#endif 
-  talk_base::FileStream *log_file_stream_ = new talk_base::FileStream();
-  ((talk_base::FileStream *)log_file_stream_)->Open(
-    "C:/log.txt","wb",NULL);
-  talk_base::LogMessage::LogToStream(log_file_stream_,
-    talk_base::LoggingSeverity::LS_INFO);
+  //talk_base::FileStream *log_file_stream_ = new talk_base::FileStream();
+  //((talk_base::FileStream *)log_file_stream_)->Open(
+  //  "C:/log.txt","wb",NULL);
+  //talk_base::LogMessage::LogToStream(log_file_stream_,
+  //  talk_base::LoggingSeverity::LS_WARNING);
+  talk_base::LogMessage::LogToDebug(
+    talk_base::LoggingSeverity::LS_ERROR);
+
   talk_base::Thread *main_thread 
     = talk_base::Thread::Current();
   talk_base::Thread *worker_thread = new talk_base::Thread();

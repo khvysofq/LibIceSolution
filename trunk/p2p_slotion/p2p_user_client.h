@@ -32,7 +32,7 @@ typedef std::vector<PeerResource> PeerResources;
 
 
 //const talk_base::SocketAddress ServerAddr("127.0.0.1",8888);
-const talk_base::SocketAddress ServerAddr("192.168.1.116",8888);
+const talk_base::SocketAddress ServerAddr("192.168.1.214",8888);
 const int RECEIVE_BUFFER_LENGTH   = 1024 * 8;
 
 class P2PUserClient :public sigslot::has_slots<>,

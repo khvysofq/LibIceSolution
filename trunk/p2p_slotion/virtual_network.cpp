@@ -41,7 +41,7 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
   LOG(LS_INFO) << "^^^" << __FUNCTION__;
   size_t res = 0;
   int    error = 0;
-  stream->Read(receive_buffer_,RECEIVE_BUFFER_LEN,&res,&error);
+  stream->ReadAll(receive_buffer_,RECEIVE_BUFFER_LEN,&res,&error);
   if(res && error == 0){
     LOG(LS_INFO) << "\t receive data length is " << res;
     talk_base::ByteBuffer byte_buffer(receive_buffer_,res);

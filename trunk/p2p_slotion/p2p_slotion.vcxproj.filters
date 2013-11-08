@@ -39,6 +39,9 @@
     <ClInclude Include="virtual_application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="asynctcpsocketnormal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -66,6 +69,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="virtual_application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="asynctcpsocketnormal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

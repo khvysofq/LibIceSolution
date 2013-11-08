@@ -80,6 +80,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="asynctcpsocketnormal.h" />
     <ClInclude Include="CoreP2PMediator.h" />
     <ClInclude Include="defaults.h" />
     <ClInclude Include="mediator_pattern.h" />
@@ -90,6 +91,7 @@
     <ClInclude Include="virtual_network.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="asynctcpsocketnormal.cpp" />
     <ClCompile Include="CoreP2PMediator.cpp" />
     <ClCompile Include="defaults.cc" />
     <ClCompile Include="main.cpp" />

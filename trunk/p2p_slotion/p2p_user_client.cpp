@@ -178,7 +178,7 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
   case STATES_ICE_TUNNEL_SEND_DATA:
     {
       std::cout << "\tSTATES_ICE_TUNNEL_SEND_DATA" << std::endl;
-      //if(initiator_)
+      //if(!initiator_)
       //  SendRandomData();
       break;
     }
