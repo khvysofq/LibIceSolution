@@ -31,6 +31,7 @@
 
 #include <string>
 #include <map>
+#include "talk/base/stream.h"
 //////////////////////////////////////////////////////////
 const int kDefaultServerPort = 8888;
 
@@ -84,6 +85,9 @@ enum StatesChangeType
   STATES_ICE_TUNNEL_SEND_DATA,
   STATES_ICE_TUNNEL_CLOSED
 };
+
+//soem help function
+std::string StreamResultToString(const talk_base::StreamResult res);
 
 
 #endif  // PEERCONNECTION_SAMPLES_CLIENT_DEFAULTS_H_

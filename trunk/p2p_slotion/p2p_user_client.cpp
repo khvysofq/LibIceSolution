@@ -5,6 +5,8 @@
 #include "peer_connection_ice.h"
 #include "peer_connection_server.h"
 
+static const int TEST_SEND_BUFFER   = 1024 * 4;
+
 P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
                              talk_base::Thread *signal_thread)
                              :worker_thread_(worker_thread),
@@ -16,7 +18,7 @@ P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
 {
   LOG(LS_INFO) << "+++" << __FUNCTION__;
   receive_buffer_ = new char[RECEIVE_BUFFER_LENGTH];
-
+  is_peer_connect_ = false;
 }
 P2PUserClient::~P2PUserClient(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
@@ -178,7 +180,8 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
   case STATES_ICE_TUNNEL_SEND_DATA:
     {
       std::cout << "\tSTATES_ICE_TUNNEL_SEND_DATA" << std::endl;
-      //if(!initiator_)
+      is_peer_connect_ = true;
+      //if(initiator_)
       //  SendRandomData();
       break;
     }
@@ -300,11 +303,7 @@ void P2PUserClient::OnReceiveDataFromLoweLayer(talk_base::StreamInterface* strea
 
 void P2PUserClient::SendRandomData(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
-  //SignalSendDataToLowLayer(receive_buffer_,1024);
-  std::string msg = "Hello world Hello world Hello world Hello world \
-                    Hello world Hello world Hello world Hello world";
-  p2p_virtual_application_->SignalSendDataToLowLayer(1,TCP_SOCKET,
-    receive_buffer_,8000);
+  signal_thread_->PostDelayed(20,this);
   //p2p_virtual_network_->OnReceiveDataFromUpLayer(1,1000,msg.c_str(),
   //  msg.length());
 }
@@ -324,4 +323,9 @@ void P2PUserClient::OnOnlinePeers(const PeerInfors peers){
 
 void P2PUserClient::OnMessage(talk_base::Message* msg){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
+
+  //p2p_virtual_application_->SignalSendDataToLowLayer(1,
+  //  TCP_SOCKET,receive_buffer_,TEST_SEND_BUFFER);
+  p2p_ICE_connection_->WriteData(receive_buffer_,TEST_SEND_BUFFER);
+  signal_thread_->PostDelayed(20,this);
 }

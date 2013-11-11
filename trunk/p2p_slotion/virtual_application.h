@@ -2,6 +2,7 @@
 #define VIRTUAL_APPLICATION__H_
 #include "talk/base/asyncpacketsocket.h"
 #include "mediator_pattern.h"
+#include "talk/p2p/base/basicpacketsocketfactory.h"
 
 const int P2PSC_CREATE_CLIENT_CONNECTION_     = 0XFF;
 const int P2PSC_CREATE_CLIENT_CONNECTION_OK_  = 0XFF01;
@@ -61,7 +62,7 @@ private:
   talk_base::FifoBuffer           *receive_momery_buffer_;
   char                            *send_buffer_;
 private:
-
+  char                            *receive_local_buffer_;
 };
 
 #endif

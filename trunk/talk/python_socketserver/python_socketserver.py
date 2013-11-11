@@ -8,12 +8,11 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 msg = "Hello, worldHello, worldHello"
 #while True:
-
-#while True:
-data = s.recv(1024)
-print "receive data...",len(msg)
-s.sendall(data)
-print "send data...",len(msg)
-time.sleep(0.2);
-#s.close()
+while True:
+  s.sendall(msg)
+  print "send data...",len(msg)
+  data = s.recv(1024)
+  print "receive data...",len(msg)
+  time.sleep(0.2)
+s.close()
 print 'Received', repr(data)

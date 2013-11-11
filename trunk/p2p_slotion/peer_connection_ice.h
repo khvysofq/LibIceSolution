@@ -32,7 +32,8 @@ private:    //p2p server function and some help function
 private:  //libjingle system function
   // implements the MessageHandler interface
   void OnMessage(talk_base::Message* msg);
-  void ReadData(const talk_base::StreamInterface *stream);
+  void ReadData(talk_base::StreamInterface *stream);
+  virtual void WriteData(const char *data, int len);
 private:    //ICE part function
   enum {REMOTE_PEER_MESSAGE};
   //interior message that start college transport information
@@ -60,6 +61,7 @@ private:    //ICE part member
   talk_base::StreamInterface      *local_tunnel_;
   talk_base::FifoBuffer           *receive_momery_buffer_;
   char                            *send_buffer_;
+  cricket::BasicPortAllocator     *basic_prot_allocator_;
 
 private:    //p2p server member
   std::string                     local_peer_name_;

@@ -1,6 +1,8 @@
 #include "talk/base/logging.h"
 #include "peer_connection_ice.h"
 #include "defaults.h"
+#include "talk/p2p/base/basicpacketsocketfactory.h"
+
 
 static const int SEND_BUFFER_LENGTH = 64 * 1024;
 
@@ -36,13 +38,16 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
   send_buffer_           = new char[SEND_BUFFER_LENGTH];
   //-----------------------Part 2: initialize ICE part
   basic_network_manager_  =   new talk_base::BasicNetworkManager();
-  http_allocator_         =   new cricket::HttpPortAllocator(
-    basic_network_manager_,HTTP_USER_AGENT);
-  stun_hosts_.push_back(KStunAddr);
-  http_allocator_->SetStunHosts(stun_hosts_);
-
+  //http_allocator_         =   new cricket::HttpPortAllocator(
+  //  basic_network_manager_,HTTP_USER_AGENT);
+  //stun_hosts_.push_back(KStunAddr);
+  //http_allocator_->SetStunHosts(stun_hosts_);
+  basic_prot_allocator_   =   new cricket::BasicPortAllocator(
+    basic_network_manager_,
+    new talk_base::BasicPacketSocketFactory(signal_thread_),
+    KStunAddr);
   //initialize session manager
-  session_manager_        =   new cricket::SessionManager(http_allocator_,
+  session_manager_        =   new cricket::SessionManager(basic_prot_allocator_,
     worker_thread_);
   session_manager_->SignalRequestSignaling.connect(this,
     &PeerConnectionIce::OnRequestSignaling);
@@ -136,6 +141,11 @@ void PeerConnectionIce::OnReceiveMessageFromRemotePeer(const std::string msg,
 void PeerConnectionIce::OnReceiveDataFromUpLayer(const char *data, int len)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
+  if(len == -1){
+    LOG(LS_INFO) << "\tSave data to receive memory buffer";
+    receive_momery_buffer_->Write(data,20,NULL,NULL);
+    return ;
+  }
   size_t count = 0;
   talk_base::StreamResult res;
   //1. write data to FIFO buffer
@@ -160,11 +170,14 @@ void PeerConnectionIce::OnReceiveDataFromUpLayer(const char *data, int len)
   LOG(LS_INFO) << "\t 2. get FIFO buffer reading position " << readable_fifo_length;
 
   //3. send data to remote peer
-  res = local_tunnel_->Write(fifo_buffer,readable_fifo_length,
+  res = local_tunnel_->WriteAll(fifo_buffer,readable_fifo_length,
     &send_data_length,NULL);
   if(res != talk_base::SR_SUCCESS){
-    LOG(LS_ERROR) << "send data to remote peer, the write length is " 
-      << count;
+    LOG(LS_ERROR) << "send data to remote peer, the send length is " 
+      << send_data_length << "\t" << StreamResultToString(res);
+  }
+  if(res == talk_base::SR_BLOCK){
+    //sleep(5);
   }
   LOG(LS_INFO) << "\t 3. send data to remote peer " << send_data_length;
 
@@ -230,6 +243,7 @@ void PeerConnectionIce::OnStreamEvent(talk_base::StreamInterface* stream,
     if (stream == local_tunnel_) {
       LOG(LS_INFO) <<"\ttalk_base::SE_READ";
       if(error == 0){
+        //ReadData(stream);
         SignalSendDataToUpLayer(stream);
       }
     }
@@ -237,7 +251,7 @@ void PeerConnectionIce::OnStreamEvent(talk_base::StreamInterface* stream,
 
   if (events & talk_base::SE_WRITE) {
     if (stream == local_tunnel_) {
-      LOG(LS_INFO) << "\ttalk_base::SE_WRITE";
+      LOG(LS_INFO) << "\ttalk_base::SE_WRITE  ????????????????????????????????";
       SignalStatesChange(STATES_ICE_TUNNEL_SEND_DATA);
       
     }
@@ -252,8 +266,18 @@ void PeerConnectionIce::OnStreamEvent(talk_base::StreamInterface* stream,
   }
 }
 
-void PeerConnectionIce::ReadData(const talk_base::StreamInterface *stream){
+void PeerConnectionIce::ReadData(talk_base::StreamInterface *stream){
+  LOG(LS_INFO) << "===" << __FUNCTION__;
+  size_t res = 0;
+  stream->Read(send_buffer_,SEND_BUFFER_LENGTH,&res,NULL);
+  LOG(LS_INFO) << "\tRead Data length is " << res;
+}
 
+void PeerConnectionIce::WriteData(const char *data, int len){
+  LOG(LS_INFO) << "===" << __FUNCTION__;
+  size_t res = 0;
+  local_tunnel_->WriteAll(data,len,&res,NULL);
+  LOG(LS_INFO) << "\tWrite Data length is " << res;
 }
 
 void PeerConnectionIce::OnMessage(talk_base::Message* msg){

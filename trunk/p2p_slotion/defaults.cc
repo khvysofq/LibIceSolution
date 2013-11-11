@@ -65,3 +65,14 @@ std::string GetCurrentComputerUserName() {
   ret += computer_name;
   return ret;
 }
+
+// Stream read/write methods return this value to indicate various success
+// and failure conditions described below.
+//enum StreamResult { SR_ERROR, SR_SUCCESS, SR_BLOCK, SR_EOS };
+
+static const char StreamResultStream[][16] = {"SR_ERROR","SR_SUCCESS",
+  "SR_BLOCK","SR_EOS"};
+
+std::string StreamResultToString(const talk_base::StreamResult res){
+  return StreamResultStream[(int)res];
+}

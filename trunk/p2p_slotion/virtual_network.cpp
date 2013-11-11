@@ -41,8 +41,12 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
   LOG(LS_INFO) << "^^^" << __FUNCTION__;
   size_t res = 0;
   int    error = 0;
-  stream->ReadAll(receive_buffer_,RECEIVE_BUFFER_LEN,&res,&error);
-  if(res && error == 0){
+  talk_base::StreamResult result = stream->ReadAll(receive_buffer_,
+    RECEIVE_BUFFER_LEN,&res,&error);
+  LOG(LS_INFO) << "\t receive data length is " << res;
+  LOG(LS_INFO) << "\t result = " << StreamResultToString(result);
+
+  if(res){
     LOG(LS_INFO) << "\t receive data length is " << res;
     talk_base::ByteBuffer byte_buffer(receive_buffer_,res);
 
@@ -156,8 +160,9 @@ void VirtualNetwork::OnReceiveDataFromUpLayer(int socket,SocketType socket_type,
   LOG(LS_INFO) << "\t network_header_->socket_type_\t=" 
     << network_header_->socket_type_;
 
-  SignalSendDataToLowLayer(byte_buffer.Data(),
-    byte_buffer.Length());
+  //SignalSendDataToLowLayer(byte_buffer.Data(),
+  //  byte_buffer.Length());  
+  SignalSendDataToLowLayer(byte_buffer.Data(),-1);
   SignalSendDataToLowLayer(data,len);
 }
 

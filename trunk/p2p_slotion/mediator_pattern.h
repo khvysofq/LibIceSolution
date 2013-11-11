@@ -95,6 +95,7 @@ public:
   //ice to up layer interface
   virtual void OnReceiveDataFromUpLayer(const char *, int) = 0;
   sigslot::signal1<talk_base::StreamInterface*> SignalSendDataToUpLayer;
+  virtual void WriteData(const char *data, int len) = 0;
 protected:
   void Add_remote_peer(int peer_id, std::string peer_name){
     //remote_peers_.insert(

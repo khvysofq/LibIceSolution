@@ -19,9 +19,11 @@ VirtualApplication::VirtualApplication(AbstractVirtualNetwork *virtual_network)
   new_socket_ = NULL;
   receive_momery_buffer_ = new talk_base::FifoBuffer(SEND_BUFFER_LENGTH);
   send_buffer_           = new char[SEND_BUFFER_LENGTH];
+  receive_local_buffer_  = new char[SEND_BUFFER_LENGTH];
 }
 void VirtualApplication::Destory(){
   LOG(LS_INFO) << "---" << __FUNCTION__;
+  delete receive_local_buffer_;
   delete receive_momery_buffer_;
   delete send_buffer_;
   delete socket_;
@@ -37,6 +39,7 @@ void VirtualApplication::OnReceiveDateFromLowLayer(int socket,
                                                    const char *data, int len)
 {
   LOG(LS_INFO) << "---" << __FUNCTION__;
+  LOG(LS_INFO) << "\t receive dta length is " << len;
   LOG(LS_INFO) << ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
   //SignalSendDataToLowLayer(socket,socket_type,data,len);
   //for(int i = 0; i < len; i++)
@@ -115,9 +118,11 @@ void VirtualApplication::OnReceiveDateFromLowLayer(int socket,
   LOG(LS_INFO) << ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
 }
 
+
 void VirtualApplication::SendData(talk_base::AsyncPacketSocket *socket,
                                   const char *data,int len)
 {
+  LOG(LS_INFO) << "---" << __FUNCTION__;
   size_t count = 0;
   talk_base::StreamResult res;
   //1. write data to FIFO buffer
@@ -146,10 +151,10 @@ void VirtualApplication::SendData(talk_base::AsyncPacketSocket *socket,
   send_data_length = socket->Send(fifo_buffer,readable_fifo_length,
     talk_base::DiffServCodePoint::DSCP_CS0);
   if(send_data_length <= 0){
-    LOG(LS_ERROR) << "send data to remote peer, the write length is " 
+    LOG(LS_ERROR) << "send data to local peer, the write length is " 
       << readable_fifo_length;
   }
-  LOG(LS_INFO) << "\t 3. send data to remote peer " << send_data_length;
+  LOG(LS_INFO) << "\t 3. send data to local peer " << send_data_length;
 
   //4. flush data in FIFO buffer
   size_t flush_length;
@@ -164,6 +169,7 @@ void VirtualApplication::SendData(talk_base::AsyncPacketSocket *socket,
 
 bool VirtualApplication::ListenATcpPort(int port){
   LOG(LS_INFO) << "---" << __FUNCTION__;
+
   is_server_  = true;
   //talk_base::AsyncSocket  *async_socket 
   //  = current_thread_->socketserver()->CreateAsyncSocket(SOCK_STREAM);
@@ -252,7 +258,8 @@ void VirtualApplication::OnReadPacket(talk_base::AsyncPacketSocket* socket,
   LOG(LS_INFO) << "---" << __FUNCTION__;
   LOG(LS_INFO) << "++++++++++++++++++++++++++++++++++++++++";
   LOG(LS_INFO) << "\t receive data length is " << len;
-  SignalSendDataToLowLayer((int)socket,TCP_SOCKET,data,len);
+  memcpy(receive_local_buffer_,data,len);
+  SignalSendDataToLowLayer((int)socket,TCP_SOCKET,receive_local_buffer_,len);
   LOG(LS_INFO) << "++++++++++++++++++++++++++++++++++++++++";
 }
 
@@ -286,4 +293,7 @@ void VirtualApplication::OnMessage(talk_base::Message *msg){
       talk_base::Thread::Current()->PostDelayed(20,this);
     }
   }
+
+  //data send test
+
 }

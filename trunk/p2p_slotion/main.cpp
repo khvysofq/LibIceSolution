@@ -27,7 +27,7 @@ int main(void)
   //((talk_base::FileStream *)log_file_stream_)->Open(
   //  "C:/log.txt","wb",NULL);
   //talk_base::LogMessage::LogToStream(log_file_stream_,
-  //  talk_base::LoggingSeverity::LS_WARNING);
+  //  talk_base::LoggingSeverity::LS_VERBOSE);
   talk_base::LogMessage::LogToDebug(
     talk_base::LoggingSeverity::LS_ERROR);
 
@@ -43,10 +43,15 @@ int main(void)
   p2p_user_client.StartRun();
 
   while(true){
-    if(choose){
-      p2p_user_client.ConnectionToPeer(choose);
+    if(false == p2p_user_client.is_peer_connect_){
+      if(choose){
+        p2p_user_client.ConnectionToPeer(choose);
+        break;
+      }
+    } else{
       break;
     }
+
     main_thread->ProcessMessages(1000);
   }
 

@@ -21,9 +21,15 @@
     <ClCompile Include="asynctcpsocketnormal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="senddatabuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="asynctcpsocketnormal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="senddatabuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

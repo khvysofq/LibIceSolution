@@ -1535,6 +1535,7 @@ bool PhysicalSocketServer::Wait(int cmsWait, bool process_io) {
         if (disp->CheckSignalClose()) {
           // We just signalled close, don't poll this socket
         } else if (s != INVALID_SOCKET) {
+          //LOG(LS_ERROR) << "There maybe has a bug";
           WSAEventSelect(s,
                          events[0],
                          FlagsToEvents(disp->GetRequestedEvents()));
