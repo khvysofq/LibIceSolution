@@ -20,9 +20,11 @@ VirtualApplication::VirtualApplication(AbstractVirtualNetwork *virtual_network)
   receive_momery_buffer_ = new talk_base::FifoBuffer(SEND_BUFFER_LENGTH);
   send_buffer_           = new char[SEND_BUFFER_LENGTH];
   receive_local_buffer_  = new char[SEND_BUFFER_LENGTH];
+  send_data_buffer_      = new SendDataBuffer();
 }
 void VirtualApplication::Destory(){
   LOG(LS_INFO) << "---" << __FUNCTION__;
+  delete send_data_buffer_;
   delete receive_local_buffer_;
   delete receive_momery_buffer_;
   delete send_buffer_;
@@ -34,10 +36,11 @@ VirtualApplication::~VirtualApplication(){
   LOG(LS_INFO) << "---" << __FUNCTION__;
   Destory();
 }
-void VirtualApplication::OnReceiveDateFromLowLayer(int socket, 
+void VirtualApplication::OnReceiveDateFromLowLayer(uint32 socket, 
                                                    SocketType socket_type,
-                                                   const char *data, int len)
+                                                   const char *data, uint16 len)
 {
+
   LOG(LS_INFO) << "---" << __FUNCTION__;
   LOG(LS_INFO) << "\t receive dta length is " << len;
   LOG(LS_INFO) << ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
@@ -49,73 +52,61 @@ void VirtualApplication::OnReceiveDateFromLowLayer(int socket,
   LOG(LS_INFO) << "\t socket_type\t" << socket_type;
   LOG(LS_INFO) << "\t len\t\t" << len;
   LOG(LS_INFO) << "\t socket_\t\t" << socket_;
-  if(NON_SOCKET == socket && (socket_ == NULL))
-  {
-    LOG(LS_INFO) << "\t Parse data\t" ;
-    //The socket is null, it must be a create command.
-    talk_base::ByteBuffer byte_buffer(data,len);
-    P2PSystemCommand p2p_system_command;
-    byte_buffer.ReadUInt32(&p2p_system_command.command_type_);
-    byte_buffer.ReadUInt32(&p2p_system_command.local_port_);
-    byte_buffer.ReadUInt32(&p2p_system_command.remote_port_);
-    switch(p2p_system_command.command_type_){
-    case P2PSC_CREATE_CLIENT_CONNECTION_:
-      {
-        LOG(LS_INFO) << "\t P2PSC_CREATE_CLIENT_CONNECTION_\t" ;
-        LOG(LS_INFO) << "\t Create client socket";
-        talk_base::SocketAddress server_addr("127.0.0.1",
-          p2p_system_command.remote_port_);
-        CreateClientSocket(server_addr);
-        //CreateClientSocket(
-        break;
-      }
-    case P2PSC_CREATE_CLIENT_CONNECTION_OK_:
-      {
+  //if((socket_ == NULL))
+  //{
+  //  LOG(LS_INFO) << "\t Parse data\t" ;
+  //  //The socket is null, it must be a create command.
+  //  talk_base::ByteBuffer byte_buffer(data,len);
+  //  P2PSystemCommand p2p_system_command;
+  //  byte_buffer.ReadUInt32(&p2p_system_command.command_type_);
+  //  byte_buffer.ReadUInt32(&p2p_system_command.local_port_);
+  //  byte_buffer.ReadUInt32(&p2p_system_command.remote_port_);
+  //  switch(p2p_system_command.command_type_){
+  //  case P2PSC_CREATE_CLIENT_CONNECTION_:
+  //    {
+  //      LOG(LS_INFO) << "\t P2PSC_CREATE_CLIENT_CONNECTION_\t" ;
+  //      LOG(LS_INFO) << "\t Create client socket";
+  //      talk_base::SocketAddress server_addr("127.0.0.1",
+  //        p2p_system_command.remote_port_);
+  //      CreateClientSocket(server_addr);
+  //      //CreateClientSocket(
+  //      break;
+  //    }
+  //  case P2PSC_CREATE_CLIENT_CONNECTION_OK_:
+  //    {
 
-        LOG(LS_INFO) << "\t P2PSC_CREATE_CLIENT_CONNECTION_OK_\t" ;
-        break;
-      }
-    }
-    LOG(LS_INFO) << "\t NOTHING_AT_HERE_it is error\t" ;
-  }
-  else{
-    if(is_server_){
-      if(new_socket_){
-        SendData(new_socket_,data,len);
-        //int res = new_socket_->Send(data,len,
-        //  talk_base::DiffServCodePoint::DSCP_CS0);
-        //LOG(LS_INFO) << "\t  new_socket_\t" << res;
-        //if(res <= 0 || res != len){
-        //  LOG(LS_ERROR) << "\t send date to client error" << res;
-      }
-    } else {
-      LOG(LS_INFO) << "\t  send data_________\t" ;
-      if(realy_to_send_){
-        SendData(tcp_packet_socket_,data,len);
-        //int res = tcp_packet_socket_->Send(data,len,
-        //  talk_base::DiffServCodePoint::DSCP_CS0);
-        //LOG(LS_INFO) << "\t  tcp_packet_socket_\t" <<  res;
-        //if(res <= 0 || res != len){
-        //  LOG(LS_ERROR) << "\t send date to server error" << res;
-        //}
-      }
-      else{
-        char *msg = new char[len];
-        memcpy(msg,data,len * sizeof(char));
+  //      LOG(LS_INFO) << "\t P2PSC_CREATE_CLIENT_CONNECTION_OK_\t" ;
+  //      break;
+  //    }
+  //  }
+  //}
+  //else{
+  //  if(is_server_){
+  //    if(new_socket_){
+  //      SendData(new_socket_,data,len);
+  //    }
+  //  } else {
+  //    LOG(LS_INFO) << "\t  send data_________\t" ;
+  //    if(realy_to_send_){
+  //      SendData(tcp_packet_socket_,data,len);
+  //    }
+  //    else{
+  //      char *msg = new char[len];
+  //      memcpy(msg,data,len * sizeof(char));
 
-        ReceiveDataTem receive_tem;
-        receive_tem.data_length_ = len;
-        receive_tem.data_ = msg;
+  //      ReceiveDataTem receive_tem;
+  //      receive_tem.data_length_ = len;
+  //      receive_tem.data_ = msg;
 
-        if(msg){
-          LOG(LS_INFO) << "\t  send pending_messages_" ;
-          pending_messages_.push_back(receive_tem);
-          talk_base::Thread::Current()->PostDelayed(20,this);
-        }
-      }
-    }
-  }
-  LOG(LS_INFO) << ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
+  //      if(msg){
+  //        LOG(LS_INFO) << "\t  send pending_messages_" ;
+  //        pending_messages_.push_back(receive_tem);
+  //        talk_base::Thread::Current()->PostDelayed(20,this);
+  //      }
+  //    }
+  //  }
+  //}
+  //LOG(LS_INFO) << ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
 }
 
 
@@ -123,48 +114,9 @@ void VirtualApplication::SendData(talk_base::AsyncPacketSocket *socket,
                                   const char *data,int len)
 {
   LOG(LS_INFO) << "---" << __FUNCTION__;
-  size_t count = 0;
-  talk_base::StreamResult res;
-  //1. write data to FIFO buffer
-  int write_fifo_count = 0;
-  while(write_fifo_count < len){
-    res = receive_momery_buffer_->Write(data + write_fifo_count,
-      len - write_fifo_count,&count,NULL);
-    if(res != talk_base::SR_SUCCESS){
-      LOG(LS_ERROR) << "write data to FIFO buffer error, the write length is " 
-        << count;
-      break;
-    }
-    write_fifo_count += len;
-  }
-  LOG(LS_INFO) << "\t 1. write data to FIFO buffer length " << write_fifo_count;
 
-  //2. get FIFO buffer reading position
-  size_t readable_fifo_length = 0;
-  size_t send_data_length = 0;
-  const void *fifo_buffer 
-    = receive_momery_buffer_->GetReadData(&readable_fifo_length);
-  LOG(LS_INFO) << "\t 2. get FIFO buffer reading position " << readable_fifo_length;
-
-  //3. send data to remote peer
-
-  send_data_length = socket->Send(fifo_buffer,readable_fifo_length,
-    talk_base::DiffServCodePoint::DSCP_CS0);
-  if(send_data_length <= 0){
-    LOG(LS_ERROR) << "send data to local peer, the write length is " 
-      << readable_fifo_length;
-  }
-  LOG(LS_INFO) << "\t 3. send data to local peer " << send_data_length;
-
-  //4. flush data in FIFO buffer
-  size_t flush_length;
-  res = receive_momery_buffer_->Read(send_buffer_,
-    send_data_length,&flush_length,NULL);
-  if(res != talk_base::SR_SUCCESS || flush_length < send_data_length){
-    LOG(LS_ERROR) << "flush data in FIFO buffer error, the write length is " 
-      << flush_length;
-  }
-  LOG(LS_INFO) << "\t 4. flush data in FIFO buffer " << flush_length;
+  send_data_buffer_->SaveData(data,len);
+  send_data_buffer_->SendDataBySocket(socket,10);
 }
 
 bool VirtualApplication::ListenATcpPort(int port){
@@ -256,11 +208,11 @@ void VirtualApplication::OnReadPacket(talk_base::AsyncPacketSocket* socket,
                                       const talk_base::SocketAddress& addr)
 {
   LOG(LS_INFO) << "---" << __FUNCTION__;
-  LOG(LS_INFO) << "++++++++++++++++++++++++++++++++++++++++";
-  LOG(LS_INFO) << "\t receive data length is " << len;
+  //LOG(LS_INFO) << "++++++++++++++++++++++++++++++++++++++++";
+  //LOG(LS_INFO) << "\t receive data length is " << len;
   memcpy(receive_local_buffer_,data,len);
   SignalSendDataToLowLayer((int)socket,TCP_SOCKET,receive_local_buffer_,len);
-  LOG(LS_INFO) << "++++++++++++++++++++++++++++++++++++++++";
+  //LOG(LS_INFO) << "++++++++++++++++++++++++++++++++++++++++";
 }
 
 void VirtualApplication::OnReadyToSend(talk_base::AsyncPacketSocket *socket){

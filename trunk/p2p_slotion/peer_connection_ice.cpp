@@ -36,6 +36,7 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
   //-----------------------Part 1: initialize P2PMediator part
   receive_momery_buffer_ = new talk_base::FifoBuffer(SEND_BUFFER_LENGTH);
   send_buffer_           = new char[SEND_BUFFER_LENGTH];
+  send_data_buffer_      = new SendDataBuffer();
   //-----------------------Part 2: initialize ICE part
   basic_network_manager_  =   new talk_base::BasicNetworkManager();
   //http_allocator_         =   new cricket::HttpPortAllocator(
@@ -63,6 +64,7 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
 };
 
 void PeerConnectionIce::DestroyPeerConnectionIce(){
+  delete send_data_buffer_;
   delete send_buffer_;
   receive_momery_buffer_->Close();
   if(remote_jid_)
@@ -141,55 +143,13 @@ void PeerConnectionIce::OnReceiveMessageFromRemotePeer(const std::string msg,
 void PeerConnectionIce::OnReceiveDataFromUpLayer(const char *data, int len)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
-  if(len == -1){
-    LOG(LS_INFO) << "\tSave data to receive memory buffer";
-    receive_momery_buffer_->Write(data,20,NULL,NULL);
+  //local_tunnel_->WriteAll(data,len,NULL,NULL);
+  if(len == 0){
+    send_data_buffer_->SaveData(data,20);
     return ;
   }
-  size_t count = 0;
-  talk_base::StreamResult res;
-  //1. write data to FIFO buffer
-  int write_fifo_count = 0;
-  while(write_fifo_count < len){
-    res = receive_momery_buffer_->Write(data + write_fifo_count,
-      len - write_fifo_count,&count,NULL);
-    if(res != talk_base::SR_SUCCESS){
-      LOG(LS_ERROR) << "write data to FIFO buffer error, the write length is " 
-        << count;
-      break;
-    }
-    write_fifo_count += len;
-  }
-  LOG(LS_INFO) << "\t 1. write data to FIFO buffer length " << write_fifo_count;
-
-  //2. get FIFO buffer reading position
-  size_t readable_fifo_length = 0;
-  size_t send_data_length = 0;
-  const void *fifo_buffer 
-    = receive_momery_buffer_->GetReadData(&readable_fifo_length);
-  LOG(LS_INFO) << "\t 2. get FIFO buffer reading position " << readable_fifo_length;
-
-  //3. send data to remote peer
-  res = local_tunnel_->WriteAll(fifo_buffer,readable_fifo_length,
-    &send_data_length,NULL);
-  if(res != talk_base::SR_SUCCESS){
-    LOG(LS_ERROR) << "send data to remote peer, the send length is " 
-      << send_data_length << "\t" << StreamResultToString(res);
-  }
-  if(res == talk_base::SR_BLOCK){
-    //sleep(5);
-  }
-  LOG(LS_INFO) << "\t 3. send data to remote peer " << send_data_length;
-
-  //4. flush data in FIFO buffer
-  size_t flush_length;
-  res = receive_momery_buffer_->Read(send_buffer_,
-    send_data_length,&flush_length,NULL);
-  if(res != talk_base::SR_SUCCESS || flush_length < send_data_length){
-    LOG(LS_ERROR) << "flush data in FIFO buffer error, the write length is " 
-      << flush_length;
-  }
-  LOG(LS_INFO) << "\t 4. flush data in FIFO buffer " << flush_length;
+  send_data_buffer_->SaveData(data,len);
+  send_data_buffer_->SendDataByStream(local_tunnel_,50);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -276,8 +236,10 @@ void PeerConnectionIce::ReadData(talk_base::StreamInterface *stream){
 void PeerConnectionIce::WriteData(const char *data, int len){
   LOG(LS_INFO) << "===" << __FUNCTION__;
   size_t res = 0;
-  local_tunnel_->WriteAll(data,len,&res,NULL);
-  LOG(LS_INFO) << "\tWrite Data length is " << res;
+  local_tunnel_->Write(data,len,&res,NULL);
+  LOG(LS_INFO) << "\t Write Data length is " << res;
+  if(res != len)
+    LOG(LS_ERROR) << "\t error write data not complete";
 }
 
 void PeerConnectionIce::OnMessage(talk_base::Message* msg){

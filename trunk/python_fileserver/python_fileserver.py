@@ -13,15 +13,17 @@ def random_str(randomlength=8):
   return str
 
 #client coding
-msg = random_str(4096)
-HOST = '127.0.0.1'    # The remote host
+msg = random_str(2046)
+HOST = '42.121.127.71'    # The remote host
 PORT = 554              # The same port as used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
+
 while True:
-  data = s.recv(4096)
-  print "receive data...",len(msg)
-  #s.sendall(data)
+  #data = s.recv(4096)
+  #print "receive data...",len(msg)
+  #s.sendall(msg)
+  s.recv(4096)
   #time.sleep(30.0/1000);
 s.close()
 print 'Received', repr(data)

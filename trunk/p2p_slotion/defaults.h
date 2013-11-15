@@ -46,6 +46,27 @@ struct PeerInfor{
 
 typedef std::map<int,PeerInfor> PeerInfors;
 
+
+const int P2P_NETWORKER_HEADER_IDE =  0X1032FBAE;
+const int RECEIVE_BUFFER_LEN       =  1024 * 32;
+struct SOCKETHeader{
+  int header_ide_;
+  int remote_socket_;
+  int local_socket_;
+  int data_len_;
+};
+
+typedef uint16 SocketType;
+
+struct NetworkHeader{
+  uint32      header_ide_;
+  uint32      remote_socket_;
+  uint32      local_socket_;
+  SocketType  socket_type_; //uint16
+  uint16      data_len_;
+};
+const int NETWORKHEADER_LENGTH = sizeof(NetworkHeader);
+//////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 //ICE help define
 const std::string HTTP_USER_AGENT     = "HTTP_USER_AGENT";
@@ -54,7 +75,6 @@ const std::string DEFAULT_DECRIBE    = "p2p solution test";
 
 //virtual network layer help define
 const int NON_SOCKET                =  0;
-typedef unsigned short SocketType;
 const SocketType          TCP_SOCKET = 1;
 const SocketType          UDP_SOCKET = 2;
 

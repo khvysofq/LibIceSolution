@@ -19,7 +19,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -84,9 +84,13 @@
     <ClInclude Include="CoreP2PMediator.h" />
     <ClInclude Include="defaults.h" />
     <ClInclude Include="mediator_pattern.h" />
+    <ClInclude Include="networkbytebuffer.h" />
     <ClInclude Include="p2p_user_client.h" />
     <ClInclude Include="peer_connection_server.h" />
     <ClInclude Include="peer_connection_ice.h" />
+    <ClInclude Include="proxysocketmanagement.h" />
+    <ClInclude Include="senddatabuffer.h" />
+    <ClInclude Include="sockettablemanagement.h" />
     <ClInclude Include="virtual_application.h" />
     <ClInclude Include="virtual_network.h" />
   </ItemGroup>
@@ -96,9 +100,13 @@
     <ClCompile Include="defaults.cc" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mediator_pattern.cpp" />
+    <ClCompile Include="networkbytebuffer.cpp" />
     <ClCompile Include="p2p_user_client.cpp" />
     <ClCompile Include="peer_connection_server.cc" />
     <ClCompile Include="peer_connection_ice.cpp" />
+    <ClCompile Include="proxysocketmanagement.cpp" />
+    <ClCompile Include="senddatabuffer.cpp" />
+    <ClCompile Include="sockettablemanagement.cpp" />
     <ClCompile Include="virtual_application.cpp" />
     <ClCompile Include="virtual_network.cpp" />
   </ItemGroup>

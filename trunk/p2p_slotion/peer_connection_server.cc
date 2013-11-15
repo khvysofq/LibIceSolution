@@ -652,5 +652,5 @@ void PeerConnectionServer::OnMessage(talk_base::Message* msg) {
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   SendMessageToP2PServer();
   if(!pending_messages_.empty())
-    talk_base::Thread::Current()->PostDelayed(20,this);
+    talk_base::Thread::Current()->PostDelayed(100,this);
 }

@@ -1,6 +1,7 @@
 #ifndef PEER_CONNECTION_ICE_H_
 #define PEER_CONNECTION_ICE_H_
 
+#include "senddatabuffer.h"
 #include "talk/base/thread.h"
 #include "talk/p2p/base/sessionmanager.h"
 #include "talk/p2p/client/httpportallocator.h"
@@ -62,6 +63,8 @@ private:    //ICE part member
   talk_base::FifoBuffer           *receive_momery_buffer_;
   char                            *send_buffer_;
   cricket::BasicPortAllocator     *basic_prot_allocator_;
+  
+  SendDataBuffer                  *send_data_buffer_;
 
 private:    //p2p server member
   std::string                     local_peer_name_;

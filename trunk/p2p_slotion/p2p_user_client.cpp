@@ -18,6 +18,11 @@ P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
 {
   LOG(LS_INFO) << "+++" << __FUNCTION__;
   receive_buffer_ = new char[RECEIVE_BUFFER_LENGTH];
+
+  for(int i = 0; i < RECEIVE_BUFFER_LENGTH; ++i){
+    receive_buffer_[i] = i;
+  }
+
   is_peer_connect_ = false;
 }
 P2PUserClient::~P2PUserClient(){
@@ -66,8 +71,8 @@ void P2PUserClient::StartRun(){
 
 void P2PUserClient::ConnectionToPeer(int peer_id){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
-  if(!p2p_server_connection_->UpdataPeerInfor("Hello"))
-    std::cout << "UpdatePeerInfor failure" << std::endl;
+  //if(!p2p_server_connection_->UpdataPeerInfor("Hello"))
+  //  std::cout << "UpdatePeerInfor failure" << std::endl;
   initiator_ = true;
   std::string remote_peer_name = 
     p2p_server_connection_->get_remote_name(peer_id);
@@ -181,8 +186,8 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
     {
       std::cout << "\tSTATES_ICE_TUNNEL_SEND_DATA" << std::endl;
       is_peer_connect_ = true;
-      //if(initiator_)
-      //  SendRandomData();
+      if(initiator_)
+        SendRandomData();
       break;
     }
   case STATES_ICE_TUNNEL_CLOSED:
@@ -304,6 +309,7 @@ void P2PUserClient::OnReceiveDataFromLoweLayer(talk_base::StreamInterface* strea
 void P2PUserClient::SendRandomData(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
   signal_thread_->PostDelayed(20,this);
+  SocketTableManagement::Instance()->AddNewLocalSocket(123,123,TCP_SOCKET);
   //p2p_virtual_network_->OnReceiveDataFromUpLayer(1,1000,msg.c_str(),
   //  msg.length());
 }
@@ -326,6 +332,7 @@ void P2PUserClient::OnMessage(talk_base::Message* msg){
 
   //p2p_virtual_application_->SignalSendDataToLowLayer(1,
   //  TCP_SOCKET,receive_buffer_,TEST_SEND_BUFFER);
-  p2p_ICE_connection_->WriteData(receive_buffer_,TEST_SEND_BUFFER);
-  signal_thread_->PostDelayed(20,this);
+  p2p_virtual_network_->OnReceiveDataFromUpLayer(123,TCP_SOCKET,
+    receive_buffer_,TEST_SEND_BUFFER);
+  signal_thread_->PostDelayed(15,this);
 }
