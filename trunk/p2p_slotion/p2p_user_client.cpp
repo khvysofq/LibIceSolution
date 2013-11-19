@@ -5,7 +5,8 @@
 #include "peer_connection_ice.h"
 #include "peer_connection_server.h"
 
-static const int TEST_SEND_BUFFER   = 1024 * 4;
+static const int TEST_SEND_BUFFER   = 64;
+static const talk_base::SocketAddress KLocalRTSPServer("127.0.0.1",554);
 
 P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
                              talk_base::Thread *signal_thread)
@@ -82,7 +83,7 @@ void P2PUserClient::ConnectionToPeer(int peer_id){
   }
   LOG(LS_INFO) << "\t remote peer name is\t" << remote_peer_name;
   p2p_ICE_connection_->ConnectionToRemotePeer(peer_id,remote_peer_name);
-  p2p_virtual_application_->ListenATcpPort(554);
+  p2p_virtual_application_->CreateRTSPServer(KLocalRTSPServer);
 }
 
 void P2PUserClient::Destory(){

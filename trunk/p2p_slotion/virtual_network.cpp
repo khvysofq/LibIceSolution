@@ -78,11 +78,8 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
   int    error = 0;
   talk_base::StreamResult result = stream->ReadAll(temp_buffer_,
     RECEIVE_BUFFER_LEN,&res,&error);
-  if(result != talk_base::SR_SUCCESS)
-    LOG(LS_ERROR) << "\t result = " << StreamResultToString(result);
 
   if(res){
-    LOG(LS_ERROR) << "\t receive data length is " << res;
     NetworkByteBuffer network_byte_buffer(temp_buffer_,res);
 
     size_t current_reading = 0;
@@ -91,6 +88,7 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
         uint32 network_header_ide;
         network_byte_buffer.ReadUInt32(&network_header_ide);
         if(network_header_ide == P2P_NETWORKER_HEADER_IDE){
+          LOG(LS_VERBOSE) << "\t got P2P_NETWORKER_HEADER_IDE";
           reading_states_ = READING_LOCAL_SOCKET;
         } else{
           LOG(LS_ERROR) <<"\t reading network header identifier error";
@@ -102,25 +100,29 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
         network_byte_buffer.ReadUInt32(&local_socket);
         receive_network_header_->local_socket_ = local_socket;
         reading_states_ = READING_REMOTE_SOCKET;
+        LOG(LS_VERBOSE) << "\t got READING_LOCAL_SOCKET " << local_socket;
       }
       else if(reading_states_ == READING_REMOTE_SOCKET){
         uint32 remote_socket;
         network_byte_buffer.ReadUInt32(&remote_socket);
-        receive_network_header_->local_socket_ = remote_socket;
+        receive_network_header_->remote_socket_ = remote_socket;
         reading_states_ = READING_SOCKET_TYPE;
+        LOG(LS_VERBOSE) << "\t got READING_REMOTE_SOCKET " << remote_socket;
       }
       else if(reading_states_ == READING_SOCKET_TYPE){
         uint16 socket_type;
         network_byte_buffer.ReadUInt16(&socket_type);
-        send_network_header_->socket_type_ = socket_type;
+        receive_network_header_->socket_type_ = socket_type;
         reading_states_ = READING_DATA_LENGTH;
+        LOG(LS_VERBOSE) << "\t got READING_SOCKET_TYPE " << socket_type;
       }
       else if(reading_states_ == READING_DATA_LENGTH){
         uint16 data_len;
         network_byte_buffer.ReadUInt16(&data_len);
         if((data_len > 0) && (data_len < RECEIVE_BUFFER_LEN)){
-          send_network_header_->data_len_ = data_len;
+          receive_network_header_->data_len_ = data_len;
           reading_states_ = READING_DATA;
+          LOG(LS_VERBOSE) << "\t got READING_DATA_LENGTH " << data_len;
         } else{
           LOG(LS_ERROR) << "\t receive data length error";
           reading_states_ = READING_HEADER_IDE;
@@ -129,14 +131,14 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
       }
       else if(reading_states_ == READING_DATA){
         if(network_byte_buffer.Length() >= 
-          send_network_header_->data_len_ - receive_current_len_){
+          receive_network_header_->data_len_ - receive_current_len_){
 
           network_byte_buffer.ReadBytes(&receive_low_buffer_[receive_current_len_],
-              send_network_header_->data_len_ - receive_current_len_);
+              receive_network_header_->data_len_ - receive_current_len_);
 
-          SignalSendDataToUpLayer(send_network_header_->remote_socket_,
-            send_network_header_->socket_type_,receive_low_buffer_,
-            send_network_header_->data_len_);
+          SignalSendDataToUpLayer(receive_network_header_->local_socket_,
+            receive_network_header_->socket_type_,receive_low_buffer_,
+            receive_network_header_->data_len_);
 
           reading_states_ = READING_HEADER_IDE;
           receive_current_len_ = 0;

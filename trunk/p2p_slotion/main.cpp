@@ -29,7 +29,7 @@ int main(void)
   //talk_base::LogMessage::LogToStream(log_file_stream_,
   //  talk_base::LoggingSeverity::LS_INFO);
   talk_base::LogMessage::LogToDebug(
-    talk_base::LoggingSeverity::LS_ERROR);
+    talk_base::LoggingSeverity::LS_VERBOSE);
 
   talk_base::Thread *main_thread 
     = talk_base::Thread::Current();

@@ -4,10 +4,10 @@
  * 
  * Author   : GuangLei He
  * Email    : guangleihe@gmail.com
- * Created  : 2013/11/18      11:27
- * Filename : F:\GitHub\trunk\p2p_slotion\sockettablemanagement.h
+ * Created  : 2013/11/19      17:07
+ * Filename : F:\GitHub\trunk\p2p_slotion\P2PSystemCommandFactory.h
  * File path: F:\GitHub\trunk\p2p_slotion
- * File base: sockettablemanagement
+ * File base: P2PSystemCommandFactory
  * File ext : h
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,50 +33,44 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SOCKET_TABLE_MANAGEMENT_H_
-#define SOCKET_TABLE_MANAGEMENT_H_
-#include "talk/base/basictypes.h"
-#include "defaults.h"
-#include <map>
+#ifndef P2P_SYSTEM_COMMAND_H_
+#define P2P_SYSTEM_COMMAND_H_
 
-//SocketTable
-struct SocketTable{
-  SocketTable(){}
-  SocketTable(int local_socket,int remote_socket,SocketType socket_type)
-    :local_socket_(local_socket),remote_socket_(remote_socket),
-    socket_type_(socket_type){}
-  int local_socket_;
-  int remote_socket_;
-  SocketType socket_type_;
+#include "talk/base/basictypes.h"
+#include "talk/base/socketaddress.h"
+/*
+
+*/
+
+static const int P2P_SYSTEM_COMMAND_IDE = 0X0F123456; 
+const int P2P_SYSTEM_CREATE_RTSP_CLIENT = 1;
+
+struct CreateRTSPClientSocketCommand{
+  uint32 p2p_system_command_ide_;
+  uint32 server_socket_;
+  uint32 client_socket_;
+  uint32 client_connection_ip_;
+  uint16 client_connection_port_;
+  uint16 p2p_system_comand_type_;
 };
 
-class SocketTableManagement
+const int RTSP_CLIENT_SOCKET_COMMAND 
+  = sizeof(CreateRTSPClientSocketCommand);
+
+class P2PSystemCommandFactory
 {
 public:
-  SocketTableManagement();
-  static SocketTableManagement *Instance();
-
-
-  bool   AddNewLocalSocket(uint32 local_socket, uint32 remote_socket,
-    SocketType socket_type);
-  bool   DeleteASocket(uint32 local_socket);
-  void   DeleteAllSockets();
-  
-  uint32 GetLocalSocket(uint32 remote_socket);
-  uint32 GetRemoteSocket(uint32 local_socket);
-  //
-  typedef std::map<uint32,SocketTable *> SocketTableMap;
+  static P2PSystemCommandFactory *Instance();
+  P2PSystemCommandFactory();
+  bool IsP2PSystemCommand(const char *data, int len);
+  const char *CreateRTSPClientSocket(
+    uint32 socket,const talk_base::SocketAddress &addr);
+  void DeleteRTSPClientCommand(const char *data);
+  bool ParseCommand(CreateRTSPClientSocketCommand *client_socket_command,
+    const char *data, uint16 len);
 private:
-  static SocketTableManagement *socket_table_management_;
-  SocketTableMap               remote_socket_map_;
-  SocketTableMap               local_socket_map_;
+  static P2PSystemCommandFactory *p2p_system_command_factory_; 
 };
-
-
-
-
-
-
 
 
 #endif

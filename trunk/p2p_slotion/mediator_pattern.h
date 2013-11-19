@@ -159,16 +159,20 @@ public:
       SignalSendDataToLowLayer.connect(virtual_network_,
         &AbstractVirtualNetwork::OnReceiveDataFromUpLayer);
   }
-  virtual bool ListenATcpPort(int port) = 0;
+  //The RTSP server address will be bind, so the address muse be local ip
+  //and local server
+  virtual bool CreateRTSPServer(const talk_base::SocketAddress 
+    &rtsp_server) = 0;
   //public:
   //  virtual void BindTcpPort(int tcp_port) = 0;
   //  virtual void BindUdpPort(int udp_port) = 0;
+protected:
+  AbstractVirtualNetwork  *virtual_network_;
 public: // virtual network interface
   sigslot::signal4<uint32,SocketType,const char*,uint16> SignalSendDataToLowLayer;
   virtual void OnReceiveDateFromLowLayer(uint32 socket, SocketType socket_type,
     const char *data, uint16 len) = 0;
 private:
-  AbstractVirtualNetwork  *virtual_network_;
   DISALLOW_EVIL_CONSTRUCTORS(AbstarctVirtualApplication);
 };
 

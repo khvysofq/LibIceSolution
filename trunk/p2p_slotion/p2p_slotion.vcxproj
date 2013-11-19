@@ -80,11 +80,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="asyncrtspclientsocket.h" />
+    <ClInclude Include="asyncrtspproxysocketserver.h" />
     <ClInclude Include="asynctcpsocketnormal.h" />
     <ClInclude Include="CoreP2PMediator.h" />
     <ClInclude Include="defaults.h" />
     <ClInclude Include="mediator_pattern.h" />
     <ClInclude Include="networkbytebuffer.h" />
+    <ClInclude Include="p2psystemcommand.h" />
     <ClInclude Include="p2p_user_client.h" />
     <ClInclude Include="peer_connection_server.h" />
     <ClInclude Include="peer_connection_ice.h" />
@@ -95,12 +98,15 @@
     <ClInclude Include="virtual_network.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="asyncrtspclientsocket.cpp" />
+    <ClCompile Include="asyncrtspproxysocketserver.cpp" />
     <ClCompile Include="asynctcpsocketnormal.cpp" />
     <ClCompile Include="CoreP2PMediator.cpp" />
     <ClCompile Include="defaults.cc" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mediator_pattern.cpp" />
     <ClCompile Include="networkbytebuffer.cpp" />
+    <ClCompile Include="p2psystemcommand.cpp" />
     <ClCompile Include="p2p_user_client.cpp" />
     <ClCompile Include="peer_connection_server.cc" />
     <ClCompile Include="peer_connection_ice.cpp" />

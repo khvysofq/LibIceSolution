@@ -145,7 +145,7 @@ void PeerConnectionIce::OnReceiveDataFromUpLayer(const char *data, int len)
   LOG(LS_INFO) << "===" << __FUNCTION__;
   //local_tunnel_->WriteAll(data,len,NULL,NULL);
   if(len == 0){
-    send_data_buffer_->SaveData(data,20);
+    send_data_buffer_->SaveData(data,16);
     return ;
   }
   send_data_buffer_->SaveData(data,len);

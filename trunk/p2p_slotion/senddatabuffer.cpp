@@ -65,6 +65,7 @@ bool SendDataBuffer::SendDataByStream(talk_base::StreamInterface *stream,
     LOG(LS_INFO) << "\t 3. send data to remote peer " << send_data_length;
 
     //4. flush data in FIFO buffer
+    
     size_t flush_length;
     result = fifo_buffer_->Read(temp_buffer_,
       send_data_length,&flush_length,NULL);
