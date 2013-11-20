@@ -11,15 +11,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{ED2480DA-FFF0-47D4-9B48-A9DB7AE96F20}</ProjectGuid>
+    <ProjectGuid>{40B3CF75-861E-4145-B683-51972FDE385B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>p2p_slotion</RootNamespace>
+    <RootNamespace>PorxyTest</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110_xp</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -51,15 +51,16 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>JSONCPP_RELATIVE_PATH;GTEST_RELATIVE_PATH;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\;..\testing\gtest\include\;..\third_party\jsoncpp\source\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>jsoncpp.lib;expat.lib;Crypt32.lib;Secur32.lib;Iphlpapi.lib;libjingle.lib;ws2_32.lib;winmm.lib;libjingle_p2p.lib;Wininet.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\build\Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Crypt32.lib;Secur32.lib;Iphlpapi.lib;libjingle.lib;ws2_32.lib;winmm.lib;libjingle_p2p.lib;Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\build\Debug\lib;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -71,6 +72,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -80,46 +82,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="asyncrtspclientsocket.h" />
-    <ClInclude Include="asyncrtspproxysocketserver.h" />
-    <ClInclude Include="asynctcpsocketnormal.h" />
-    <ClInclude Include="CoreP2PMediator.h" />
-    <ClInclude Include="defaults.h" />
-    <ClInclude Include="mediator_pattern.h" />
-    <ClInclude Include="networkbytebuffer.h" />
-    <ClInclude Include="p2psystemcommand.h" />
-    <ClInclude Include="p2p_user_client.h" />
-    <ClInclude Include="peer_connection_server.h" />
-    <ClInclude Include="peer_connection_ice.h" />
-    <ClInclude Include="proxyserverfactory.h" />
-    <ClInclude Include="proxysocketmanagement.h" />
-    <ClInclude Include="senddatabuffer.h" />
-    <ClInclude Include="sockettablemanagement.h" />
-    <ClInclude Include="virtual_application.h" />
-    <ClInclude Include="virtual_network.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="asyncrtspclientsocket.cpp" />
-    <ClCompile Include="asyncrtspproxysocketserver.cpp" />
-    <ClCompile Include="asynctcpsocketnormal.cpp" />
-    <ClCompile Include="CoreP2PMediator.cpp" />
-    <ClCompile Include="defaults.cc" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mediator_pattern.cpp" />
-    <ClCompile Include="networkbytebuffer.cpp" />
-    <ClCompile Include="p2psystemcommand.cpp" />
-    <ClCompile Include="p2p_user_client.cpp" />
-    <ClCompile Include="peer_connection_server.cc" />
-    <ClCompile Include="peer_connection_ice.cpp" />
-    <ClCompile Include="proxyserverfactory.cpp" />
     <ClCompile Include="proxysocketmanagement.cpp" />
-    <ClCompile Include="senddatabuffer.cpp" />
-    <ClCompile Include="sockettablemanagement.cpp" />
-    <ClCompile Include="virtual_application.cpp" />
-    <ClCompile Include="virtual_network.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ClInclude Include="proxysocketmanagement.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

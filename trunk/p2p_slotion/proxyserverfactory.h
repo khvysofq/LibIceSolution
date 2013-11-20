@@ -4,10 +4,10 @@
  * 
  * Author   : GuangLei He
  * Email    : guangleihe@gmail.com
- * Created  : 2013/11/19      19:14
- * Filename : F:\GitHub\trunk\p2p_slotion\asyncrtspclientsocket.h
+ * Created  : 2013/11/20      11:11
+ * Filename : F:\GitHub\trunk\p2p_slotion\proxyserverfactory.h
  * File path: F:\GitHub\trunk\p2p_slotion
- * File base: asyncrtspclientsocket
+ * File base: proxyserverfactory
  * File ext : h
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,35 +32,59 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef ASYNC_RTSP_CLIENT_SOCKET_H_
-#define ASYNC_RTSP_CLIENT_SOCKET_H_
-
-#include "talk/base/socketadapters.h"
-#include "talk/base/proxyserver.h"
+#ifndef P2P_SOLUTION_PROXY_SERVER_FACTORY_H_
+#define P2P_SOLUTION_PROXY_SERVER_FACTORY_H_
+///////////////////////////////////////////////////////////////////////////
+//TODO:(GuangleiHe) TIME: 11/20/2013
+//Change the header file as possible as inlcude in *.cpp files
+//Not include in *.h files.
+///////////////////////////////////////////////////////////////////////////
 #include "talk/base/sigslot.h"
-#include "talk/base/scoped_ptr.h"
+#include "talk/base/socketaddress.h"
 
-#include "mediator_pattern.h"
+#include "asyncrtspproxysocketserver.h"
 #include "proxysocketmanagement.h"
+#include "mediator_pattern.h"
 
-
-class RTSPClientSocket : public ProxySocketBegin
+class RTSPProxyServer;
+class ProxySocketManagement;
+class RTSPClientSocket;
+class AsyncP2PSocket
 {
 public:
-  explicit RTSPClientSocket(AsyncP2PSocket * p2p_socket,
-    talk_base::AsyncSocket *int_socket,
-    uint32 server_socket_number,
-    const talk_base::SocketAddress &server_addr);
+  AsyncP2PSocket(AbstractVirtualNetwork *virtual_network);
+  virtual void Send(uint32 socket, SocketType socket_type,
+    const char *data, uint16 len);
 private:
-  void OnInternalConnect(talk_base::AsyncSocket* socket);
-
-private:
-  bool                        connected_;
-  uint32                       server_socket_number_;
-  DISALLOW_EVIL_CONSTRUCTORS(RTSPClientSocket);
+  AbstractVirtualNetwork *virtual_network_;
+  DISALLOW_EVIL_CONSTRUCTORS(AsyncP2PSocket);
 };
 
+
+class ProxyServerFactory
+{
+public:
+  //ProxyServerFactory(){}
+  ///////////////////////////////////////////////////////////////////////////
+  //TODO:(GuangleiHe) TIME: 11/20/2013
+  //To manage the servers that to release those server together.
+  ///////////////////////////////////////////////////////////////////////////
+  static RTSPProxyServer *CreateRTSPProxyServer(
+    ProxySocketManagement *proxy_socket_management,
+    AsyncP2PSocket *p2p_socket,
+    talk_base::SocketFactory *int_factory,
+    const talk_base::SocketAddress &local_rtsp_addr);
+
+  static RTSPClientSocket *CreateRTSPClientSocket(
+    ProxySocketManagement *proxy_socket_management,
+    AsyncP2PSocket *p2p_socket,
+    talk_base::AsyncSocket *int_socket,
+    uint32 server_socket_number,
+    const talk_base::SocketAddress &server_rtsp_addr);
+
+private:
+  DISALLOW_EVIL_CONSTRUCTORS(ProxyServerFactory);
+};
 
 
 #endif

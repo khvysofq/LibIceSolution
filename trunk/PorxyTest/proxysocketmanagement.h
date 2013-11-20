@@ -4,10 +4,10 @@
  * 
  * Author   : GuangLei He
  * Email    : guangleihe@gmail.com
- * Created  : 2013/11/18      11:27
- * Filename : F:\GitHub\trunk\p2p_slotion\sockettablemanagement.h
- * File path: F:\GitHub\trunk\p2p_slotion
- * File base: sockettablemanagement
+ * Created  : 2013/11/20      10:55
+ * Filename : F:\GitHub\trunk\PorxyTest\proxysocketmanagement.h
+ * File path: F:\GitHub\trunk\PorxyTest
+ * File base: proxysocketmanagement
  * File ext : h
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,49 +32,8 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SOCKET_TABLE_MANAGEMENT_H_
-#define SOCKET_TABLE_MANAGEMENT_H_
-#include "talk/base/basictypes.h"
-#include "defaults.h"
-#include <map>
-
-//SocketTable
-struct SocketTable{
-  SocketTable(){}
-  SocketTable(int local_socket,int remote_socket,SocketType socket_type)
-    :local_socket_(local_socket),remote_socket_(remote_socket),
-    socket_type_(socket_type){}
-  int local_socket_;
-  int remote_socket_;
-  SocketType socket_type_;
-};
-
-class SocketTableManagement
-{
-public:
-  SocketTableManagement();
-  static SocketTableManagement *Instance();
-
-
-  bool   AddNewLocalSocket(uint32 local_socket, uint32 remote_socket,
-    SocketType socket_type);
-  bool   UpdateRemoteSocketTable(uint32 local_socket, uint32 new_remote_socket);
-  bool   DeleteASocket(uint32 local_socket);
-  void   DeleteAllSockets();
-  
-  uint32 GetRemoteSocket(uint32 local_socket);
-  //
-  typedef std::map<uint32,SocketTable *> SocketTableMap;
-private:
-  static SocketTableManagement *socket_table_management_;
-  SocketTableMap               remote_socket_map_;
-  SocketTableMap               local_socket_map_;
-};
-
-
-
-
+#ifndef PROXY_SOCKET_MANAGEMENT_H_
+#define PROXY_SOCKET_MANAGEMENT_H_
 
 
 

@@ -34,17 +34,39 @@
  */
 
 #include "asyncrtspclientsocket.h"
+#include "proxyserverfactory.h"
 
 //////////////////////////////////////////////////////////////////////////
-AsyncRTSPClientSocket::AsyncRTSPClientSocket(
-  talk_base::AsyncSocket* socket)
-  :BufferedReadAdapter(socket,KBufferSize)
+RTSPClientSocket::RTSPClientSocket(
+  AsyncP2PSocket *p2p_socket,talk_base::AsyncSocket *int_socket,
+  uint32 server_socket_number,const talk_base::SocketAddress &server_addr)
+  :ProxySocketBegin(p2p_socket,int_socket),server_socket_number_(server_socket_number)
 {
-  //Turn off data process in BufferedReadAdapter
-  //BufferInput(true);
   
+  int_socket_->SignalConnectEvent.connect(this,
+    &RTSPClientSocket::OnInternalConnect);
+
+  int_socket_->Connect(server_addr);
 }
 
-void AsyncRTSPClientSocket::ProcessInput(char* data, size_t* len) {
 
+
+void RTSPClientSocket::OnInternalConnect(
+  talk_base::AsyncSocket* socket)
+{
+  //The Client connect was accept
+  //Then Send the connect succeed to remote peer
+  ASSERT(int_socket_.get() == socket);
+  //generate a reply string
+  socket_table_management_->AddNewLocalSocket((uint32)socket,
+    server_socket_number_,TCP_SOCKET);
+
+  const char *reply_string = 
+    p2p_system_command_factory_->ReplyRTSPClientSocketSucceed(
+    server_socket_number_,(uint32)int_socket_.get());
+  //send this string to remote peer
+
+  p2p_socket_->Send((uint32)socket,TCP_SOCKET, reply_string,P2PRTSPCOMMAND_LENGTH);
+  //delete the string
+  p2p_system_command_factory_->DeleteRTSPClientCommand(reply_string);
 }

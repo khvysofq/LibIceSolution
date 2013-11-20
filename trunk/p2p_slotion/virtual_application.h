@@ -6,6 +6,7 @@
 #include "senddatabuffer.h"
 #include "asyncrtspproxysocketserver.h"
 #include "p2psystemcommand.h"
+#include "proxyserverfactory.h"
 
 const int P2PSC_CREATE_CLIENT_CONNECTION_     = 0XFF;
 const int P2PSC_CREATE_CLIENT_CONNECTION_OK_  = 0XFF01;
@@ -38,10 +39,14 @@ public:
   void OnMessage(talk_base::Message *msg);
 
 private:
+  P2PSystemCommandFactory       *p2p_system_command_factory_; //static object
+  SocketTableManagement         *socket_table_management_;    //static object
   talk_base::Thread             *current_thread_;
+
   bool                          is_server_;
   RTSPProxyServer               *rtsp_proxy_server_;
-  P2PSystemCommandFactory       *p2p_system_command_factory_;
+  ProxySocketManagement         *proxy_socket_management_;
+  AsyncP2PSocket                *p2p_socket_;
 };
 
 #endif

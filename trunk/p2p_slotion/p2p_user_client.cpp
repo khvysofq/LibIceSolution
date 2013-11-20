@@ -187,8 +187,8 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
     {
       std::cout << "\tSTATES_ICE_TUNNEL_SEND_DATA" << std::endl;
       is_peer_connect_ = true;
-      if(initiator_)
-        SendRandomData();
+      //if(initiator_)
+      //  SendRandomData();
       break;
     }
   case STATES_ICE_TUNNEL_CLOSED:

@@ -11,14 +11,16 @@ def random_str(randomlength=8):
   for i in range(randomlength):
       str+=chars[random.randint(0, length)]
   return str
+msg = random_str(1024);
 
-#client coding
-msg = random_str(2046)
-HOST = '42.121.127.71'    # The remote host
+###################################################################################
+#client receive data
+
+HOST = '127.0.0.1'    # The remote host
 PORT = 554              # The same port as used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
-
+print "Connect Accpet"
 while True:
   #data = s.recv(4096)
   #print "receive data...",len(msg)
@@ -26,11 +28,9 @@ while True:
   s.recv(4096)
   #time.sleep(30.0/1000);
 s.close()
-print 'Received', repr(data)
 
-#server coding
-
-#msg = random_str(1024);
+####################################################################################
+#server send data
 
 #HOST = '127.0.0.1'                 # Symbolic name meaning all available interfaces
 #PORT = 554              # Arbitrary non-privileged port

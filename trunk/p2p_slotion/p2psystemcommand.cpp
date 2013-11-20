@@ -55,20 +55,49 @@ bool P2PSystemCommandFactory::IsP2PSystemCommand(const char *data, int len){
 const char * P2PSystemCommandFactory::CreateRTSPClientSocket(
   uint32 socket,const talk_base::SocketAddress &addr)
 {
+  LOG(LS_INFO) << __FUNCTION__;
   //CreateRTSPClientSocketCommand rtsp_client_socket_command;
-  char * data = new char[RTSP_CLIENT_SOCKET_COMMAND];
+  char * data = new char[P2PRTSPCOMMAND_LENGTH];
   
-  NetworkByteBuffer byte_buffer(data,RTSP_CLIENT_SOCKET_COMMAND);
+  NetworkByteBuffer byte_buffer(data,P2PRTSPCOMMAND_LENGTH);
 
   byte_buffer.WriteUInt32(P2P_SYSTEM_COMMAND_IDE);
-  byte_buffer.WriteUInt32(socket);
-  byte_buffer.WriteUInt32(socket);
-  byte_buffer.WriteUInt32(addr.ip());
-  byte_buffer.WriteUInt16(addr.port());
+  LOG(LS_INFO) << "\t" << P2P_SYSTEM_COMMAND_IDE;
   byte_buffer.WriteUInt16(P2P_SYSTEM_CREATE_RTSP_CLIENT);
+  LOG(LS_INFO) << "\t" << P2P_SYSTEM_COMMAND_IDE;
+  byte_buffer.WriteUInt32(socket);
+  LOG(LS_INFO) << "\t" << socket;
+  byte_buffer.WriteUInt32(socket);
+  LOG(LS_INFO) << "\t" << socket;
+  byte_buffer.WriteUInt32(addr.ip());
+  LOG(LS_INFO) << "\t" << addr.ip();
+  byte_buffer.WriteUInt16(addr.port());
+  LOG(LS_INFO) << "\t" << addr.port();
+  byte_buffer.WriteUInt16(P2P_SYSTEM_COMMAND_PADDING_BYTE);
+  LOG(LS_INFO) << "\t" << P2P_SYSTEM_COMMAND_PADDING_BYTE;
 
   //Maybe there is a bug.
   return byte_buffer.Data();
+}
+
+const char *P2PSystemCommandFactory::ReplyRTSPClientSocketSucceed(
+  uint32 server_socket, uint32 client_socket)
+{
+  char * data = new char[P2PRTSPCOMMAND_LENGTH];
+
+  NetworkByteBuffer byte_buffer(data,P2PRTSPCOMMAND_LENGTH);
+
+  byte_buffer.WriteUInt32(P2P_SYSTEM_COMMAND_IDE);
+  byte_buffer.WriteUInt16(P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED);
+  byte_buffer.WriteUInt32(server_socket);
+  byte_buffer.WriteUInt32(client_socket);
+  byte_buffer.WriteUInt32(0);
+  byte_buffer.WriteUInt16(0);
+  byte_buffer.WriteUInt16(P2P_SYSTEM_COMMAND_PADDING_BYTE);
+
+  //Maybe there is a bug.
+  return byte_buffer.Data();
+
 }
 
 void P2PSystemCommandFactory::DeleteRTSPClientCommand(const char *data){
@@ -77,10 +106,10 @@ void P2PSystemCommandFactory::DeleteRTSPClientCommand(const char *data){
 }
 
 bool P2PSystemCommandFactory::ParseCommand(
-  CreateRTSPClientSocketCommand *client_socket_command,const char *data,
+  P2PRTSPCommand *client_socket_command,const char *data,
   uint16 len)
 {
-  if(len != RTSP_CLIENT_SOCKET_COMMAND){
+  if(len != P2PRTSPCOMMAND_LENGTH){
     LOG(LS_ERROR) << "\t The length of data is not expected length";
     return false;
   }
@@ -98,6 +127,11 @@ bool P2PSystemCommandFactory::ParseCommand(
   byte_buffer.ReadUInt32(&client_socket_command->client_socket_);
   byte_buffer.ReadUInt32(&client_socket_command->client_connection_ip_);
   byte_buffer.ReadUInt16(&client_socket_command->client_connection_port_);
-  byte_buffer.ReadUInt16(&client_socket_command->p2p_system_comand_type_);
+  byte_buffer.ReadUInt16(&client_socket_command->padding_byte_);
+  if(client_socket_command->padding_byte_ != P2P_SYSTEM_COMMAND_PADDING_BYTE)
+  {
+    LOG(LS_ERROR) << "the padding_byte is error";
+    return false;
+  }
   return true;
 }

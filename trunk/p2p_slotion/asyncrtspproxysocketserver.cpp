@@ -33,6 +33,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "asyncrtspproxysocketserver.h"
+#include "proxyserverfactory.h"
 
 //////////////////////////////////////////////////////////////////////////
 AsyncRTSPProxyServerSocket::AsyncRTSPProxyServerSocket(
@@ -40,11 +41,14 @@ AsyncRTSPProxyServerSocket::AsyncRTSPProxyServerSocket(
   :AsyncProxyServerSocket(socket,KBufferSize)
 {
   //Turn off data process in AsyncProxyServerSocket
+  talk_base::SocketAddress server_addr("127.0.0.1",554);
+  SignalConnectRequest(this,server_addr);
   BufferInput(true);
 }
 
 void AsyncRTSPProxyServerSocket::ProcessInput(char* data, size_t* len) {
-
+  LOG(LS_INFO) << __FUNCTION__ << "\t" << len;
+  BufferInput(false);
 }
 
 void AsyncRTSPProxyServerSocket::SendConnectResult(
@@ -53,30 +57,45 @@ void AsyncRTSPProxyServerSocket::SendConnectResult(
 }
 
 //////////////////////////////////////////////////////////////////////////
-RTSPProxyServer::RTSPProxyServer(AbstractVirtualNetwork *virtual_network,
+//Implement RTSPProxyServer
+RTSPProxyServer::RTSPProxyServer(ProxySocketManagement *proxy_socket_management,
+                                 AsyncP2PSocket *p2p_socket,
                                  talk_base::SocketFactory *int_factory, 
                                  const talk_base::SocketAddress &int_addr)
                                  :server_socket_(int_factory->CreateAsyncSocket(
                                  int_addr.family(),SOCK_STREAM)),
-                                 virtual_network_(virtual_network)
+                                 p2p_socket_(p2p_socket),
+                                 proxy_socket_management_(proxy_socket_management)
 {
   ASSERT(server_socket_.get() != NULL);
   ASSERT(int_addr.family() == AF_INET || int_addr.family() == AF_INET6);
 
+  LOG(LS_INFO) << "2. " << __FUNCTION__;
   server_socket_->Bind(int_addr);
   server_socket_->Listen(5);
   server_socket_->SignalReadEvent.connect(this, &RTSPProxyServer::OnAcceptEvent);
 }
 
 void RTSPProxyServer::OnAcceptEvent(talk_base::AsyncSocket* socket){
+  LOG(LS_INFO) << "3. " << __FUNCTION__;
   ASSERT(socket != NULL && socket == server_socket_.get());
-  talk_base::AsyncSocket *new_socket_client_connection
-    = socket->Accept(NULL);
+  //Step 1. Accept this connection socket
+  talk_base::AsyncSocket *accept_socket = socket->Accept(NULL);
 
-  proxy_start_map_.insert(ProxyStartMap::value_type(
-    (uint32)new_socket_client_connection,
-    new ProxyStart(virtual_network_,WrapSocket(new_socket_client_connection)))
-    );
+  //Step 2. Wrap this socket to AsyncProxyServerSocket, add some new control to it.
+  //NOTE: the WrapSocket used the new operator to create a 
+  //talk_base::AsyncProxyServerSocket object. so you must be delete it 
+  //When you release this object
+  talk_base::AsyncProxyServerSocket* async_proxy_server_socket =
+    WrapSocket(accept_socket);
+
+  //Step 3. create RTSPServerSocketStart object
+  RTSPServerSocketStart *rtsp_server_socket_start
+    = new RTSPServerSocketStart(p2p_socket_.get(),async_proxy_server_socket);
+
+  //Step 4. Register RTSPServerSocketStart in ProxySocketManagement
+  proxy_socket_management_->RegisterProxySocket((uint32)async_proxy_server_socket,
+    rtsp_server_socket_start);
 }
 
 talk_base::AsyncProxyServerSocket* RTSPProxyServer::WrapSocket(
@@ -85,30 +104,32 @@ talk_base::AsyncProxyServerSocket* RTSPProxyServer::WrapSocket(
     return  new AsyncRTSPProxyServerSocket(socket);
 }
 
-
 //////////////////////////////////////////////////////////////////////////
-ProxyStart::ProxyStart(AbstractVirtualNetwork *virtual_network,
+RTSPServerSocketStart::RTSPServerSocketStart(AsyncP2PSocket * p2p_socket,
                        talk_base::AsyncProxyServerSocket *int_socket)
-                       :int_socket_(int_socket),virtual_network_(virtual_network),
-                       out_buffer_(KBufferSize),in_buffer_(KBufferSize)
+                       :ProxySocketBegin(p2p_socket,int_socket),
+                       rtsp_socket_(int_socket)
 {
-  socket_table_management_ = SocketTableManagement::Instance();
-  p2p_system_command_factory_ = P2PSystemCommandFactory::Instance();
+  LOG(LS_INFO) << "4. " << __FUNCTION__;
+  state_ = RP_CLIENT_CONNCTED;
+  rtsp_socket_->SignalConnectRequest.connect(this,
+    &RTSPServerSocketStart::OnConnectRequest);
+  //rtsp_socket_->BufferInput(true);
 
-  int_socket_->SignalConnectRequest.connect(this,
-    &ProxyStart::OnConnectRequest);
-  int_socket_->SignalReadEvent.connect(this, &ProxyStart::OnInternalRead);
-  int_socket_->SignalWriteEvent.connect(this, &ProxyStart::OnInternalWrite);
-  int_socket_->SignalCloseEvent.connect(this, &ProxyStart::OnInternalClose);
+  talk_base::SocketAddress server_addr("127.0.0.1",554);
+  OnConnectRequest(int_socket,server_addr);
 }
 
-void ProxyStart::OnConnectRequest(talk_base::AsyncProxyServerSocket* socket,
+void RTSPServerSocketStart::OnConnectRequest(talk_base::AsyncProxyServerSocket* socket,
                                   const talk_base::SocketAddress& addr)
 {
   //Generate a p2p system command that let remote peer to create a
   //RTSP Client socket connection
 
   //But at first step is to create a new socket table map
+  ASSERT(socket == int_socket_.get());
+
+  LOG(LS_INFO) << "5. " << __FUNCTION__;
   socket_table_management_->AddNewLocalSocket((uint32)socket,
     (uint32)socket,TCP_SOCKET);
 
@@ -117,69 +138,25 @@ void ProxyStart::OnConnectRequest(talk_base::AsyncProxyServerSocket* socket,
     p2p_system_command_factory_->CreateRTSPClientSocket((uint32)socket,addr);
 
   //send the data to remote peer
-  virtual_network_->OnReceiveDataFromUpLayer((uint32)socket,TCP_SOCKET,
-    create_rtsp_client_command,RTSP_CLIENT_SOCKET_COMMAND);
+  p2p_socket_->Send((uint32)socket,TCP_SOCKET,
+    create_rtsp_client_command,P2PRTSPCOMMAND_LENGTH);
 
   //delete this command
   p2p_system_command_factory_->DeleteRTSPClientCommand(create_rtsp_client_command);
 
+  state_ = RP_SEND_RTSP_CLIENT_CREATE_COMMAND;
 }
 
-void ProxyStart::OnInternalRead(talk_base::AsyncSocket* socket){
-  ReadSocketDataToBuffer(int_socket_.get(),&out_buffer_);
-  WriteBufferDataToP2P(&out_buffer_);
-}
-
-void ProxyStart::OnInternalWrite(talk_base::AsyncSocket *socket){
-  WriteBufferDataToP2P(&in_buffer_);
-}
-
-void ProxyStart::OnInternalClose(talk_base::AsyncSocket* socket, int err){
-
-}
-
-void ProxyStart::OnP2PReceiveData(const char *data, uint16 len){
+void RTSPServerSocketStart::OnP2PReceiveData(const char *data, uint16 len){
+  if(state_ == RP_SEND_RTSP_CLIENT_CREATE_COMMAND){
+    P2PRTSPCommand rtsp_command;
+    p2p_system_command_factory_->ParseCommand(&rtsp_command,data,len);
+    socket_table_management_->UpdateRemoteSocketTable(rtsp_command.server_socket_,
+      rtsp_command.client_socket_);
+    state_ = RP_SCUCCEED;
+    return ;
+  }
+  ASSERT(state_ == RP_SCUCCEED);
   ReadP2PDataToBuffer(data,len,&in_buffer_);
   WriteBufferDataToSocket(int_socket_.get(),&in_buffer_);
-}
-
-void ProxyStart::ReadSocketDataToBuffer(talk_base::AsyncSocket *socket, 
-                                        talk_base::FifoBuffer *buffer)
-{
-  // Only read if the buffer is empty.
-  ASSERT(socket != NULL);
-  size_t size;
-  int read;
-  if (buffer->GetBuffered(&size) && size == 0) {
-    void* p = buffer->GetWriteBuffer(&size);
-    read = socket->Recv(p, size);
-    buffer->ConsumeWriteBuffer(talk_base::_max(read, 0));
-  }
-}
-
-void ProxyStart::ReadP2PDataToBuffer(const char *data, uint16 len,
-                                     talk_base::FifoBuffer *buffer)
-{
-  ASSERT(data != NULL);
-  buffer->WriteAll(data,len,NULL,NULL);
-}
-
-void ProxyStart::WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
-                                         talk_base::FifoBuffer *buffer)
-{
-  ASSERT(socket != NULL);
-  size_t size;
-  int written;
-  const void* p = buffer->GetReadData(&size);
-  written = socket->Send(p, size);
-  buffer->ConsumeReadData(talk_base::_max(written, 0));
-}
-
-void ProxyStart::WriteBufferDataToP2P(talk_base::FifoBuffer *buffer){
-  ASSERT(buffer != NULL);
-  size_t size;
-  const void* p = buffer->GetReadData(&size);
-  virtual_network_->OnReceiveDataFromUpLayer(
-    (uint32)int_socket_.get(),TCP_SOCKET,(const char *)p,size);
-  buffer->ConsumeReadData(size);
 }

@@ -46,8 +46,11 @@
 #include "mediator_pattern.h"
 #include "sockettablemanagement.h"
 #include "p2psystemcommand.h"
+#include "proxysocketmanagement.h"
 
-
+class AsyncP2PSocket;
+class ProxySocketManagement;
+class ProxySocketBegin;
 //////////////////////////////////////////////////////////////////////////
 //Implements a RTSP Proxy Socket Server that as the name said.
 //This class used when the socket already connection.
@@ -70,80 +73,51 @@ private:
   DISALLOW_EVIL_CONSTRUCTORS(AsyncRTSPProxyServerSocket);
 };
 
-class ProxyStart : public sigslot::has_slots<>
-{
-public:
-  ProxyStart(AbstractVirtualNetwork * virtual_network,
-    talk_base::AsyncProxyServerSocket *int_socket);
-private:
-  void OnConnectRequest(talk_base::AsyncProxyServerSocket* socket,
-    const talk_base::SocketAddress& addr);
-  void OnInternalRead(talk_base::AsyncSocket* socket);
-  void OnInternalWrite(talk_base::AsyncSocket* socket);
-  void OnInternalClose(talk_base::AsyncSocket* socket, int err);
-
-  void OnP2PReceiveData(const char *data, uint16 len);
-  
-  void ReadSocketDataToBuffer(talk_base::AsyncSocket *socket,
-    talk_base::FifoBuffer *buffer);
-  void ReadP2PDataToBuffer(const char *data, uint16 len, talk_base::FifoBuffer *buffer);
-  void WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
-    talk_base::FifoBuffer *buffer);
-  void WriteBufferDataToP2P(talk_base::FifoBuffer *buffer);
-
-  //Some help function
-private:
-  static const int KBufferSize = 4096;
-  talk_base::scoped_ptr<talk_base::AsyncProxyServerSocket> int_socket_;
-  talk_base::scoped_ptr<AbstractVirtualNetwork> virtual_network_;
-  talk_base::FifoBuffer out_buffer_;
-  talk_base::FifoBuffer in_buffer_;
-
-  SocketTableManagement        *socket_table_management_;
-  P2PSystemCommandFactory      *p2p_system_command_factory_;
-
-};
-
-
 //////////////////////////////////////////////////////////////////////////
 class RTSPProxyServer : public sigslot::has_slots<>
 {
 public:
-  RTSPProxyServer(AbstractVirtualNetwork *virtual_network,
+  RTSPProxyServer(ProxySocketManagement *proxy_socket_management,
+    AsyncP2PSocket *p2p_socket,
     talk_base::SocketFactory *int_factory, 
     const talk_base::SocketAddress &int_addr);
-
-  typedef std::map<uint32, ProxyStart *> ProxyStartMap;
 
 protected:
   void OnAcceptEvent(talk_base::AsyncSocket* socket);
   virtual talk_base::AsyncProxyServerSocket* WrapSocket(talk_base::AsyncSocket* socket);
 
-
 private:
+  ///////////////////////////////////////////////////////////////////////////
+  //BUG NOTE (GuangleiHe, 11/20/2013)
+  //Maybe there has a bug.
+  //Because the smart pointer maybe can't used as a normal parameter
+  ///////////////////////////////////////////////////////////////////////////
   talk_base::scoped_ptr<talk_base::AsyncSocket> server_socket_;
-  AbstractVirtualNetwork *virtual_network_;
-  ProxyStartMap proxy_start_map_;
+  talk_base::scoped_ptr<AsyncP2PSocket> p2p_socket_;
+  talk_base::scoped_ptr<ProxySocketManagement> proxy_socket_management_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(RTSPProxyServer);
 };
 
+//////////////////////////////////////////////////////////////////////////
+class RTSPServerSocketStart : public ProxySocketBegin
+{
+public:
+  RTSPServerSocketStart(AsyncP2PSocket * p2p_socket,
+    talk_base::AsyncProxyServerSocket *int_socket);
+private:
+  void OnConnectRequest(talk_base::AsyncProxyServerSocket* socket,
+    const talk_base::SocketAddress& addr);
+  virtual void OnP2PReceiveData(const char *data, uint16 len);
+  //Some help function
+private:
+  enum RTSPProxyServerState{
+    RP_CLIENT_CONNCTED,RP_SEND_RTSP_CLIENT_CREATE_COMMAND,RP_SCUCCEED
+  } state_;
+  talk_base::AsyncProxyServerSocket *rtsp_socket_;
 
-////////////////////////////////////////////////////////////////////////////
-//class RTSPProxyServer : public talk_base::ProxyServer
-//{
-//public:
-//  RTSPProxyServer(talk_base::SocketFactory* int_factory, 
-//    const talk_base::SocketAddress& int_addr,
-//    talk_base::SocketFactory* ext_factory, 
-//    const talk_base::SocketAddress& ext_ip)
-//    : ProxyServer(int_factory, int_addr, ext_factory, ext_ip) {
-//  }
-//protected:
-//  talk_base::AsyncProxyServerSocket* WrapSocket(talk_base::AsyncSocket* socket) {
-//    return new AsyncRTSPProxyServerSocket(socket);
-//  }
-//  DISALLOW_EVIL_CONSTRUCTORS(RTSPProxyServer);
-//};
-
+  DISALLOW_EVIL_CONSTRUCTORS(RTSPServerSocketStart);
+};
 
 
 #endif

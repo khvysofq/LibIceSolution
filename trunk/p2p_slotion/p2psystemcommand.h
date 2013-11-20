@@ -42,34 +42,48 @@
 
 */
 
-static const int P2P_SYSTEM_COMMAND_IDE = 0X0F123456; 
-const int P2P_SYSTEM_CREATE_RTSP_CLIENT = 1;
+static const int P2P_SYSTEM_COMMAND_IDE         = 0X0F123456; 
+static const int P2P_SYSTEM_COMMAND_PADDING_BYTE= 0X0F;
 
-struct CreateRTSPClientSocketCommand{
+
+const int P2P_SYSTEM_CREATE_RTSP_CLIENT         = 1;
+const int P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED = 2;
+struct P2PRTSPCommand{
   uint32 p2p_system_command_ide_;
+  uint32 p2p_system_command_type_;
   uint32 server_socket_;
   uint32 client_socket_;
   uint32 client_connection_ip_;
   uint16 client_connection_port_;
-  uint16 p2p_system_comand_type_;
+  uint16 padding_byte_;
 };
 
-const int RTSP_CLIENT_SOCKET_COMMAND 
-  = sizeof(CreateRTSPClientSocketCommand);
+
+const int P2PRTSPCOMMAND_LENGTH 
+  = sizeof(P2PRTSPCommand);
 
 class P2PSystemCommandFactory
 {
 public:
-  static P2PSystemCommandFactory *Instance();
   P2PSystemCommandFactory();
+  static P2PSystemCommandFactory *Instance();
+
   bool IsP2PSystemCommand(const char *data, int len);
+
   const char *CreateRTSPClientSocket(
     uint32 socket,const talk_base::SocketAddress &addr);
+  const char *ReplyRTSPClientSocketSucceed(uint32 server_socket,
+    uint32 client_socket);
+
   void DeleteRTSPClientCommand(const char *data);
-  bool ParseCommand(CreateRTSPClientSocketCommand *client_socket_command,
+
+  bool ParseCommand(P2PRTSPCommand *client_socket_command,
     const char *data, uint16 len);
+
 private:
   static P2PSystemCommandFactory *p2p_system_command_factory_; 
+
+  DISALLOW_EVIL_CONSTRUCTORS(P2PSystemCommandFactory);
 };
 
 

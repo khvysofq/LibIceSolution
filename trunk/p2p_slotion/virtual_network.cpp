@@ -207,17 +207,20 @@ void VirtualNetwork::AddInNetworkHeader(uint32 local_socket, SocketType socket_t
 
   //1. get remote socket
   uint32 remote_socket = socket_table_management_->GetRemoteSocket(local_socket);
-  
+  LOG(LS_INFO) << "\t" << remote_socket;
   //2. set remote socket to local socket of the network header
   send_network_header_->local_socket_  = remote_socket;
-  
+
+  LOG(LS_INFO) << "\t" << remote_socket;
   //3. set local socket to remote socket of the network header
   send_network_header_->remote_socket_ = local_socket;
 
+  LOG(LS_INFO) << "\t" << local_socket;
   //4. setting other
   send_network_header_->data_len_      = len;
+  LOG(LS_INFO) << "\t" << len;
   send_network_header_->socket_type_   = socket_type;
-
+  LOG(LS_INFO) << "\t" << socket_type;
 }
 
 void VirtualNetwork::ConvertNetworkHeaderToBuffer(){
