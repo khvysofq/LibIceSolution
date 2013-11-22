@@ -36,14 +36,14 @@
 #ifndef P2P_SYSTEM_COMMAND_H_
 #define P2P_SYSTEM_COMMAND_H_
 
+#include "talk/base/bytebuffer.h"
 #include "talk/base/basictypes.h"
 #include "talk/base/socketaddress.h"
 /*
 
 */
-
 static const int P2P_SYSTEM_COMMAND_IDE         = 0X0F123456; 
-static const int P2P_SYSTEM_COMMAND_PADDING_BYTE= 0X0F;
+static const int P2P_SYSTEM_COMMAND_PADDING_BYTE= 0XFF;
 
 
 const int P2P_SYSTEM_CREATE_RTSP_CLIENT         = 1;
@@ -59,7 +59,7 @@ struct P2PRTSPCommand{
 };
 
 
-const int P2PRTSPCOMMAND_LENGTH 
+const uint16 P2PRTSPCOMMAND_LENGTH 
   = sizeof(P2PRTSPCommand);
 
 class P2PSystemCommandFactory
@@ -70,12 +70,12 @@ public:
 
   bool IsP2PSystemCommand(const char *data, int len);
 
-  const char *CreateRTSPClientSocket(
+  talk_base::ByteBuffer *CreateRTSPClientSocket(
     uint32 socket,const talk_base::SocketAddress &addr);
-  const char *ReplyRTSPClientSocketSucceed(uint32 server_socket,
+  talk_base::ByteBuffer *ReplyRTSPClientSocketSucceed(uint32 server_socket,
     uint32 client_socket);
 
-  void DeleteRTSPClientCommand(const char *data);
+  void DeleteRTSPClientCommand(talk_base::ByteBuffer *data);
 
   bool ParseCommand(P2PRTSPCommand *client_socket_command,
     const char *data, uint16 len);

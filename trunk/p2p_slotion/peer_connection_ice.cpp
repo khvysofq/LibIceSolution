@@ -1,17 +1,52 @@
+/*
+ * p2p solution
+ * Copyright 2013, VZ Inc.
+ * 
+ * Author   : GuangLei He
+ * Email    : guangleihe@gmail.com
+ * Created  : 2013/11/22      9:47
+ * Filename : F:\GitHub\trunk\p2p_slotion\peer_connection_ice.cpp
+ * File path: F:\GitHub\trunk\p2p_slotion
+ * File base: peer_connection_ice
+ * File ext : cpp
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
+ *  3. The name of the author may not be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include "talk/base/logging.h"
-#include "peer_connection_ice.h"
-#include "defaults.h"
 #include "talk/p2p/base/basicpacketsocketfactory.h"
 
+#include "senddatabuffer.h"
+#include "peer_connection_ice.h"
+#include "defaults.h"
 
-static const int SEND_BUFFER_LENGTH = 64 * 1024;
 
-talk_base::SocketAddress  KStunAddr("stun.endigovoip.com",3478);
 class MessageSendData : public talk_base::MessageData
 {
 public:
   MessageSendData(std::string send_data, int send_data_len = 0)
     :send_data_(send_data),send_data_len_(send_data_len){}
+
   std::string  send_data_;
   int send_data_len_;
 };
@@ -33,10 +68,12 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
                                      local_jid_(NULL)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
+
   //-----------------------Part 1: initialize P2PMediator part
   receive_momery_buffer_ = new talk_base::FifoBuffer(SEND_BUFFER_LENGTH);
   send_buffer_           = new char[SEND_BUFFER_LENGTH];
   send_data_buffer_      = new SendDataBuffer();
+
   //-----------------------Part 2: initialize ICE part
   basic_network_manager_  =   new talk_base::BasicNetworkManager();
   //http_allocator_         =   new cricket::HttpPortAllocator(
@@ -45,7 +82,7 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
   //http_allocator_->SetStunHosts(stun_hosts_);
   basic_prot_allocator_   =   new cricket::BasicPortAllocator(
     basic_network_manager_,
-    new talk_base::BasicPacketSocketFactory(signal_thread_),
+    new talk_base::BasicPacketSocketFactory(worker_thread),
     KStunAddr);
   //initialize session manager
   session_manager_        =   new cricket::SessionManager(basic_prot_allocator_,
@@ -140,16 +177,22 @@ void PeerConnectionIce::OnReceiveMessageFromRemotePeer(const std::string msg,
     new MessageSendData(msg));
 }
 
-void PeerConnectionIce::OnReceiveDataFromUpLayer(const char *data, int len)
+void PeerConnectionIce::OnReceiveDataFromUpLayer(const char *data, int len,
+                                                 size_t *written, size_t *has_data)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
   //local_tunnel_->WriteAll(data,len,NULL,NULL);
-  if(len == 0){
-    send_data_buffer_->SaveData(data,16);
+  if(len == 0)
+  {
+    send_data_buffer_->SaveData(data,NETWORKHEADER_LENGTH);
     return ;
   }
   send_data_buffer_->SaveData(data,len);
-  send_data_buffer_->SendDataByStream(local_tunnel_,50);
+  size_t res = send_data_buffer_->SendDataByStream(local_tunnel_,1);
+  if(written)
+    *written = res - NETWORKHEADER_LENGTH;
+  if(has_data)
+    *has_data = send_data_buffer_->GetBufferLength();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -164,7 +207,7 @@ void PeerConnectionIce::OnOutgoingMessage(cricket::SessionManager* manager,
                                           const buzz::XmlElement* stanza)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
-  buzz::XmlElement* new_stanza    
+  buzz::XmlElement* new_stanza
     =   new buzz::XmlElement(*stanza);
   new_stanza->AddAttr(buzz::QN_FROM, tunnel_session_client_->jid().Str());
   
@@ -190,7 +233,6 @@ void PeerConnectionIce::OnIncomingTunnel(cricket::TunnelSessionClient* client,
   local_tunnel_ = client->AcceptTunnel(session);
   local_tunnel_->SignalEvent.connect(this,
     &PeerConnectionIce::OnStreamEvent);
-
 }
 void PeerConnectionIce::OnStreamEvent(talk_base::StreamInterface* stream, 
                                       int events,
@@ -212,8 +254,8 @@ void PeerConnectionIce::OnStreamEvent(talk_base::StreamInterface* stream,
   if (events & talk_base::SE_WRITE) {
     if (stream == local_tunnel_) {
       LOG(LS_INFO) << "\ttalk_base::SE_WRITE  ????????????????????????????????";
+      send_data_buffer_->SendDataByStream(local_tunnel_,1);
       SignalStatesChange(STATES_ICE_TUNNEL_SEND_DATA);
-      
     }
   }
 

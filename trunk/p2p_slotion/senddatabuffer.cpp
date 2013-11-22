@@ -1,3 +1,37 @@
+/*
+ * p2p solution
+ * Copyright 2013, VZ Inc.
+ * 
+ * Author   : GuangLei He
+ * Email    : guangleihe@gmail.com
+ * Created  : 2013/11/21      11:03
+ * Filename : F:\GitHub\trunk\p2p_slotion\senddatabuffer.cpp
+ * File path: F:\GitHub\trunk\p2p_slotion
+ * File base: senddatabuffer
+ * File ext : cpp
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
+ *  3. The name of the author may not be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 #include "senddatabuffer.h"
 #include "defaults.h"
 
@@ -36,11 +70,12 @@ bool SendDataBuffer::SaveData(const char *data, size_t len){
   return true;
 }
 
-bool SendDataBuffer::SendDataByStream(talk_base::StreamInterface *stream,
+size_t SendDataBuffer::SendDataByStream(talk_base::StreamInterface *stream,
                                       int send_tiems)
 {
   bool quit = false;
   int  i;
+  size_t total_send_count = 0;
   for(i = 0; i < send_tiems && !quit; ++i){
     //2. get FIFO buffer reading position
     size_t readable_fifo_length = 0;
@@ -50,7 +85,8 @@ bool SendDataBuffer::SendDataByStream(talk_base::StreamInterface *stream,
     const void *buffer_point 
       = fifo_buffer_->GetReadData(&readable_fifo_length);
     LOG(LS_INFO) << "\t 2. get FIFO buffer reading position " << readable_fifo_length;
-
+    if(!readable_fifo_length)
+      return 0;
     //3. send data to remote peer
     result =  stream->Write(buffer_point,readable_fifo_length,
       &send_data_length,NULL);
@@ -62,8 +98,9 @@ bool SendDataBuffer::SendDataByStream(talk_base::StreamInterface *stream,
     } else{
       quit = true;
     }
+    total_send_count += send_data_length;
     LOG(LS_INFO) << "\t 3. send data to remote peer " << send_data_length;
-
+    
     //4. flush data in FIFO buffer
     
     size_t flush_length;
@@ -75,9 +112,8 @@ bool SendDataBuffer::SendDataByStream(talk_base::StreamInterface *stream,
     }
     LOG(LS_INFO) << "send times " << i;
   }
-  if(i == send_tiems)
-    fifo_buffer_->Read(temp_buffer_,buffer_length_,NULL,NULL);
-  return false;
+
+  return total_send_count;
 }
 
 bool SendDataBuffer::SendDataBySocket(talk_base::AsyncPacketSocket *socket, 
@@ -120,4 +156,10 @@ bool SendDataBuffer::SendDataBySocket(talk_base::AsyncPacketSocket *socket,
     if(i == send_times)
         fifo_buffer_->ReadAll(temp_buffer_,buffer_length_,NULL,NULL);
     return false;
+}
+
+size_t SendDataBuffer::GetBufferLength(){
+  size_t res = 0;
+  fifo_buffer_->GetReadData(&res);
+  return res;
 }

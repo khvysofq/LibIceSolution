@@ -29,14 +29,17 @@ int main(void)
   //talk_base::LogMessage::LogToStream(log_file_stream_,
   //  talk_base::LoggingSeverity::LS_INFO);
   talk_base::LogMessage::LogToDebug(
-    talk_base::LoggingSeverity::LS_INFO);
+    talk_base::LoggingSeverity::LS_ERROR);
 
   talk_base::Thread *main_thread 
     = talk_base::Thread::Current();
-  talk_base::Thread *worker_thread = new talk_base::Thread();
-  worker_thread->Start();
+  talk_base::Thread *command_thread = new talk_base::Thread();
+  command_thread->Start();
   Worker    worker;
-  worker_thread->Post(&worker);
+  command_thread->Post(&worker);
+
+  //talk_base::Thread *worker_thread = new talk_base::Thread();
+  //worker_thread->Start();
 
   P2PUserClient p2p_user_client(main_thread,main_thread);
   p2p_user_client.Initiatlor();
@@ -56,7 +59,7 @@ int main(void)
   }
 
   main_thread->Run();
-  worker_thread->Stop();
+  command_thread->Stop();
 
   p2p_user_client.Destory();
   return 0;

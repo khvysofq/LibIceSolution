@@ -68,7 +68,7 @@ private:
   virtual void ProcessInput(char* data, size_t* len);
   virtual void SendConnectResult(int result, const talk_base::SocketAddress& addr);
   
-  static const int KBufferSize = 4096;
+  static const int KBufferSize = 64 * 1024;
   
   DISALLOW_EVIL_CONSTRUCTORS(AsyncRTSPProxyServerSocket);
 };
@@ -109,13 +109,14 @@ private:
   void OnConnectRequest(talk_base::AsyncProxyServerSocket* socket,
     const talk_base::SocketAddress& addr);
   virtual void OnP2PReceiveData(const char *data, uint16 len);
+  virtual void OnInternalRead(talk_base::AsyncSocket* socket);
   //Some help function
 private:
   enum RTSPProxyServerState{
     RP_CLIENT_CONNCTED,RP_SEND_RTSP_CLIENT_CREATE_COMMAND,RP_SCUCCEED
   } state_;
   talk_base::AsyncProxyServerSocket *rtsp_socket_;
-
+  bool has_wait_data;
   DISALLOW_EVIL_CONSTRUCTORS(RTSPServerSocketStart);
 };
 

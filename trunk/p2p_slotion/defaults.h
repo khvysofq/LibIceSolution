@@ -34,6 +34,7 @@
 #include "talk/base/stream.h"
 //////////////////////////////////////////////////////////
 const int kDefaultServerPort = 8888;
+const talk_base::SocketAddress  KStunAddr("stun.endigovoip.com",3478);
 
 
 struct PeerInfor{
@@ -47,7 +48,10 @@ struct PeerInfor{
 typedef std::map<int,PeerInfor> PeerInfors;
 
 
-const int P2P_NETWORKER_HEADER_IDE =  0X1032FBAE;
+const int P2P_NETWORKER_HEADER_IDE        = 0X01234567;
+const int P2P_NETWORKER_HEADER_IDE_HEAD   = P2P_NETWORKER_HEADER_IDE >> 24;
+const int P2P_NETWORKER_HEADER_IDE_MIDDLE = (P2P_NETWORKER_HEADER_IDE >> 8) & 0X0000FFFF;
+const int P2P_NETWORKER_HEADER_IDE_LAST   = P2P_NETWORKER_HEADER_IDE & 0X000000FF;
 const int RECEIVE_BUFFER_LEN       =  1024 * 32;
 struct SOCKETHeader{
   int header_ide_;

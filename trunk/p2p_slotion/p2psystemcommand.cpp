@@ -34,7 +34,6 @@
  */
 
 #include "p2psystemcommand.h"
-#include "networkbytebuffer.h"
 #include "virtual_network.h"
 
 P2PSystemCommandFactory 
@@ -52,55 +51,53 @@ bool P2PSystemCommandFactory::IsP2PSystemCommand(const char *data, int len){
   return true;
 }
 
-const char * P2PSystemCommandFactory::CreateRTSPClientSocket(
+talk_base::ByteBuffer * P2PSystemCommandFactory::CreateRTSPClientSocket(
   uint32 socket,const talk_base::SocketAddress &addr)
 {
   LOG(LS_INFO) << __FUNCTION__;
   //CreateRTSPClientSocketCommand rtsp_client_socket_command;
-  char * data = new char[P2PRTSPCOMMAND_LENGTH];
   
-  NetworkByteBuffer byte_buffer(data,P2PRTSPCOMMAND_LENGTH);
+  talk_base::ByteBuffer *byte_buffer = new talk_base::ByteBuffer();
 
-  byte_buffer.WriteUInt32(P2P_SYSTEM_COMMAND_IDE);
-  LOG(LS_INFO) << "\t" << P2P_SYSTEM_COMMAND_IDE;
-  byte_buffer.WriteUInt16(P2P_SYSTEM_CREATE_RTSP_CLIENT);
-  LOG(LS_INFO) << "\t" << P2P_SYSTEM_COMMAND_IDE;
-  byte_buffer.WriteUInt32(socket);
-  LOG(LS_INFO) << "\t" << socket;
-  byte_buffer.WriteUInt32(socket);
-  LOG(LS_INFO) << "\t" << socket;
-  byte_buffer.WriteUInt32(addr.ip());
-  LOG(LS_INFO) << "\t" << addr.ip();
-  byte_buffer.WriteUInt16(addr.port());
-  LOG(LS_INFO) << "\t" << addr.port();
-  byte_buffer.WriteUInt16(P2P_SYSTEM_COMMAND_PADDING_BYTE);
-  LOG(LS_INFO) << "\t" << P2P_SYSTEM_COMMAND_PADDING_BYTE;
+  byte_buffer->WriteUInt32(P2P_SYSTEM_COMMAND_IDE);
+  LOG(LS_INFO) << "\t p2p_system_command_ide_ " << P2P_SYSTEM_COMMAND_IDE;
+  byte_buffer->WriteUInt32(P2P_SYSTEM_CREATE_RTSP_CLIENT);
+  LOG(LS_INFO) << "\t p2p_system_command_type_ " << P2P_SYSTEM_CREATE_RTSP_CLIENT;
+  byte_buffer->WriteUInt32(socket);
+  LOG(LS_INFO) << "\t server_socket_" << socket;
+  byte_buffer->WriteUInt32(socket);
+  LOG(LS_INFO) << "\t client_socket_ " << socket;
+  byte_buffer->WriteUInt32(addr.ip());
+  LOG(LS_INFO) << "\t client_connection_ip_ " << addr.ip();
+  byte_buffer->WriteUInt16(addr.port());
+  LOG(LS_INFO) << "\t client_connection_port_ " << addr.port();
+  byte_buffer->WriteUInt16(P2P_SYSTEM_COMMAND_PADDING_BYTE);
+  LOG(LS_INFO) << "\t padding_byte_ " << P2P_SYSTEM_COMMAND_PADDING_BYTE;
 
   //Maybe there is a bug.
-  return byte_buffer.Data();
+  return byte_buffer;
 }
 
-const char *P2PSystemCommandFactory::ReplyRTSPClientSocketSucceed(
+talk_base::ByteBuffer *P2PSystemCommandFactory::ReplyRTSPClientSocketSucceed(
   uint32 server_socket, uint32 client_socket)
 {
-  char * data = new char[P2PRTSPCOMMAND_LENGTH];
 
-  NetworkByteBuffer byte_buffer(data,P2PRTSPCOMMAND_LENGTH);
+  talk_base::ByteBuffer *byte_buffer = new talk_base::ByteBuffer();
 
-  byte_buffer.WriteUInt32(P2P_SYSTEM_COMMAND_IDE);
-  byte_buffer.WriteUInt16(P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED);
-  byte_buffer.WriteUInt32(server_socket);
-  byte_buffer.WriteUInt32(client_socket);
-  byte_buffer.WriteUInt32(0);
-  byte_buffer.WriteUInt16(0);
-  byte_buffer.WriteUInt16(P2P_SYSTEM_COMMAND_PADDING_BYTE);
+  byte_buffer->WriteUInt32(P2P_SYSTEM_COMMAND_IDE);
+  byte_buffer->WriteUInt32(P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED);
+  byte_buffer->WriteUInt32(server_socket);
+  byte_buffer->WriteUInt32(client_socket);
+  byte_buffer->WriteUInt32(0);
+  byte_buffer->WriteUInt16(0);
+  byte_buffer->WriteUInt16(P2P_SYSTEM_COMMAND_PADDING_BYTE);
 
   //Maybe there is a bug.
-  return byte_buffer.Data();
+  return byte_buffer;
 
 }
 
-void P2PSystemCommandFactory::DeleteRTSPClientCommand(const char *data){
+void P2PSystemCommandFactory::DeleteRTSPClientCommand(talk_base::ByteBuffer *data){
   ASSERT(data != NULL);
   delete data;
 }
@@ -119,10 +116,12 @@ bool P2PSystemCommandFactory::ParseCommand(
   byte_buffer.ReadUInt32(&client_socket_command->p2p_system_command_ide_);
   if(client_socket_command->p2p_system_command_ide_ 
     != P2P_SYSTEM_COMMAND_IDE){
-      LOG(LS_ERROR) << "\t The P2P P2P_SYSTEM_COMMAND_IDE error";
+      LOG(LS_ERROR) << "\t The P2P P2P_SYSTEM_COMMAND_IDE error " 
+        << client_socket_command->p2p_system_command_ide_;
       return false;
   }
 
+  byte_buffer.ReadUInt32(&client_socket_command->p2p_system_command_type_);
   byte_buffer.ReadUInt32(&client_socket_command->server_socket_);
   byte_buffer.ReadUInt32(&client_socket_command->client_socket_);
   byte_buffer.ReadUInt32(&client_socket_command->client_connection_ip_);

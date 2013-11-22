@@ -33,8 +33,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "talk/base/bytebuffer.h"
+
 #include "asyncrtspclientsocket.h"
 #include "proxyserverfactory.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 RTSPClientSocket::RTSPClientSocket(
@@ -61,12 +64,13 @@ void RTSPClientSocket::OnInternalConnect(
   socket_table_management_->AddNewLocalSocket((uint32)socket,
     server_socket_number_,TCP_SOCKET);
 
-  const char *reply_string = 
+  talk_base::ByteBuffer *reply_string = 
     p2p_system_command_factory_->ReplyRTSPClientSocketSucceed(
     server_socket_number_,(uint32)int_socket_.get());
   //send this string to remote peer
 
-  p2p_socket_->Send((uint32)socket,TCP_SOCKET, reply_string,P2PRTSPCOMMAND_LENGTH);
+  p2p_socket_->Send((uint32)socket,TCP_SOCKET, reply_string->Data(),
+    P2PRTSPCOMMAND_LENGTH,NULL);
   //delete the string
   p2p_system_command_factory_->DeleteRTSPClientCommand(reply_string);
 }

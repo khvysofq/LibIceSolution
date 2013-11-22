@@ -69,7 +69,7 @@ protected:
   virtual void WriteBufferDataToP2P(talk_base::FifoBuffer *buffer);
 
 protected:
-  static const int KBufferSize = 4 * 1024;
+  static const int KBufferSize = 10240;
   talk_base::scoped_ptr<talk_base::AsyncSocket> int_socket_;
   talk_base::scoped_ptr<AsyncP2PSocket> p2p_socket_;
   talk_base::FifoBuffer out_buffer_;

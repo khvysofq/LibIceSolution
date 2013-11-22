@@ -93,7 +93,8 @@ public:
 
   /////////////////////////////////////////////////////////
   //ice to up layer interface
-  virtual void OnReceiveDataFromUpLayer(const char *, int) = 0;
+  virtual void OnReceiveDataFromUpLayer(const char *, int,
+    size_t *,size_t *) = 0;
   sigslot::signal1<talk_base::StreamInterface*> SignalSendDataToUpLayer;
   virtual void WriteData(const char *data, int len) = 0;
 protected:
@@ -132,10 +133,11 @@ public:
 public:
   //application layer
   sigslot::signal4<uint32 ,SocketType,const char *, uint16> SignalSendDataToUpLayer;
-  virtual void OnReceiveDataFromUpLayer(uint32,SocketType,const char*,uint16) = 0;
+  virtual void OnReceiveDataFromUpLayer(uint32,SocketType,const char*,uint16,
+    size_t *,size_t *) = 0;
 public:
   //ice part 
-  sigslot::signal2<const char *, int> SignalSendDataToLowLayer;
+  sigslot::signal4<const char *, int,size_t *,size_t *> SignalSendDataToLowLayer;
   virtual void OnReceiveDataFromLowLayer(talk_base::StreamInterface* ) = 0;
 
 private:
@@ -169,7 +171,8 @@ public:
 protected:
   AbstractVirtualNetwork  *virtual_network_;
 public: // virtual network interface
-  sigslot::signal4<uint32,SocketType,const char*,uint16> SignalSendDataToLowLayer;
+  sigslot::signal6<uint32,SocketType,const char*,uint16,
+    size_t *,size_t *> SignalSendDataToLowLayer;
   virtual void OnReceiveDateFromLowLayer(uint32 socket, SocketType socket_type,
     const char *data, uint16 len) = 0;
 private:

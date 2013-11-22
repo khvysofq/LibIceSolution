@@ -49,14 +49,18 @@
 class RTSPProxyServer;
 class ProxySocketManagement;
 class RTSPClientSocket;
+
 class AsyncP2PSocket
 {
 public:
   AsyncP2PSocket(AbstractVirtualNetwork *virtual_network);
   virtual void Send(uint32 socket, SocketType socket_type,
-    const char *data, uint16 len);
+    const char *data, uint16 len,size_t *written);
+  size_t GetAvalibeSendData();
 private:
+  static const size_t MAX_SAVE_DATA_LEN = 10240;
   AbstractVirtualNetwork *virtual_network_;
+  size_t              has_data_;
   DISALLOW_EVIL_CONSTRUCTORS(AsyncP2PSocket);
 };
 

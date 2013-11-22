@@ -80,6 +80,7 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
     RECEIVE_BUFFER_LEN,&res,&error);
 
   if(res){
+    //LOG(LS_ERROR) << "receive data length is " << res;
     NetworkByteBuffer network_byte_buffer(temp_buffer_,res);
 
     size_t current_reading = 0;
@@ -91,8 +92,9 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
           LOG(LS_VERBOSE) << "\t got P2P_NETWORKER_HEADER_IDE";
           reading_states_ = READING_LOCAL_SOCKET;
         } else{
-          LOG(LS_ERROR) <<"\t reading network header identifier error";
-          continue;
+          LOG(LS_ERROR) <<"\t reading network header identifier error " 
+            << network_byte_buffer.Length();
+          break;
         }
       }
       else if(reading_states_ == READING_LOCAL_SOCKET){
@@ -119,14 +121,14 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
       else if(reading_states_ == READING_DATA_LENGTH){
         uint16 data_len;
         network_byte_buffer.ReadUInt16(&data_len);
-        if((data_len > 0) && (data_len < RECEIVE_BUFFER_LEN)){
+        if((data_len > 0) && data_len < RECEIVE_BUFFER_LEN){
           receive_network_header_->data_len_ = data_len;
           reading_states_ = READING_DATA;
-          LOG(LS_VERBOSE) << "\t got READING_DATA_LENGTH " << data_len;
+          //LOG(LS_ERROR) << "\t got READING_DATA_LENGTH " << data_len;
         } else{
-          LOG(LS_ERROR) << "\t receive data length error";
+          LOG(LS_ERROR) << "\t receive data length error " << data_len;
           reading_states_ = READING_HEADER_IDE;
-          continue;
+          break;
         }
       }
       else if(reading_states_ == READING_DATA){
@@ -157,11 +159,13 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
 }
 
 void VirtualNetwork::OnReceiveDataFromUpLayer(uint32 socket,SocketType socket_type,
-                                              const char *data,uint16 len)
+                                              const char *data,uint16 len,
+                                              size_t *written,size_t *has_data)
 {
   LOG(LS_INFO) << "^^^" << __FUNCTION__;
   LOG(LS_INFO) << "\t local socket is " << socket;
   LOG(LS_INFO) << "\t receive data length is " << len; 
+  ASSERT(len != 0);
   //1. Add a header at this packet
   AddInNetworkHeader(socket,socket_type,len);
 
@@ -177,7 +181,7 @@ void VirtualNetwork::OnReceiveDataFromUpLayer(uint32 socket,SocketType socket_ty
   //layer). For this reason we set the data length is zero to indicate this is
   //a network header data.
   ///////////////////////////////////////////////////////////////////////////
-  SignalSendDataToLowLayer(send_byte_buffer_->Data(),0);
+  SignalSendDataToLowLayer(send_byte_buffer_->Data(),0,NULL,NULL);
 
   ///////////////////////////////////////////////////////////////////////////
   //BUG NOTE (GuangleiHe, 11/15/2013)
@@ -188,7 +192,8 @@ void VirtualNetwork::OnReceiveDataFromUpLayer(uint32 socket,SocketType socket_ty
   send_byte_buffer_->Clear();
 
   //4. send the relay data to low layer
-  SignalSendDataToLowLayer(data,len);
+  SignalSendDataToLowLayer(data,len,written,has_data);
+  //LOG(LS_ERROR) << "send data length is " << len;
 }
 
 

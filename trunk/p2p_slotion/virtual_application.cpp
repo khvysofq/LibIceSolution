@@ -70,12 +70,14 @@ void VirtualApplication::OnReceiveDateFromLowLayer(uint32 socket,
   LOG(LS_INFO) << "---" << __FUNCTION__;
   LOG(LS_INFO) << "-----------------------------";
   LOG(LS_INFO) << "\t socket = " << socket;
+  LOG(LS_INFO) << "\t socket type = " << socket_type;
+  LOG(LS_INFO) << "\t data length = " << len;
   LOG(LS_INFO) << "-----------------------------";
   if(!proxy_socket_management_->RunSocketProccess(socket,
     socket_type,data,len))
   {
     //Not found the socket, it must be a system command that create a client socket.
-
+    LOG(LS_INFO) << "Create New Client Socket";
     //Step 1. Parse the system command.
     P2PRTSPCommand p2p_rtsp_command;
     p2p_system_command_factory_->ParseCommand(&p2p_rtsp_command,data,len);

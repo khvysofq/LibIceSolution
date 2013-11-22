@@ -32,6 +32,8 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include "talk/base/bytebuffer.h"
 #include "asyncrtspproxysocketserver.h"
 #include "proxyserverfactory.h"
 
@@ -43,7 +45,7 @@ AsyncRTSPProxyServerSocket::AsyncRTSPProxyServerSocket(
   //Turn off data process in AsyncProxyServerSocket
   talk_base::SocketAddress server_addr("127.0.0.1",554);
   SignalConnectRequest(this,server_addr);
-  BufferInput(true);
+  BufferInput(false);
 }
 
 void AsyncRTSPProxyServerSocket::ProcessInput(char* data, size_t* len) {
@@ -82,7 +84,7 @@ void RTSPProxyServer::OnAcceptEvent(talk_base::AsyncSocket* socket){
   //Step 1. Accept this connection socket
   talk_base::AsyncSocket *accept_socket = socket->Accept(NULL);
 
-  //Step 2. Wrap this socket to AsyncProxyServerSocket, add some new control to it.
+  //Step 2. Wrap this socket by AsyncProxyServerSocket, add some new control to it.
   //NOTE: the WrapSocket used the new operator to create a 
   //talk_base::AsyncProxyServerSocket object. so you must be delete it 
   //When you release this object
@@ -116,6 +118,7 @@ RTSPServerSocketStart::RTSPServerSocketStart(AsyncP2PSocket * p2p_socket,
     &RTSPServerSocketStart::OnConnectRequest);
   //rtsp_socket_->BufferInput(true);
 
+  has_wait_data = false;
   talk_base::SocketAddress server_addr("127.0.0.1",554);
   OnConnectRequest(int_socket,server_addr);
 }
@@ -134,12 +137,12 @@ void RTSPServerSocketStart::OnConnectRequest(talk_base::AsyncProxyServerSocket* 
     (uint32)socket,TCP_SOCKET);
 
   //Generate system command that create RTSP client
-  const char *create_rtsp_client_command =
+  talk_base::ByteBuffer *create_rtsp_client_command =
     p2p_system_command_factory_->CreateRTSPClientSocket((uint32)socket,addr);
 
   //send the data to remote peer
   p2p_socket_->Send((uint32)socket,TCP_SOCKET,
-    create_rtsp_client_command,P2PRTSPCOMMAND_LENGTH);
+    create_rtsp_client_command->Data(),P2PRTSPCOMMAND_LENGTH,NULL);
 
   //delete this command
   p2p_system_command_factory_->DeleteRTSPClientCommand(create_rtsp_client_command);
@@ -149,14 +152,30 @@ void RTSPServerSocketStart::OnConnectRequest(talk_base::AsyncProxyServerSocket* 
 
 void RTSPServerSocketStart::OnP2PReceiveData(const char *data, uint16 len){
   if(state_ == RP_SEND_RTSP_CLIENT_CREATE_COMMAND){
+    LOG(LS_ERROR) << " state_ == RP_SEND_RTSP_CLIENT_CREATE_COMMAND";
     P2PRTSPCommand rtsp_command;
     p2p_system_command_factory_->ParseCommand(&rtsp_command,data,len);
     socket_table_management_->UpdateRemoteSocketTable(rtsp_command.server_socket_,
       rtsp_command.client_socket_);
     state_ = RP_SCUCCEED;
+    if(has_wait_data){
+      ReadSocketDataToBuffer(int_socket_.get(),&out_buffer_);
+      WriteBufferDataToP2P(&out_buffer_);
+    }
     return ;
   }
   ASSERT(state_ == RP_SCUCCEED);
   ReadP2PDataToBuffer(data,len,&in_buffer_);
   WriteBufferDataToSocket(int_socket_.get(),&in_buffer_);
+}
+
+void RTSPServerSocketStart::OnInternalRead(talk_base::AsyncSocket* socket){
+  if(state_ == RP_SCUCCEED){
+    ReadSocketDataToBuffer(int_socket_.get(),&out_buffer_);
+    WriteBufferDataToP2P(&out_buffer_);
+  }
+  else{
+    LOG(LS_ERROR) << "state_ != RP_SCUCCEED";
+    has_wait_data = true;
+  }
 }

@@ -51,7 +51,8 @@ public:
 public: // implementation inheritance
   // for AbstractVirtualNetwork
   virtual void OnReceiveDataFromLowLayer(talk_base::StreamInterface* );
-  virtual void OnReceiveDataFromUpLayer(uint32,SocketType,const char*,uint16);
+  virtual void OnReceiveDataFromUpLayer(uint32,SocketType,const char*,uint16,
+    size_t *,size_t *);
 
   // for MessageHandler
   void OnMessage(talk_base::Message* msg);

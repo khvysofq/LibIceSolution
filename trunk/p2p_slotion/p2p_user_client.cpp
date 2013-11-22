@@ -5,7 +5,7 @@
 #include "peer_connection_ice.h"
 #include "peer_connection_server.h"
 
-static const int TEST_SEND_BUFFER   = 64;
+static const int TEST_SEND_BUFFER   = 4096;
 static const talk_base::SocketAddress KLocalRTSPServer("127.0.0.1",554);
 
 P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
@@ -322,10 +322,10 @@ void P2PUserClient::OnOnlinePeers(const PeerInfors peers){
   for(PeerInfors::const_iterator iter = peers.begin();
     iter != peers.end();++iter){
       std::cout << iter->first << "\t" << iter->second.peer_name_ << std::endl;
-      std::cout << iter->second.resource_ << std::endl;
+      //std::cout << iter->second.resource_ << std::endl;
       //ParseJosonString(iter->second.resource_);
   }
-  std::cout << "\n====================================" << std::endl;
+  std::cout << "====================================" << std::endl;
 }
 
 void P2PUserClient::OnMessage(talk_base::Message* msg){
@@ -334,6 +334,6 @@ void P2PUserClient::OnMessage(talk_base::Message* msg){
   //p2p_virtual_application_->SignalSendDataToLowLayer(1,
   //  TCP_SOCKET,receive_buffer_,TEST_SEND_BUFFER);
   p2p_virtual_network_->OnReceiveDataFromUpLayer(123,TCP_SOCKET,
-    receive_buffer_,TEST_SEND_BUFFER);
-  signal_thread_->PostDelayed(15,this);
+    receive_buffer_,TEST_SEND_BUFFER,NULL,NULL);
+  signal_thread_->PostDelayed(20,this);
 }

@@ -37,15 +37,22 @@
 #include "asyncrtspclientsocket.h"
 //////////////////////////////////////////////////////////////////////////
 AsyncP2PSocket::AsyncP2PSocket(AbstractVirtualNetwork *virtual_network)
-  :virtual_network_(virtual_network)
+  :virtual_network_(virtual_network),has_data_(0)
 {
 }
 
 void AsyncP2PSocket::Send(uint32 socket, SocketType socket_type,
-                          const char *data, uint16 len)
+                          const char *data, uint16 len, size_t *written)
 {
   LOG(LS_INFO) << "6. " << __FUNCTION__;
-  virtual_network_->OnReceiveDataFromUpLayer(socket,socket_type,data,len);
+  if(len == 0)
+    return ;
+  virtual_network_->OnReceiveDataFromUpLayer(socket,socket_type,data,
+    len,written,&has_data_);
+}
+
+size_t AsyncP2PSocket::GetAvalibeSendData(){
+  return MAX_SAVE_DATA_LEN - has_data_;
 }
 
 //////////////////////////////////////////////////////////////////////////
