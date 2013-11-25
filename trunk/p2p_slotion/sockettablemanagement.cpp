@@ -57,7 +57,7 @@ bool SocketTableManagement::AddNewLocalSocket(uint32 local_socket, uint32 remote
 
   iter = local_socket_map_.find(local_socket);
   if(iter != local_socket_map_.end()){
-    LOG(LS_ERROR) << "Have a same socket in local socket map";
+    LOG(LS_ERROR) << "existed local socket";
     return false;
   }
 

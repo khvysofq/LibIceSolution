@@ -47,8 +47,11 @@ void AsyncP2PSocket::Send(uint32 socket, SocketType socket_type,
   LOG(LS_INFO) << "6. " << __FUNCTION__;
   if(len == 0)
     return ;
+  size_t w = 0;
   virtual_network_->OnReceiveDataFromUpLayer(socket,socket_type,data,
-    len,written,&has_data_);
+    len,&w);
+  if(written)
+    *written = w;
 }
 
 size_t AsyncP2PSocket::GetAvalibeSendData(){

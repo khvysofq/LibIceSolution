@@ -63,7 +63,9 @@ public:
   
   //receive messages that from remote peer by p2p server
   virtual void OnReceiveMessageFromRemotePeer(const std::string, int);
-  virtual void OnReceiveDataFromUpLayer(const char *, int,size_t *,size_t *);
+  virtual void OnReceiveDataFromUpLayer(const char *, int);
+  virtual bool IsBlock() const ;
+  virtual size_t GetRemainBufferLength() const ;
 private:    //p2p server function and some help function
   buzz::Jid *GetJid();
 

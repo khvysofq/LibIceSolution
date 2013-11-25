@@ -73,6 +73,8 @@ public:
   //user interface 
   sigslot::signal1<StatesChangeType>  SignalStatesChange;
   
+  virtual bool IsBlock() const = 0;
+  virtual size_t GetRemainBufferLength() const = 0;
   virtual void DestroyPeerConnectionIce() = 0;
   virtual void ConnectionToRemotePeer(int remote_peer_id, 
     std::string remote_peer_name) = 0;
@@ -93,8 +95,7 @@ public:
 
   /////////////////////////////////////////////////////////
   //ice to up layer interface
-  virtual void OnReceiveDataFromUpLayer(const char *, int,
-    size_t *,size_t *) = 0;
+  virtual void OnReceiveDataFromUpLayer(const char *, int) = 0;
   sigslot::signal1<talk_base::StreamInterface*> SignalSendDataToUpLayer;
   virtual void WriteData(const char *data, int len) = 0;
 protected:
@@ -134,14 +135,14 @@ public:
   //application layer
   sigslot::signal4<uint32 ,SocketType,const char *, uint16> SignalSendDataToUpLayer;
   virtual void OnReceiveDataFromUpLayer(uint32,SocketType,const char*,uint16,
-    size_t *,size_t *) = 0;
+    size_t *) = 0;
 public:
   //ice part 
-  sigslot::signal4<const char *, int,size_t *,size_t *> SignalSendDataToLowLayer;
+  sigslot::signal2<const char *, int> SignalSendDataToLowLayer;
   virtual void OnReceiveDataFromLowLayer(talk_base::StreamInterface* ) = 0;
 
-private:
   AbstractICEConnection *p2p_ice_connection_;
+private:
   DISALLOW_EVIL_CONSTRUCTORS(AbstractVirtualNetwork);
 };
 
@@ -171,8 +172,8 @@ public:
 protected:
   AbstractVirtualNetwork  *virtual_network_;
 public: // virtual network interface
-  sigslot::signal6<uint32,SocketType,const char*,uint16,
-    size_t *,size_t *> SignalSendDataToLowLayer;
+  sigslot::signal5<uint32,SocketType,const char*,uint16,
+    size_t *> SignalSendDataToLowLayer;
   virtual void OnReceiveDateFromLowLayer(uint32 socket, SocketType socket_type,
     const char *data, uint16 len) = 0;
 private:

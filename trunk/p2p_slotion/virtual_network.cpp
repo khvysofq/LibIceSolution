@@ -40,7 +40,6 @@ VirtualNetwork::VirtualNetwork(AbstractICEConnection *p2p_ice_connection):
   AbstractVirtualNetwork(p2p_ice_connection)
 {
   LOG(LS_INFO) << "^^^" << __FUNCTION__;
-
   //Send network header
   send_network_header_ = new NetworkHeader();
   send_network_header_->header_ide_ = P2P_NETWORKER_HEADER_IDE;
@@ -160,14 +159,27 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
 
 void VirtualNetwork::OnReceiveDataFromUpLayer(uint32 socket,SocketType socket_type,
                                               const char *data,uint16 len,
-                                              size_t *written,size_t *has_data)
+                                              size_t *written)
 {
   LOG(LS_INFO) << "^^^" << __FUNCTION__;
-  LOG(LS_INFO) << "\t local socket is " << socket;
-  LOG(LS_INFO) << "\t receive data length is " << len; 
   ASSERT(len != 0);
+
+  size_t remain_buffer_length = p2p_ice_connection_->GetRemainBufferLength();
+  //std::cout << "remain buffer length is " << remain_buffer_length << std::endl;
+
+  if(remain_buffer_length == 0 ||
+    p2p_ice_connection_->IsBlock()){
+    *written = 0;
+    return ;
+  }
+  else{
+    if(remain_buffer_length >= len)
+      *written = len;
+    else
+      *written = remain_buffer_length;
+  }
   //1. Add a header at this packet
-  AddInNetworkHeader(socket,socket_type,len);
+  AddInNetworkHeader(socket,socket_type,*written);
 
   //2. convert the network header struct to buffer
   ConvertNetworkHeaderToBuffer();
@@ -181,7 +193,7 @@ void VirtualNetwork::OnReceiveDataFromUpLayer(uint32 socket,SocketType socket_ty
   //layer). For this reason we set the data length is zero to indicate this is
   //a network header data.
   ///////////////////////////////////////////////////////////////////////////
-  SignalSendDataToLowLayer(send_byte_buffer_->Data(),0,NULL,NULL);
+  SignalSendDataToLowLayer(send_byte_buffer_->Data(),0);
 
   ///////////////////////////////////////////////////////////////////////////
   //BUG NOTE (GuangleiHe, 11/15/2013)
@@ -192,7 +204,7 @@ void VirtualNetwork::OnReceiveDataFromUpLayer(uint32 socket,SocketType socket_ty
   send_byte_buffer_->Clear();
 
   //4. send the relay data to low layer
-  SignalSendDataToLowLayer(data,len,written,has_data);
+  SignalSendDataToLowLayer(data,*written);
   //LOG(LS_ERROR) << "send data length is " << len;
 }
 

@@ -11,7 +11,7 @@ def random_str(randomlength=8):
   for i in range(randomlength):
       str+=chars[random.randint(0, length)]
   return str
-msg = random_str(1024);
+msg = random_str(2046);
 
 ###################################################################################
 #client receive data
@@ -44,6 +44,6 @@ s.close()
 #  conn.sendall(msg)
 #  print "send data ...",len(msg)
 #  #data = conn.recv(1024)
-#  #time.sleep(20.0/1000);
+#  time.sleep(120.0/1000);
 #  #data = s.recv(1024)
 #conn.close()

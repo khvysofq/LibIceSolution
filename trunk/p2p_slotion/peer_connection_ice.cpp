@@ -91,8 +91,8 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
     &PeerConnectionIce::OnRequestSignaling);
   session_manager_->SignalOutgoingMessage.connect(this,
     &PeerConnectionIce::OnOutgoingMessage);
-  
-  
+
+
   local_jid_ = new buzz::Jid(local_peer_name_);
   tunnel_session_client_  =   new cricket::TunnelSessionClient(
     *local_jid_,session_manager_);
@@ -177,22 +177,16 @@ void PeerConnectionIce::OnReceiveMessageFromRemotePeer(const std::string msg,
     new MessageSendData(msg));
 }
 
-void PeerConnectionIce::OnReceiveDataFromUpLayer(const char *data, int len,
-                                                 size_t *written, size_t *has_data)
+void PeerConnectionIce::OnReceiveDataFromUpLayer(const char *data, int len)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
   //local_tunnel_->WriteAll(data,len,NULL,NULL);
-  if(len == 0)
-  {
+  if(len == 0){
     send_data_buffer_->SaveData(data,NETWORKHEADER_LENGTH);
     return ;
   }
   send_data_buffer_->SaveData(data,len);
-  size_t res = send_data_buffer_->SendDataByStream(local_tunnel_,1);
-  if(written)
-    *written = res - NETWORKHEADER_LENGTH;
-  if(has_data)
-    *has_data = send_data_buffer_->GetBufferLength();
+  send_data_buffer_->SendDataUsedStream(local_tunnel_);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -253,9 +247,11 @@ void PeerConnectionIce::OnStreamEvent(talk_base::StreamInterface* stream,
 
   if (events & talk_base::SE_WRITE) {
     if (stream == local_tunnel_) {
-      LOG(LS_INFO) << "\ttalk_base::SE_WRITE  ????????????????????????????????";
-      send_data_buffer_->SendDataByStream(local_tunnel_,1);
-      SignalStatesChange(STATES_ICE_TUNNEL_SEND_DATA);
+      std::cout << "\ttalk_base::SE_WRITE  ????????????????????????"
+        << std::endl;
+      send_data_buffer_->SetNormalState();
+      if(send_data_buffer_->SendDataUsedStream(local_tunnel_))
+        SignalStatesChange(STATES_ICE_TUNNEL_SEND_DATA);
     }
   }
 
@@ -272,7 +268,7 @@ void PeerConnectionIce::ReadData(talk_base::StreamInterface *stream){
   LOG(LS_INFO) << "===" << __FUNCTION__;
   size_t res = 0;
   stream->Read(send_buffer_,SEND_BUFFER_LENGTH,&res,NULL);
-  LOG(LS_INFO) << "\tRead Data length is " << res;
+  std::cout << "\tRead Data length is " << res << std::endl;
 }
 
 void PeerConnectionIce::WriteData(const char *data, int len){
@@ -282,6 +278,14 @@ void PeerConnectionIce::WriteData(const char *data, int len){
   LOG(LS_INFO) << "\t Write Data length is " << res;
   if(res != len)
     LOG(LS_ERROR) << "\t error write data not complete";
+}
+
+bool PeerConnectionIce::IsBlock() const{
+  return send_data_buffer_->IsBlockState();
+}
+
+size_t PeerConnectionIce::GetRemainBufferLength() const {
+  return send_data_buffer_->GetBufferRemainLength();
 }
 
 void PeerConnectionIce::OnMessage(talk_base::Message* msg){

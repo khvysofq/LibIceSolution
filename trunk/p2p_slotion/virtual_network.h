@@ -52,7 +52,7 @@ public: // implementation inheritance
   // for AbstractVirtualNetwork
   virtual void OnReceiveDataFromLowLayer(talk_base::StreamInterface* );
   virtual void OnReceiveDataFromUpLayer(uint32,SocketType,const char*,uint16,
-    size_t *,size_t *);
+    size_t *);
 
   // for MessageHandler
   void OnMessage(talk_base::Message* msg);
@@ -79,7 +79,6 @@ private:  // receive up date process
   NetworkHeader         *send_network_header_;
   // help variable that convert the network header struct to NETWORK ORDER
   talk_base::ByteBuffer *send_byte_buffer_;
-
 private:  // receive low layer process
   NetworkHeader         *receive_network_header_;
   uint16                receive_current_len_;

@@ -75,7 +75,6 @@ void ProxySocketBegin::OnInternalClose(talk_base::AsyncSocket* socket, int err){
 
 }
 
-
 void ProxySocketBegin::ReadSocketDataToBuffer(talk_base::AsyncSocket *socket, 
                                               talk_base::FifoBuffer *buffer)
 {
@@ -85,9 +84,11 @@ void ProxySocketBegin::ReadSocketDataToBuffer(talk_base::AsyncSocket *socket,
   int read;
   if (buffer->GetBuffered(&size) && size == 0) {
     void* p = buffer->GetWriteBuffer(&size);
-    LOG(LS_ERROR) << "receive data length is " << size;
     read = socket->Recv(p, size);
     buffer->ConsumeWriteBuffer(talk_base::_max(read, 0));
+  }
+  else {
+    LOG(LS_ERROR) << "p2p network buffer is not empty";
   }
 }
 
@@ -112,12 +113,10 @@ void ProxySocketBegin::WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
 void ProxySocketBegin::WriteBufferDataToP2P(talk_base::FifoBuffer *buffer){
   ASSERT(buffer != NULL);
   size_t size;
-  size_t has_data = p2p_socket_->GetAvalibeSendData();
+  size_t written = 0;
   const void* p = buffer->GetReadData(&size);
-  size_t send_date = has_data > size ? size : has_data;
-  LOG(LS_ERROR) << "Event " << send_date;
-  p2p_socket_->Send((uint32)int_socket_.get(),TCP_SOCKET,(const char *)p,send_date,NULL);
-  buffer->ConsumeReadData(send_date);
+  p2p_socket_->Send((uint32)int_socket_.get(),TCP_SOCKET,(const char *)p,size,&written);
+  buffer->ConsumeReadData(written);
 }
 
 //////////////////////////////////////////////////////////////////////////

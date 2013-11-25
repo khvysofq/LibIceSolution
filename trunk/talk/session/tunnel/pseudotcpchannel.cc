@@ -134,7 +134,7 @@ bool PseudoTcpChannel::Connect(const std::string& content_name,
   channel_ = session_->CreateChannel(
       content_name, channel_name, component);
   channel_name_ = channel_name;
-  channel_->SetOption(Socket::OPT_DONTFRAGMENT, 1);
+  //channel_->SetOption(Socket::OPT_DONTFRAGMENT, 1);
 
   channel_->SignalDestroyed.connect(this,
     &PseudoTcpChannel::OnChannelDestroyed);

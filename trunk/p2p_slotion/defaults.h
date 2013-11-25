@@ -36,6 +36,7 @@
 const int kDefaultServerPort = 8888;
 const talk_base::SocketAddress  KStunAddr("stun.endigovoip.com",3478);
 
+const size_t DEAFULT_BUFFER_LENGTH = 64 * 1024;
 
 struct PeerInfor{
   PeerInfor(){};

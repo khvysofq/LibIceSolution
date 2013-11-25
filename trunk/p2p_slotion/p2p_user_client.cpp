@@ -310,9 +310,8 @@ void P2PUserClient::OnReceiveDataFromLoweLayer(talk_base::StreamInterface* strea
 void P2PUserClient::SendRandomData(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
   signal_thread_->PostDelayed(20,this);
-  SocketTableManagement::Instance()->AddNewLocalSocket(123,123,TCP_SOCKET);
-  //p2p_virtual_network_->OnReceiveDataFromUpLayer(1,1000,msg.c_str(),
-  //  msg.length());
+  SocketTableManagement::Instance()->AddNewLocalSocket(123,
+    123,TCP_SOCKET);
 }
 
 void P2PUserClient::OnOnlinePeers(const PeerInfors peers){
@@ -333,7 +332,10 @@ void P2PUserClient::OnMessage(talk_base::Message* msg){
 
   //p2p_virtual_application_->SignalSendDataToLowLayer(1,
   //  TCP_SOCKET,receive_buffer_,TEST_SEND_BUFFER);
-  p2p_virtual_network_->OnReceiveDataFromUpLayer(123,TCP_SOCKET,
-    receive_buffer_,TEST_SEND_BUFFER,NULL,NULL);
-  signal_thread_->PostDelayed(20,this);
+  size_t written = 0;
+  p2p_virtual_network_->OnReceiveDataFromUpLayer(123,TCP_SOCKET,receive_buffer_,
+    1024,&written);
+  std::cout << "The Written data is " << written <<std::endl;
+  if(written)
+    signal_thread_->PostDelayed(10,this);
 }
