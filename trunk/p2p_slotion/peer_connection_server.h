@@ -42,6 +42,7 @@
 class talk_base::AsyncSocket;
 class talk_base::SignalThread;
 class talk_base::SocketAddress;
+class P2PSourceManagement;
 //class talk_base::AsyncResolver;
 
 enum P2PServerMessageType
@@ -163,6 +164,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
   void OnResolveResult(talk_base::SignalThread *t);
 
   void* resolver_;
+  std::string                                   local_peer_name_;
   talk_base::scoped_ptr<talk_base::AsyncSocket> control_socket_;
   talk_base::scoped_ptr<talk_base::AsyncSocket> hanging_get_;
   std::string onconnect_data_;
@@ -171,6 +173,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
   State state_;
   int   my_id_;
   std::deque<PendMessage *>       pending_messages_;
+  P2PSourceManagement             *p2P_source_management_;
 };
 
 #endif  // PEERCONNECTION_SAMPLES_CLIENT_PEER_CONNECTION_CLIENT_H_

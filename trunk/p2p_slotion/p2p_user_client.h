@@ -42,7 +42,9 @@
 
 #include "defaults.h"
 #include "mediator_pattern.h"
-#include "p2psourcemanagement.h"
+class P2PConnectionManagement;
+class P2PSourceManagement;
+class P2PServerConnectionManagement;
 
 //const talk_base::SocketAddress ServerAddr("192.168.1.225",8888);
 const talk_base::SocketAddress ServerAddr("192.168.1.116",8888);
@@ -62,35 +64,14 @@ public:
   void Destory();
   void ConnectionToPeer(int peer_id);
 
-  //void SetLocalJidString(const std::string &jid);
-  //void AddServerMember(const ServerResource &server_resource);
-  //std::string GetResourceJosonString();
-
-  //Test Function Add Server Information
-  //void Test_GenerateResource();
-
-  //p2p ICE part
-  void OnStatesChange(StatesChangeType states_type);
-  void OnReceiveDataFromLoweLayer(talk_base::StreamInterface* stream);
-  sigslot::signal2<const char *, int> SignalSendDataToLowLayer;
-  void ParseJosonString(const std::string joson);
-  //p2p server part
-  void OnOnlinePeers(const PeerInfors &peers);
   
   // implements the MessageHandler interface
   void OnMessage(talk_base::Message* msg);
 
-  // implements the Virtual network receive data interface
-  void OnReceiveDataFromVirtualNetwokr(int socket,SocketType socket_type,
-    const char *data, int len);
   bool                        is_peer_connect_;
 private:
   void SendRandomData();
 private:
-  AbstractVirtualNetwork      *p2p_virtual_network_;
-  AbstractICEConnection       *p2p_ICE_connection_;
-  AbstractP2PServerConnection *p2p_server_connection_;
-  AbstarctVirtualApplication  *p2p_virtual_application_;
 
   talk_base::Thread           *worker_thread_;
   talk_base::Thread           *signal_thread_;
@@ -98,6 +79,8 @@ private:
   char                        *receive_buffer_;
 
   P2PSourceManagement         *p2p_source_management_;
+  P2PServerConnectionManagement *p2p_server_connection_management_;
+  P2PConnectionManagement         *p2p_connection_management_;
 };
 
-#endif%
+#endif

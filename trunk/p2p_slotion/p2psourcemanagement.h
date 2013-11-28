@@ -85,6 +85,7 @@ public:
   ~P2PSourceManagement(){
     DeleteAllServerResource(local_peer_resource_.server_resources_);
   }
+
   //P2PConnectionManagement interface
   int SreachPeerByServerResource(
     const talk_base::SocketAddress &addr);
@@ -111,10 +112,17 @@ public:
   //The function will new a PeerResource Object
   bool ParseJosonString(PeerResource *peer_resource,int peer_id,
     const std::string &peer_name,const std::string &resource_string);
-  std::string GetServerResourceString();
+  const std::string GetServerResourceString();
 
   //Manage for local peer_resourece
+  //defualt set the peer id is 0;
   void SetLocalPeerName(const std::string &peer_name);
+  const std::string GetLocalPeerName() const;
+  void SetLocalPeerId(int peer_id);
+  bool IsSetLocalPeerName() const ;
+  const std::string GetRemotePeerNameByPeerId(int peer_id);
+
+  //
   bool AddNewServerResource(ServerResource *server_resource);
   bool AddNewServerResource(const std::string &server_name,
     const std::string &server_ip, int server_port,

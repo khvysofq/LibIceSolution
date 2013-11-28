@@ -36,6 +36,7 @@
 #include "talk/base/logging.h"
 #include "talk/p2p/base/basicpacketsocketfactory.h"
 
+#include "p2psourcemanagement.h"
 #include "senddatabuffer.h"
 #include "peer_connection_ice.h"
 #include "defaults.h"
@@ -52,17 +53,12 @@ public:
 };
 
 PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
-                                     talk_base::Thread *signal_thread,
-                                     AbstractP2PServerConnection *
-                                             p2p_server_connection,
-                                     std::string local_peer_name)
+                                     talk_base::Thread *signal_thread)
 
-                                     :AbstractICEConnection(p2p_server_connection),
-                                     worker_thread_(worker_thread),
+                                     :worker_thread_(worker_thread),
                                      signal_thread_(signal_thread),
                                      tunnel_session_client_(NULL),
                                      local_tunnel_(NULL),
-                                     local_peer_name_(local_peer_name),
                                      remote_id_(-1),
                                      remote_jid_(NULL),
                                      local_jid_(NULL)
@@ -73,13 +69,10 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
   receive_momery_buffer_ = new talk_base::FifoBuffer(SEND_BUFFER_LENGTH);
   send_buffer_           = new char[SEND_BUFFER_LENGTH];
   send_data_buffer_      = new SendDataBuffer();
+  p2p_source_management_  = P2PSourceManagement::Instance();
 
   //-----------------------Part 2: initialize ICE part
   basic_network_manager_  =   new talk_base::BasicNetworkManager();
-  //http_allocator_         =   new cricket::HttpPortAllocator(
-  //  basic_network_manager_,HTTP_USER_AGENT);
-  //stun_hosts_.push_back(KStunAddr);
-  //http_allocator_->SetStunHosts(stun_hosts_);
   basic_prot_allocator_   =   new cricket::BasicPortAllocator(
     basic_network_manager_,
     new talk_base::BasicPacketSocketFactory(worker_thread),
@@ -92,10 +85,15 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
   session_manager_->SignalOutgoingMessage.connect(this,
     &PeerConnectionIce::OnOutgoingMessage);
 
-
-  local_jid_ = new buzz::Jid(local_peer_name_);
+  const std::string local_peer_name = p2p_source_management_->GetLocalPeerName();
+  if(local_peer_name.empty()){
+    LOG(LS_ERROR) << "Local Peer Name is empty";
+    return ;
+  }
+  local_jid_ = new buzz::Jid(local_peer_name);
   tunnel_session_client_  =   new cricket::TunnelSessionClient(
     *local_jid_,session_manager_);
+
   tunnel_session_client_->SignalIncomingTunnel.connect(this,
     &PeerConnectionIce::OnIncomingTunnel);
 };
@@ -131,8 +129,7 @@ PeerConnectionIce::~PeerConnectionIce(){
   LOG(LS_INFO) << "===" << __FUNCTION__;
   DestroyPeerConnectionIce();
 };
-void PeerConnectionIce::ConnectionToRemotePeer(int remote_peer_id, 
-                                         std::string remote_peer_name)
+void PeerConnectionIce::ConnectionToRemotePeer(int remote_peer_id)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
   ASSERT(remote_id_ == -1);
@@ -140,11 +137,14 @@ void PeerConnectionIce::ConnectionToRemotePeer(int remote_peer_id,
 
   //TODO:(guangleiHe) there has a bug.
   //The current peer connection only connect one peer
-  Add_remote_peer(remote_peer_id,remote_peer_name);
+  //Add_remote_peer(remote_peer_id,remote_peer_name);
   
   //initialize tunnel session client
-  remote_jid_ = new buzz::Jid(remote_peer_name);
+  remote_jid_ = new buzz::Jid(
+    p2p_source_management_->GetRemotePeerNameByPeerId(remote_peer_id));
+
   LOG(LS_INFO) << "\t remote jid is" << remote_jid_->Str();
+  
   local_tunnel_ = tunnel_session_client_->CreateTunnel(
     *remote_jid_,DEFAULT_DECRIBE);
   local_tunnel_->SignalEvent.connect(this,
@@ -152,15 +152,6 @@ void PeerConnectionIce::ConnectionToRemotePeer(int remote_peer_id,
   SignalStatesChange(STATES_ICE_START_PEER_CONNECTION);
 }
 
-
-buzz::Jid *PeerConnectionIce::GetJid(){
-  std::string jid_string;
-  if(local_peer_name_.empty())
-    local_peer_name_ = GetCurrentComputerUserName();
-  jid_string = local_peer_name_;
-  jid_string += JID_DEFAULT_DOMAIN;
-  return new buzz::Jid(jid_string);
-}
 
 void PeerConnectionIce::OnReceiveMessageFromRemotePeer(const std::string msg, 
                                                        int peer_id)

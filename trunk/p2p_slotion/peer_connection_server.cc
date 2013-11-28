@@ -37,6 +37,8 @@
 #include "talk/base/win32socketserver.h"
 #endif
 
+#include "p2psourcemanagement.h"
+
 using talk_base::sprintfn;
 
 namespace {
@@ -68,6 +70,7 @@ PeerConnectionServer::PeerConnectionServer()
   my_id_(-1)
 {
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  p2P_source_management_ = P2PSourceManagement::Instance();
 }
 
 PeerConnectionServer::~PeerConnectionServer() {
@@ -157,9 +160,10 @@ void PeerConnectionServer::DoConnect() {
   hanging_get_.reset(CreateClientSocket(server_address_.ipaddr().family()));
   InitSocketSignals();
 
+  local_peer_name_ = p2P_source_management_->GetLocalPeerName();
   if(local_peer_name_.empty()){
-    local_peer_name_ = GetCurrentComputerUserName();
-    local_peer_name_ += JID_DEFAULT_DOMAIN;
+    LOG(LS_ERROR) << "Local peer name is not set";
+    return ;
   }
   char buffer[1024];
   sprintfn(buffer, sizeof(buffer),

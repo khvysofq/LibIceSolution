@@ -4,10 +4,10 @@
  * 
  * Author   : GuangLei He
  * Email    : guangleihe@gmail.com
- * Created  : 2013/11/27      11:07
- * Filename : F:\GitHub\trunk\p2p_slotion\p2pconnectionmanagement.h
+ * Created  : 2013/11/28      11:47
+ * Filename : F:\GitHub\trunk\p2p_slotion\p2pserverconnectionmanagement.h
  * File path: F:\GitHub\trunk\p2p_slotion
- * File base: p2pconnectionmanagement
+ * File base: p2pserverconnectionmanagement
  * File ext : h
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,57 +33,60 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef P2P_CONNECTION_MANAGEMENT_H_
-#define P2P_CONNECTION_MANAGEMENT_H_
+#ifndef P2P_SERVER_CONNECTION_MANAGEMENT_H_
+#define P2P_SERVER_CONNECTION_MANAGEMENT_H_
 
-#include <set>
-
-#include "talk/base/sigslot.h"
-#include "talk/base/socketaddress.h"
 #include "mediator_pattern.h"
 
 class P2PSourceManagement;
 
-class P2PConnectionManagement : public sigslot::has_slots<>
+class P2PServerConnectionManagement : public sigslot::has_slots<>
 {
 public:
-  ///////////////////////////////////////////////////////////////////////////
-  //BUG NOTE (GuangleiHe, 11/28/2013)
-  //Maybe there has a bug.
-  //Because the order of the call with Initialize are Anarchy Reigns
-  ///////////////////////////////////////////////////////////////////////////
-  //You must add some source to p2p source management
-  //after call the function. Because It instance PeerConnectionIce
-  //object.
-  void Initialize(talk_base::Thread *signal_thread,
-    talk_base::Thread *worker_thread);
-  AbstractICEConnection *GetP2PICEConnection() const ;
-  //When you call this function, you must be sure that the peer id 
-  //is correct.
-  virtual int Connect(int peer_id);
-private:
-  AbstractVirtualNetwork *IsPeerConnected(int peer_id);
-  void OnStatesChange(StatesChangeType states_type);
+  bool SignOutP2PServer();
+  void SignInP2PServer(const talk_base::SocketAddress &server_addr);
+  bool UpdatePeerInfor(const std::string &);
+  void SetIceDataTunnel(AbstractICEConnection *ice_connection);
+  //All resource are manage by P2PResourceManagement class
+  //so delete those function.
+  //void SetLocalName(const std::string &local_name);
+  //const std::string GetLocalName() const;
+
+  //sigslot::signal2<int,const std::string &> 
+  //  SignalReceiveMessageFromRemotePeer;
+  ////By default the p2p server connection object is PeerConnectionServer
+  ////who define at peer_connection_server.h
+  ////bool Initialize(AbstractP2PServerConnection *p2p_server_connection);
+  //void OnSendMessageToRemotePeer(int peer_id, const std::string &msg);
+
+
+  //void OnReceiveMessageFromRemotePeer(const std::string msg,int peer_id);
 private:
 
-  typedef std::map<int,AbstractVirtualNetwork *> P2PConnections;
-  P2PConnections      current_connect_peer_;
-  P2PSourceManagement *p2p_source_management_;
+  void OnServerStatesChange(StatesChangeType state_type);
 
-  AbstractVirtualNetwork  *virtual_network_;
-  AbstractICEConnection   *p2p_ice_connection_;
-  talk_base::Thread       *signal_thread_;
-  talk_base::Thread       *worker_thread_;
+  enum{
+    NO_SERVER_OBJECT,
+    SERVER_OBJECT_INITIALIZE,
+    SERVER_CONNECTING,
+    LOCAL_UPDATA_INFO,
+    SERVER_CONNECTING_SUCCEED
+  }state_;
+  AbstractP2PServerConnection *p2p_server_connection_;
+  P2PSourceManagement         *p2p_source_management_;
 
   //////////////////////////////////////////////////////////////////////////
 public:
   //Singleton Pattern Function
-  P2PConnectionManagement();
-  static P2PConnectionManagement *Instance();
+  static P2PServerConnectionManagement *Instance();
 private:
+  P2PServerConnectionManagement();
   //Singleton Pattern variable
-  static P2PConnectionManagement *p2p_connection_management_;
+  static P2PServerConnectionManagement *p2p_server_connection_management_;
+  //////////////////////////////////////////////////////////////////////////
+  DISALLOW_EVIL_CONSTRUCTORS(P2PServerConnectionManagement);
 };
 
 
-#endif // !P2P_CONNECTION_MANAGEMENT_H_
+
+#endif // !P2P_SERVER_CONNECTION_MANAGEMENT_H_

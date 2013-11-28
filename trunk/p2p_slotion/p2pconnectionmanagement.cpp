@@ -34,6 +34,9 @@
  */
 
 #include "p2pconnectionmanagement.h"
+#include "p2psourcemanagement.h"
+#include "peer_connection_ice.h"
+#include "virtual_network.h"
 
 //////////////////////////////////////////////////////////////////////////
 //Singleton Pattern Function
@@ -46,27 +49,53 @@ P2PConnectionManagement *P2PConnectionManagement::Instance(){
 }
 //////////////////////////////////////////////////////////////////////////
 
-
-int P2PConnectionManagement::Connect(talk_base::SocketAddress &addr){
-  //0. Get the instance of the P2PSourceManagement
+P2PConnectionManagement::P2PConnectionManagement()
+{
   p2p_source_management_ = P2PSourceManagement::Instance();
+}
 
-  //1. whether the peer exists.
-  int peer_id = p2p_source_management_->SreachPeerByServerResource(addr);
-  if(peer_id == 0){
-    LOG(LS_ERROR) << "Can't found the server addr";
-    return -1;
-  }
-  //2. Whether the peer is connected.
-  AbstractVirtualNetwork *virtual_network = IsPeerConnected(peer_id);
-  if(!virtual_network){
-    LOG(LS_VERBOSE) << "The Peer Can't connected";
-  }
-  //3. Create new connect request
+void P2PConnectionManagement::Initialize(
+  talk_base::Thread *signal_thread,talk_base::Thread *worker_thread)
+{
+  signal_thread_ = signal_thread;
+  worker_thread_ = worker_thread;
 
-  //4. return the virtual network object.
+  p2p_ice_connection_ = new PeerConnectionIce(worker_thread_,signal_thread_);
+  virtual_network_    = new VirtualNetwork(p2p_ice_connection_);
+
+  p2p_ice_connection_->SignalStatesChange.connect(this,
+    &P2PConnectionManagement::OnStatesChange);
+}
+
+int P2PConnectionManagement::Connect(int peer_id){
+
+  p2p_ice_connection_->ConnectionToRemotePeer(peer_id);
+
+  ////0. Get the instance of the P2PSourceManagement
+  //p2p_source_management_ = P2PSourceManagement::Instance();
+
+  ////1. whether the peer exists.
+  //int peer_id = p2p_source_management_->SreachPeerByServerResource(addr);
+  //if(peer_id == 0){
+  //  LOG(LS_ERROR) << "Can't found the server addr";
+  //  return -1;
+  //}
+  ////2. Whether the peer is connected.
+  ////3. The Connection peer resource manage by P2P Resource management
+  //AbstractVirtualNetwork *virtual_network = IsPeerConnected(peer_id);
+  //if(!virtual_network){
+  //  LOG(LS_VERBOSE) << "The Peer Can't connected";
+  //}
+  ////3. Create new connect request
+
+  ////4. return the virtual network object.
   return 0;
 }
+
+AbstractICEConnection *P2PConnectionManagement::GetP2PICEConnection() const{
+  return p2p_ice_connection_;
+}
+
 
 AbstractVirtualNetwork *P2PConnectionManagement::IsPeerConnected(int peer_id){
   P2PConnections::iterator iter = current_connect_peer_.find(peer_id);
@@ -74,3 +103,25 @@ AbstractVirtualNetwork *P2PConnectionManagement::IsPeerConnected(int peer_id){
     return iter->second;
   return NULL;
 }
+
+void P2PConnectionManagement::OnStatesChange(StatesChangeType states_type){
+  switch(states_type){
+  case STATES_ICE_START_PEER_CONNECTION:
+    {
+      std::cout << "\tSTATES_ICE_START_PEER_CONNECTION" << std::endl;
+      break;
+    }
+  case STATES_ICE_TUNNEL_SEND_DATA:
+    {
+      std::cout << "\tSTATES_ICE_TUNNEL_SEND_DATA" << std::endl;
+      break;
+    }
+  case STATES_ICE_TUNNEL_CLOSED:
+    {
+      std::cout << "\tSTATES_ICE_TUNNEL_CLOSED" << std::endl;
+      break;
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////

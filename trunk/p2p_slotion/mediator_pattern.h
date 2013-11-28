@@ -17,27 +17,14 @@ class AbstractP2PServerConnection
   :public sigslot::has_slots<>
 {
 public:
-  AbstractP2PServerConnection();
+  AbstractP2PServerConnection(){};
   virtual ~AbstractP2PServerConnection(){
     online_peers_.clear();
   }
 
-  //user interface
-  //void set_ice_connection(AbstractICEConnection * ice_connection);
-  void set_local_peer_name(std::string local_peer_name){
-    local_peer_name_ = local_peer_name;
-  }
-  std::string get_local_name();
-
-  void set_server_address(talk_base::SocketAddress server_address){
+  void set_server_address(const talk_base::SocketAddress &server_address){
     server_address_ = server_address;
   }
-  void set_server_address(const std::string &server, int port){
-    server_address_.SetIP(server);
-    server_address_.SetPort(port);
-  }
-
-  std::string get_remote_name(int peer_id) const;
 
   virtual void SignInP2PServer() = 0;
   virtual bool SignOutP2PServer() = 0;
@@ -56,7 +43,6 @@ public:
 protected:
   PeerInfors                  online_peers_;
   talk_base::SocketAddress    server_address_;
-  std::string                 local_peer_name_;
   DISALLOW_EVIL_CONSTRUCTORS(AbstractP2PServerConnection);
 };
 
@@ -68,9 +54,9 @@ class AbstractICEConnection
   :public sigslot::has_slots<>
 {
 public:
-  AbstractICEConnection(AbstractP2PServerConnection *p2p_server_connection);
+  AbstractICEConnection(){};
   virtual ~AbstractICEConnection() {
-    remote_peers_.clear();
+    //remote_peers_.clear();
   };
   /////////////////////////////////////////////////////////
   //user interface 
@@ -80,17 +66,16 @@ public:
   virtual bool IsBlock() const = 0;
   virtual size_t GetRemainBufferLength() const = 0;
   virtual void DestroyPeerConnectionIce() = 0;
-  virtual void ConnectionToRemotePeer(int remote_peer_id, 
-    std::string remote_peer_name) = 0;
+  virtual void ConnectionToRemotePeer(int remote_peer_id) = 0;
   //void set_p2p_server_connection(AbstractP2PServerConnection
   //  *p2p_server_connection);
-  const PeerInfors get_remote_peers() const { 
-    return remote_peers_; 
-  }
-  int set_local_peer_name(std::string local_peer_name);
-  std::string get_local_peer_name() const {
-    return local_peer_name_;
-  }
+  //const PeerInfors get_remote_peers() const { 
+  //  return remote_peers_; 
+  //}
+  //int set_local_peer_name(std::string local_peer_name);
+  //std::string get_local_peer_name() const {
+  //  return local_peer_name_;
+  //}
 
   /////////////////////////////////////////////////////////
   //ice to p2p server interface
@@ -110,9 +95,9 @@ protected:
   int GetRemotePeerIdByName(std::string peer_name) const;
 protected:
   AbstractP2PServerConnection *p2p_server_connection_;
-  PeerInfors                  remote_peers_;
+  //PeerInfors                  remote_peers_;
   //the peer_name string don't occur '/', '@' or '.' character
-  std::string                 local_peer_name_;
+  //std::string                 local_peer_name_;
   DISALLOW_EVIL_CONSTRUCTORS(AbstractICEConnection);
 };
 
@@ -132,7 +117,7 @@ public:
 
       p2p_ice_connection_->SignalSendDataToUpLayer.connect(this,
         &AbstractVirtualNetwork::OnReceiveDataFromLowLayer);
-      p2p_ice_connection->SignalStreamWrite.connect(this,
+      p2p_ice_connection_->SignalStreamWrite.connect(this,
         &AbstractVirtualNetwork::OnStreamWrite);
 
       SignalSendDataToLowLayer.connect(p2p_ice_connection_,

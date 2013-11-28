@@ -88,6 +88,7 @@
     <ClInclude Include="mediator_pattern.h" />
     <ClInclude Include="networkbytebuffer.h" />
     <ClInclude Include="p2pconnectionmanagement.h" />
+    <ClInclude Include="p2pserverconnectionmanagement.h" />
     <ClInclude Include="p2psourcemanagement.h" />
     <ClInclude Include="p2psystemcommand.h" />
     <ClInclude Include="p2p_user_client.h" />
@@ -110,6 +111,7 @@
     <ClCompile Include="mediator_pattern.cpp" />
     <ClCompile Include="networkbytebuffer.cpp" />
     <ClCompile Include="p2pconnectionmanagement.cpp" />
+    <ClCompile Include="p2pserverconnectionmanagement.cpp" />
     <ClCompile Include="p2psourcemanagement.cpp" />
     <ClCompile Include="p2psystemcommand.cpp" />
     <ClCompile Include="p2p_user_client.cpp" />

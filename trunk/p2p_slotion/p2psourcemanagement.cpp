@@ -54,6 +54,31 @@ void P2PSourceManagement::SetLocalPeerName(const std::string &peer_name){
   local_peer_resource_.peer_jid_ = peer_name;
 }
 
+bool P2PSourceManagement::IsSetLocalPeerName() const {
+  return local_peer_resource_.peer_jid_.empty();
+}
+
+const std::string P2PSourceManagement::GetLocalPeerName() const {
+  return local_peer_resource_.peer_jid_;
+}
+
+void P2PSourceManagement::SetLocalPeerId(int peer_id){
+  local_peer_resource_.peer_id_ = peer_id;
+}
+
+const std::string P2PSourceManagement::GetRemotePeerNameByPeerId(int peer_id){
+  for(PeerResources::iterator iter = remote_peer_resources_.begin();
+    iter != remote_peer_resources_.end(); iter++)
+  {
+    if((*iter)->peer_id_ == peer_id){
+        return (*iter)->peer_jid_;
+    }
+  }
+  LOG(LS_ERROR) << "Can't found the peer";
+  return "";
+}
+
+
 bool P2PSourceManagement::AddNewServerResource(ServerResource *server_resource){
   //
   for(ServerResources::iterator iter = local_peer_resource_.server_resources_.begin();
@@ -229,7 +254,7 @@ bool P2PSourceManagement::ParseJosonString(PeerResource *peer_resource,
   return true;
 }
 
-std::string P2PSourceManagement::GetServerResourceString()
+const std::string P2PSourceManagement::GetServerResourceString()
 {
   std::stringstream joson_string;
   joson_string << "{";

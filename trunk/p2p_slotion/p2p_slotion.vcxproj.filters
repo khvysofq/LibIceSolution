@@ -72,6 +72,9 @@
     <ClInclude Include="p2psourcemanagement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="p2pserverconnectionmanagement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -132,6 +135,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="p2psourcemanagement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p2pserverconnectionmanagement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
