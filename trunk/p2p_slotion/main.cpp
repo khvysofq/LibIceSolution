@@ -27,7 +27,7 @@ int main(void)
   //((talk_base::FileStream *)log_file_stream_)->Open(
   //  "C:/log.txt","wb",NULL);
   //talk_base::LogMessage::LogToStream(log_file_stream_,
-  //  talk_base::LoggingSeverity::LS_INFO);
+  //  talk_base::LoggingSeverity::LS_ERROR);
   talk_base::LogMessage::LogToDebug(
     talk_base::LoggingSeverity::LS_ERROR);
 

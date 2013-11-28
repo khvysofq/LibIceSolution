@@ -4,10 +4,10 @@
  * 
  * Author   : GuangLei He
  * Email    : guangleihe@gmail.com
- * Created  : 2013/11/19      19:14
- * Filename : F:\GitHub\trunk\p2p_slotion\asyncrtspclientsocket.cpp
+ * Created  : 2013/11/27      11:08
+ * Filename : F:\GitHub\trunk\p2p_slotion\p2pconnectionmanagement.cpp
  * File path: F:\GitHub\trunk\p2p_slotion
- * File base: asyncrtspclientsocket
+ * File base: p2pconnectionmanagement
  * File ext : cpp
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,44 +33,44 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "talk/base/bytebuffer.h"
-
-#include "asyncrtspclientsocket.h"
-#include "proxyserverfactory.h"
-
+#include "p2pconnectionmanagement.h"
 
 //////////////////////////////////////////////////////////////////////////
-RTSPClientSocket::RTSPClientSocket(
-  AsyncP2PSocket *p2p_socket,talk_base::AsyncSocket *int_socket,
-  uint32 server_socket_number,const talk_base::SocketAddress &server_addr)
-  :ProxySocketBegin(p2p_socket,int_socket),server_socket_number_(server_socket_number)
-{
+//Singleton Pattern Function
+P2PConnectionManagement *P2PConnectionManagement::p2p_connection_management_ = NULL;
 
-  int_socket_->SignalConnectEvent.connect(this,
-    &RTSPClientSocket::OnInternalConnect);
+P2PConnectionManagement *P2PConnectionManagement::Instance(){
+  if(!p2p_connection_management_)
+    p2p_connection_management_ = new P2PConnectionManagement();
+  return p2p_connection_management_;
+}
+//////////////////////////////////////////////////////////////////////////
 
-  int_socket_->Connect(server_addr);
+
+int P2PConnectionManagement::Connect(talk_base::SocketAddress &addr){
+  //0. Get the instance of the P2PSourceManagement
+  p2p_source_management_ = P2PSourceManagement::Instance();
+
+  //1. whether the peer exists.
+  int peer_id = p2p_source_management_->SreachPeerByServerResource(addr);
+  if(peer_id == 0){
+    LOG(LS_ERROR) << "Can't found the server addr";
+    return -1;
+  }
+  //2. Whether the peer is connected.
+  AbstractVirtualNetwork *virtual_network = IsPeerConnected(peer_id);
+  if(!virtual_network){
+    LOG(LS_VERBOSE) << "The Peer Can't connected";
+  }
+  //3. Create new connect request
+
+  //4. return the virtual network object.
+  return 0;
 }
 
-
-
-void RTSPClientSocket::OnInternalConnect(
-  talk_base::AsyncSocket* socket)
-{
-  //The Client connect was accept
-  //Then Send the connect succeed to remote peer
-  ASSERT(int_socket_.get() == socket);
-  //generate a reply string
-  socket_table_management_->AddNewLocalSocket((uint32)socket,
-    server_socket_number_,TCP_SOCKET);
-
-  talk_base::ByteBuffer *reply_string = 
-    p2p_system_command_factory_->ReplyRTSPClientSocketSucceed(
-    server_socket_number_,(uint32)int_socket_.get());
-  //send this string to remote peer
-
-  p2p_socket_->Send((uint32)socket,TCP_SOCKET, reply_string->Data(),
-    P2PRTSPCOMMAND_LENGTH,NULL);
-  //delete the string
-  p2p_system_command_factory_->DeleteRTSPClientCommand(reply_string);
+AbstractVirtualNetwork *P2PConnectionManagement::IsPeerConnected(int peer_id){
+  P2PConnections::iterator iter = current_connect_peer_.find(peer_id);
+  if(iter != current_connect_peer_.end())
+    return iter->second;
+  return NULL;
 }

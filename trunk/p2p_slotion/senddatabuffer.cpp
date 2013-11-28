@@ -32,41 +32,43 @@
 * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include <iostream>
 #include "senddatabuffer.h"
-#include "defaults.h"
 
-#include "talk/base/thread.h"
 #include "talk/base/basictypes.h"
-
+#include "defaults.h"
 
 SendDataBuffer::SendDataBuffer(){
   buffer_length_ = DEAFULT_BUFFER_LENGTH;
-  fifo_buffer_   = new talk_base::FifoBuffer(DEAFULT_BUFFER_LENGTH);
-  temp_buffer_   =  new char[buffer_length_];
+  fifo_buffer_   = new talk_base::FifoBuffer(buffer_length_);
   state_ = BLOCK_STATE;
 }
 
 SendDataBuffer::SendDataBuffer(size_t buffer_length)
-  :buffer_length_(buffer_length)
-{
+  :buffer_length_(buffer_length){
   fifo_buffer_  = new talk_base::FifoBuffer(buffer_length_);
-  temp_buffer_   =  new char[buffer_length_];
 }
 
 SendDataBuffer::~SendDataBuffer(){
-  delete temp_buffer_;
+  ASSERT(fifo_buffer_ != NULL);
   delete fifo_buffer_;
 }
 
 bool SendDataBuffer::SaveData(const char *data, size_t len){
-  if(state_ == BLOCK_STATE)
+  LOG(LS_INFO) << __FUNCTION__;
+  ASSERT(len != 0 && data != NULL);
+
+  if(state_ == BLOCK_STATE){
+    LOG(LS_ERROR) << "Can't save data, because the stream is block.";
     return false;
+  }
+
   size_t size;
   if (fifo_buffer_->GetBuffered(&size)) {
     void* p = fifo_buffer_->GetWriteBuffer(&size);
     if(size < len){
-      LOG(LS_ERROR) << "The viable size is small than length ";
+      LOG(LS_ERROR) << "The available size is small than length ";
       return false;
     }
     memcpy(p,data,len);
@@ -76,119 +78,22 @@ bool SendDataBuffer::SaveData(const char *data, size_t len){
     LOG(LS_ERROR) << "The written buffer data length is error";
   }
   return true;
-  //size_t save_count = 0;
-  //LOG(LS_INFO) << "\t 1. receive data length is " << len;
-  //talk_base::StreamResult result =
-  //  fifo_buffer_->WriteAll(data,len,&save_count,NULL);
-  //if(result != talk_base::SR_SUCCESS){
-  //  LOG(LS_ERROR) << "write data to FIFO buffer error, the write length is " 
-  //    << save_count << "\t" << len;
-  //  return false;
-  //}
-  //return true;
-}
-
-size_t SendDataBuffer::SendDataByStream(talk_base::StreamInterface *stream,
-                                        int send_tiems,bool *block)
-{
-  if(state_ == BLOCK_STATE)
-    return false;
-  bool quit = false;
-  int  i;
-  size_t total_send_count = 0;
-  for(i = 0; i < send_tiems && !quit; ++i){
-    //2. get FIFO buffer reading position
-    size_t readable_fifo_length = 0;
-    size_t send_data_length = 0;
-    talk_base::StreamResult result;
-
-    const void *buffer_point 
-      = fifo_buffer_->GetReadData(&readable_fifo_length);
-    LOG(LS_INFO) << "\t 2. get FIFO buffer reading position " << readable_fifo_length;
-    if(!readable_fifo_length)
-      return 0;
-    //3. send data to remote peer
-    result =  stream->Write(buffer_point,readable_fifo_length,
-      &send_data_length,NULL);
-    if(result == talk_base::SR_BLOCK){
-      LOG(LS_ERROR) << "send data to remote peer, the send length is " 
-        << send_data_length << "\t" << StreamResultToString(result)
-        << "\t" << readable_fifo_length;
-      *block = false;
-    } else{
-      quit = true;
-    }
-    total_send_count += send_data_length;
-    LOG(LS_INFO) << "\t 3. send data to remote peer " << send_data_length;
-
-    //4. flush data in FIFO buffer
-
-    size_t flush_length;
-    result = fifo_buffer_->Read(temp_buffer_,
-      send_data_length,&flush_length,NULL);
-    if(result != talk_base::SR_SUCCESS || flush_length < send_data_length){
-      LOG(LS_ERROR) << "flush data in FIFO buffer error, the write length is " 
-        << flush_length;
-    }
-    LOG(LS_INFO) << "send times " << i;
-  }
-  return total_send_count;
-}
-
-bool SendDataBuffer::SendDataBySocket(talk_base::AsyncPacketSocket *socket, 
-                                      int send_times)
-{
-  if(state_ == BLOCK_STATE)
-    return false;
-  bool quit = false;
-  int  i;
-  for(i = 0; i < send_times && !quit; ++i){
-    //2. get FIFO buffer reading position
-    size_t readable_fifo_length = 0;
-    size_t send_data_length = 0;
-    talk_base::StreamResult result;
-
-    const void *buffer_point 
-      = fifo_buffer_->GetReadData(&readable_fifo_length);
-    LOG(LS_INFO) << "\t 2. get FIFO buffer reading position " << readable_fifo_length;
-
-    //3. send data to remote peer
-    send_data_length =  socket->Send(buffer_point,readable_fifo_length,
-      talk_base::DiffServCodePoint::DSCP_CS0);
-    if(send_data_length <= 0){
-      LOG(LS_ERROR) << "send data to remote peer, the send length is " 
-        << send_data_length << "\t" << readable_fifo_length;
-      //talk_base::Thread::Current()->SleepMs(1);
-    } else{
-      quit = true;
-    }
-    LOG(LS_INFO) << "\t 3. send data to remote peer " << send_data_length;
-
-    //4. flush data in FIFO buffer
-    size_t flush_length;
-    result = fifo_buffer_->Read(temp_buffer_,
-      send_data_length,&flush_length,NULL);
-    if(result != talk_base::SR_SUCCESS || flush_length < send_data_length){
-      LOG(LS_ERROR) << "flush data in FIFO buffer error, the write length is " 
-        << flush_length;
-    }
-    LOG(LS_INFO) << "send times " << i;
-  }
-  if(i == send_times)
-    fifo_buffer_->ReadAll(temp_buffer_,buffer_length_,NULL,NULL);
-  return false;
 }
 
 size_t SendDataBuffer::GetBufferRemainLength(){
+
   if(state_ == BLOCK_STATE)
     return 0;
   size_t res = 0;
-  fifo_buffer_->GetReadData(&res);
-  return DEAFULT_BUFFER_LENGTH - res;
+  fifo_buffer_->GetWriteRemaining(&res);
+  return res;
 }
 
 
 bool SendDataBuffer::SendDataUsedStream(talk_base::StreamInterface *stream){
+  LOG(LS_INFO) << __FUNCTION__;
+  ASSERT(stream != NULL);
+
   if(state_ == BLOCK_STATE)
     return false;
   size_t size;
@@ -199,15 +104,17 @@ bool SendDataBuffer::SendDataUsedStream(talk_base::StreamInterface *stream){
       return true;
     talk_base::StreamResult res = stream->Write(p,size,&written,NULL);
     if(res == talk_base::SR_BLOCK){
+      LOG(LS_VERBOSE) << "The p2p socket block";
       state_ = BLOCK_STATE;
     }
     else {
-      std::cout << "Send data length is " << written << std::endl;
+      LOG(LS_VERBOSE) << "Send data length is " << written;
     }
     fifo_buffer_->ConsumeReadData(written);
   }
   return false;
 }
+
 void SendDataBuffer::SetNormalState(){
   ASSERT(state_ == BLOCK_STATE);
   state_ = NORMAL_STATE;
@@ -218,6 +125,6 @@ void SendDataBuffer::SetBlockState(){
   state_ = BLOCK_STATE;
 }
 
-bool SendDataBuffer::IsBlockState(){
+bool SendDataBuffer::IsBlockState() const{
   return state_ == BLOCK_STATE;
 }

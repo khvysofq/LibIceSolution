@@ -162,7 +162,7 @@ bool DataSocket::Send(const std::string& status, bool connection_close,
 
   buffer += "\r\n";
   buffer += data;
-  printf("%s\n",buffer.c_str());
+  //printf("%s\n",buffer.c_str());
   return Send(buffer);
 }
 

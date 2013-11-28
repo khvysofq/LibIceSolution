@@ -1,9 +1,47 @@
+/*
+ * p2p solution
+ * Copyright 2013, VZ Inc.
+ * 
+ * Author   : GuangLei He
+ * Email    : guangleihe@gmail.com
+ * Created  : 2013/11/27      11:52
+ * Filename : F:\GitHub\trunk\p2p_slotion\p2p_user_client.cpp
+ * File path: F:\GitHub\trunk\p2p_slotion
+ * File base: p2p_user_client
+ * File ext : cpp
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
+ *  3. The name of the author may not be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include "talk/base/json.h"
+
 #include "p2p_user_client.h"
 #include "virtual_network.h"
 #include "virtual_application.h"
 #include "peer_connection_ice.h"
 #include "peer_connection_server.h"
+
+#include "p2psourcemanagement.h"
 
 static const int TEST_SEND_BUFFER   = 4096;
 static const talk_base::SocketAddress KLocalRTSPServer("127.0.0.1",554);
@@ -20,6 +58,8 @@ P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
   LOG(LS_INFO) << "+++" << __FUNCTION__;
   receive_buffer_ = new char[RECEIVE_BUFFER_LENGTH];
 
+  p2p_source_management_ = P2PSourceManagement::Instance();
+  
   for(int i = 0; i < RECEIVE_BUFFER_LENGTH; ++i){
     receive_buffer_[i] = i;
   }
@@ -44,11 +84,26 @@ void P2PUserClient::Initiatlor(){
   first_local_peer_name += JID_DEFAULT_DOMAIN;
 
   p2p_server_connection_->set_local_peer_name(first_local_peer_name);
+  
+  //////////////////////////////////////////////////////////////////////////
+  
+  p2p_server_connection_->SignalOnlinePeers.connect(p2p_source_management_,
+    &P2PSourceManagement::OnOnlinePeers);
+  p2p_server_connection_->SignalAPeerLogin.connect(p2p_source_management_,
+    &P2PSourceManagement::OnAPeerLogin);
+  p2p_server_connection_->SignalAPeerLogout.connect(p2p_source_management_,
+    &P2PSourceManagement::OnAPeerLogout);
+
+  p2p_source_management_->AddNewServerResource("RTSP_SERVER","192.168.1.1",554,"RTSP");
+  p2p_source_management_->AddNewServerResource("HTTP_SERVER","192.168.1.1",80,"HTTP");
+  p2p_source_management_->SetLocalPeerName(first_local_peer_name);
+  //////////////////////////////////////////////////////////////////////////
+
   //p2p server user client part
   p2p_server_connection_->SignalStatesChange.connect(this,
     &P2PUserClient::OnStatesChange);
-  p2p_server_connection_->SignalOnlinePeers.connect(this,
-    &P2PUserClient::OnOnlinePeers);
+  //p2p_server_connection_->SignalOnlinePeers.connect(this,
+  //  &P2PUserClient::OnOnlinePeers);
   //
   //p2p ice
   std::string local_peer_name = p2p_server_connection_->get_local_name();
@@ -131,16 +186,8 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
   case STATES_P2P_SERVER_LOGIN_SUCCEED:
     {
       std::cout << "\tSTATES_P2P_SERVER_LOGIN_SUCCEED" << std::endl;
-      ////2. server resource
-      //for(int i = 0; i < 10; i++){
-      //  ServerResource server_resource;
-      //  server_resource.peer_ip_     = "127.0.0.2";
-      //  server_resource.peer_name_   = "Server";
-      //  server_resource.peer_port_   = i * 100;
-      //  server_resource.peer_source_ = "Nothing";
-      //  AddServerMember(server_resource);
-      //}
-      //p2p_server_connection_->UpdataPeerInfor(GetResourceJosonString());
+      p2p_server_connection_->UpdataPeerInfor(
+        p2p_source_management_->GetServerResourceString());
       break;
     }
   case STATES_P2P_PEER_CONNECTION:
@@ -185,8 +232,10 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
     }
   case STATES_ICE_TUNNEL_SEND_DATA:
     {
-      std::cout << "\tSTATES_ICE_TUNNEL_SEND_DATA" << std::endl;
-      is_peer_connect_ = true;
+      if(!is_peer_connect_){
+        std::cout << "\tSTATES_ICE_TUNNEL_SEND_DATA" << std::endl;
+        is_peer_connect_ = true;
+      }
       //if(initiator_)
       //  SendRandomData();
       break;
@@ -198,107 +247,108 @@ void P2PUserClient::OnStatesChange(StatesChangeType states_type){
     }
   }
 }
-void P2PUserClient::SetLocalJidString(const std::string &jid){
-  local_peer_resource_.peer_jid_ = jid;
-}
 
-void P2PUserClient::AddServerMember(const ServerResource &server_resource){
-  ServerResource *new_server_resource = new ServerResource(server_resource);
-  local_peer_resource_.server_resources_.push_back(new_server_resource);
-}
+//void P2PUserClient::SetLocalJidString(const std::string &jid){
+//  local_peer_resource_.peer_jid_ = jid;
+//}
 
-std::string P2PUserClient::GetResourceJosonString(){
-  std::stringstream joson_string;
-  joson_string << "{";
-  // Add Peer jid
-  joson_string << "\"" << PEER_JID << "\""<< ":" <<"\"" 
-    << local_peer_resource_.peer_jid_<< "\",";
-
-  //Add server resource Array identifier
-  joson_string << "\"" << SERVER_RESOURCE_ARRAY << "\"" << ": [";
-  int size = local_peer_resource_.server_resources_.size();
-  for(int i = 0; i < size; ++i){
-    joson_string << "{" << "\"" << SERVER_NAME << "\" : "
-      << "\"" << local_peer_resource_.server_resources_[i]->peer_name_<< "\","
-      << "\"" << SERVER_IP << "\" : "
-      << "\"" << local_peer_resource_.server_resources_[i]->peer_ip_<< "\","
-      << "\"" << SERVER_PORT << "\" : "
-      << local_peer_resource_.server_resources_[i]->peer_port_ << ","
-      << "\"" << SERVER_SOURCE << "\" : "
-      << "\"" << local_peer_resource_.server_resources_[i]->peer_source_<< "\""
-      << "}";
-    if(size - i > 1){
-      joson_string << ",";
-    }
-  }
-  joson_string << "]";
-  joson_string << "}";
-  return joson_string.str();
-}
-void P2PUserClient::Test_GenerateResource(){
-  //1. set LocalJidString
-  SetLocalJidString("Guangleihe@gmail.com");
-  //2. server resource
-  for(int i = 0; i < 10; i++){
-    ServerResource server_resource;
-    server_resource.peer_ip_     = "127.0.0.2";
-    server_resource.peer_name_   = "Server";
-    server_resource.peer_port_   = i * 100;
-    server_resource.peer_source_ = "Nothing";
-    AddServerMember(server_resource);
-  }
-  std::cout << GetResourceJosonString() << std::endl;
-
-  Json::Value root;
-  Json::Reader reader;
-  bool parsingSuccessful = reader.parse(GetResourceJosonString(),root);
-  if ( !parsingSuccessful )
-  {
-    // report to the user the failure and their locations in the document.
-    std::cout  << "Failed to parse configuration\n"
-      << reader.getFormattedErrorMessages();
-    return;
-  }
-
-  std::string jid = root[PEER_JID].asString();
-  std::cout << "PEER_JID\t" << jid << std::endl;
-  Json::Value joson_array = root[SERVER_RESOURCE_ARRAY];
-  int size = joson_array.size();
-  for(int i = 0; i < size; i++){
-    std::cout << joson_array[i][SERVER_NAME] << std::endl;
-    std::cout << joson_array[i][SERVER_IP] << std::endl;
-    std::cout << joson_array[i][SERVER_PORT] << std::endl;
-    std::cout << joson_array[i][SERVER_SOURCE] << std::endl;
-  }
-  // Get the value of the member of root named 'encoding', return a 'null' value if
-  // there is no such member.
-}
-
-void P2PUserClient::ParseJosonString(const std::string joson){
-  Json::Value root;
-  Json::Reader reader;
-  bool parsingSuccessful = reader.parse(joson,root);
-  if ( !parsingSuccessful )
-  {
-    // report to the user the failure and their locations in the document.
-    std::cout  << "Failed to parse configuration\n"
-      << reader.getFormattedErrorMessages();
-    return;
-  }
-
-  //std::string jid = root[PEER_JID].asString();
-  //std::cout << "PEER_JID\t" << jid << std::endl;
-  Json::Value joson_array = root[SERVER_RESOURCE_ARRAY];
-  int size = joson_array.size();
-  for(int i = 0; i < size; i++){
-    std::cout << "\t\t" << joson_array[i][SERVER_NAME];
-    std::cout << "\t\t" << joson_array[i][SERVER_IP];
-    std::cout << "\t\t" << joson_array[i][SERVER_PORT];
-    std::cout << "\t\t" << joson_array[i][SERVER_SOURCE] << std::endl;
-  }
-  // Get the value of the member of root named 'encoding', return a 'null' value if
-  // there is no such member.
-}
+//void P2PUserClient::AddServerMember(const ServerResource &server_resource){
+//  ServerResource *new_server_resource = new ServerResource(server_resource);
+//  local_peer_resource_.server_resources_.push_back(new_server_resource);
+//}
+//
+//std::string P2PUserClient::GetResourceJosonString(){
+//  std::stringstream joson_string;
+//  joson_string << "{";
+//  // Add Peer jid
+//  joson_string << "\"" << PEER_JID << "\""<< ":" <<"\"" 
+//    << local_peer_resource_.peer_jid_<< "\",";
+//
+//  //Add server resource Array identifier
+//  joson_string << "\"" << SERVER_RESOURCE_ARRAY << "\"" << ": [";
+//  int size = local_peer_resource_.server_resources_.size();
+//  for(int i = 0; i < size; ++i){
+//    joson_string << "{" << "\"" << SERVER_NAME << "\" : "
+//      << "\"" << local_peer_resource_.server_resources_[i]->peer_name_<< "\","
+//      << "\"" << SERVER_IP << "\" : "
+//      << "\"" << local_peer_resource_.server_resources_[i]->peer_ip_<< "\","
+//      << "\"" << SERVER_PORT << "\" : "
+//      << local_peer_resource_.server_resources_[i]->peer_port_ << ","
+//      << "\"" << SOURCE_TYPE << "\" : "
+//      << "\"" << local_peer_resource_.server_resources_[i]->peer_source_<< "\""
+//      << "}";
+//    if(size - i > 1){
+//      joson_string << ",";
+//    }
+//  }
+//  joson_string << "]";
+//  joson_string << "}";
+//  return joson_string.str();
+//}
+//void P2PUserClient::Test_GenerateResource(){
+//  //1. set LocalJidString
+//  SetLocalJidString("Guangleihe@gmail.com");
+//  //2. server resource
+//  for(int i = 0; i < 10; i++){
+//    ServerResource server_resource;
+//    server_resource.peer_ip_     = "127.0.0.2";
+//    server_resource.peer_name_   = "Server";
+//    server_resource.peer_port_   = i * 100;
+//    server_resource.peer_source_ = "Nothing";
+//    AddServerMember(server_resource);
+//  }
+//  std::cout << GetResourceJosonString() << std::endl;
+//
+//  Json::Value root;
+//  Json::Reader reader;
+//  bool parsingSuccessful = reader.parse(GetResourceJosonString(),root);
+//  if ( !parsingSuccessful )
+//  {
+//    // report to the user the failure and their locations in the document.
+//    std::cout  << "Failed to parse configuration\n"
+//      << reader.getFormattedErrorMessages();
+//    return;
+//  }
+//
+//  std::string jid = root[PEER_JID].asString();
+//  std::cout << "PEER_JID\t" << jid << std::endl;
+//  Json::Value joson_array = root[SERVER_RESOURCE_ARRAY];
+//  int size = joson_array.size();
+//  for(int i = 0; i < size; i++){
+//    std::cout << joson_array[i][SERVER_NAME] << std::endl;
+//    std::cout << joson_array[i][SERVER_IP] << std::endl;
+//    std::cout << joson_array[i][SERVER_PORT] << std::endl;
+//    std::cout << joson_array[i][SOURCE_TYPE] << std::endl;
+//  }
+//  // Get the value of the member of root named 'encoding', return a 'null' value if
+//  // there is no such member.
+//}
+//
+//void P2PUserClient::ParseJosonString(const std::string joson){
+//  Json::Value root;
+//  Json::Reader reader;
+//  bool parsingSuccessful = reader.parse(joson,root);
+//  if ( !parsingSuccessful )
+//  {
+//    // report to the user the failure and their locations in the document.
+//    std::cout  << "Failed to parse configuration\n"
+//      << reader.getFormattedErrorMessages();
+//    return;
+//  }
+//
+//  //std::string jid = root[PEER_JID].asString();
+//  //std::cout << "PEER_JID\t" << jid << std::endl;
+//  Json::Value joson_array = root[SERVER_RESOURCE_ARRAY];
+//  int size = joson_array.size();
+//  for(int i = 0; i < size; i++){
+//    std::cout << "\t\t" << joson_array[i][SERVER_NAME];
+//    std::cout << "\t\t" << joson_array[i][SERVER_IP];
+//    std::cout << "\t\t" << joson_array[i][SERVER_PORT];
+//    std::cout << "\t\t" << joson_array[i][SOURCE_TYPE] << std::endl;
+//  }
+//  // Get the value of the member of root named 'encoding', return a 'null' value if
+//  // there is no such member.
+//}
 
 void P2PUserClient::OnReceiveDataFromLoweLayer(talk_base::StreamInterface* stream){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
@@ -314,7 +364,7 @@ void P2PUserClient::SendRandomData(){
     123,TCP_SOCKET);
 }
 
-void P2PUserClient::OnOnlinePeers(const PeerInfors peers){
+void P2PUserClient::OnOnlinePeers(const PeerInfors &peers){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
 
   std::cout << "====================================" << std::endl;

@@ -257,8 +257,8 @@ bool PeerChannel::AddMember(DataSocket* ds) {
   assert(IsPeerConnection(ds));
   ChannelMember* new_guy = new ChannelMember(ds);
   Members failures;
-  BroadcastChangedState(*new_guy, &failures);
-  HandleDeliveryFailures(&failures);
+  //BroadcastChangedState(*new_guy, &failures);
+  //HandleDeliveryFailures(&failures);
   members_.push_back(new_guy);
 
   printf("New member added (total=%s): %s\n",

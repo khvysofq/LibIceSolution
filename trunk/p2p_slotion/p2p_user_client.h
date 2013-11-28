@@ -1,3 +1,37 @@
+/*
+ * p2p solution
+ * Copyright 2013, VZ Inc.
+ * 
+ * Author   : GuangLei He
+ * Email    : guangleihe@gmail.com
+ * Created  : 2013/11/27      11:52
+ * Filename : F:\GitHub\trunk\p2p_slotion\p2p_user_client.h
+ * File path: F:\GitHub\trunk\p2p_slotion
+ * File base: p2p_user_client
+ * File ext : h
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
+ *  3. The name of the author may not be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 #ifndef P2P_SOLUTION_P2P_USER_CLIENT_H_
 #define P2P_SOLUTION_P2P_USER_CLIENT_H_
 
@@ -8,30 +42,9 @@
 
 #include "defaults.h"
 #include "mediator_pattern.h"
+#include "p2psourcemanagement.h"
 
-const std::string SERVER_NAME           = "SERVER_NAME";
-const std::string SERVER_IP             = "SERVER_IP";
-const std::string SERVER_PORT           = "SERVER_PORT";
-const std::string SERVER_SOURCE         = "SERVER_SOURCE";
-const std::string PEER_JID              = "PEER_JID";
-const std::string SERVER_RESOURCE_ARRAY = "SERVER_RESOURCE_ARRAY";
-
-struct ServerResource{
-  std::string peer_name_;
-  std::string peer_ip_;
-  int         peer_port_;
-  std::string peer_source_;
-};
-typedef std::vector<ServerResource*> ServerResources;
-
-struct PeerResource{
-  std::string       peer_jid_;
-  ServerResources   server_resources_;
-};
-typedef std::vector<PeerResource> PeerResources;
-
-
-//const talk_base::SocketAddress ServerAddr("127.0.0.1",8888);
+//const talk_base::SocketAddress ServerAddr("192.168.1.225",8888);
 const talk_base::SocketAddress ServerAddr("192.168.1.116",8888);
 //const talk_base::SocketAddress ServerAddr("42.121.127.71",8888);
 const int RECEIVE_BUFFER_LENGTH   = 1024 * 16;
@@ -49,12 +62,12 @@ public:
   void Destory();
   void ConnectionToPeer(int peer_id);
 
-  void SetLocalJidString(const std::string &jid);
-  void AddServerMember(const ServerResource &server_resource);
-  std::string GetResourceJosonString();
+  //void SetLocalJidString(const std::string &jid);
+  //void AddServerMember(const ServerResource &server_resource);
+  //std::string GetResourceJosonString();
 
   //Test Function Add Server Information
-  void Test_GenerateResource();
+  //void Test_GenerateResource();
 
   //p2p ICE part
   void OnStatesChange(StatesChangeType states_type);
@@ -62,7 +75,7 @@ public:
   sigslot::signal2<const char *, int> SignalSendDataToLowLayer;
   void ParseJosonString(const std::string joson);
   //p2p server part
-  void OnOnlinePeers(const PeerInfors peers);
+  void OnOnlinePeers(const PeerInfors &peers);
   
   // implements the MessageHandler interface
   void OnMessage(talk_base::Message* msg);
@@ -83,8 +96,8 @@ private:
   talk_base::Thread           *signal_thread_;
   bool                        initiator_;
   char                        *receive_buffer_;
-private:
-  PeerResource                 local_peer_resource_;
+
+  P2PSourceManagement         *p2p_source_management_;
 };
 
-#endif
+#endif%

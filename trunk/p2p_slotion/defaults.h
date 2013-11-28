@@ -27,7 +27,6 @@
 
 #ifndef PEERCONNECTION_SAMPLES_CLIENT_DEFAULTS_H_
 #define PEERCONNECTION_SAMPLES_CLIENT_DEFAULTS_H_
-#pragma once
 
 #include <string>
 #include <map>
@@ -53,7 +52,7 @@ const int P2P_NETWORKER_HEADER_IDE        = 0X01234567;
 const int P2P_NETWORKER_HEADER_IDE_HEAD   = P2P_NETWORKER_HEADER_IDE >> 24;
 const int P2P_NETWORKER_HEADER_IDE_MIDDLE = (P2P_NETWORKER_HEADER_IDE >> 8) & 0X0000FFFF;
 const int P2P_NETWORKER_HEADER_IDE_LAST   = P2P_NETWORKER_HEADER_IDE & 0X000000FF;
-const int RECEIVE_BUFFER_LEN       =  1024 * 32;
+const int RECEIVE_BUFFER_LEN       =  1024 * 64;
 struct SOCKETHeader{
   int header_ide_;
   int remote_socket_;
@@ -111,7 +110,7 @@ enum StatesChangeType
   STATES_ICE_TUNNEL_CLOSED
 };
 
-//soem help function
+//some help function
 std::string StreamResultToString(const talk_base::StreamResult res);
 
 

@@ -51,6 +51,11 @@
 class AsyncP2PSocket;
 class ProxySocketManagement;
 class ProxySocketBegin;
+
+const char RTSP_HEADER[]   = "DESCRIBE rtsp://";
+const char RTSP_BACKLASH   = '/';
+const char RTSP_BREAK_CHAR = '_';
+const size_t RTSP_HEADER_LENGTH = sizeof(RTSP_HEADER) - 1;
 //////////////////////////////////////////////////////////////////////////
 //Implements a RTSP Proxy Socket Server that as the name said.
 //This class used when the socket already connection.
@@ -63,11 +68,10 @@ class AsyncRTSPProxyServerSocket : public talk_base::AsyncProxyServerSocket
 {
 public:
   explicit AsyncRTSPProxyServerSocket(talk_base::AsyncSocket* socket);
-
 private:
   virtual void ProcessInput(char* data, size_t* len);
   virtual void SendConnectResult(int result, const talk_base::SocketAddress& addr);
-  
+
   static const int KBufferSize = 64 * 1024;
   
   DISALLOW_EVIL_CONSTRUCTORS(AsyncRTSPProxyServerSocket);
@@ -106,6 +110,7 @@ public:
   RTSPServerSocketStart(AsyncP2PSocket * p2p_socket,
     talk_base::AsyncProxyServerSocket *int_socket);
 private:
+  void OnRTSPConnection(const char *data, size_t len);
   void OnConnectRequest(talk_base::AsyncProxyServerSocket* socket,
     const talk_base::SocketAddress& addr);
   virtual void OnP2PReceiveData(const char *data, uint16 len);

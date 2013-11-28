@@ -78,6 +78,11 @@ void VirtualApplication::OnReceiveDateFromLowLayer(uint32 socket,
   {
     //Not found the socket, it must be a system command that create a client socket.
     LOG(LS_INFO) << "Create New Client Socket";
+    ///////////////////////////////////////////////////////////////////////////
+    //BUSINESS LOGIC NOTE (GuangleiHe, 11/28/2013)
+    //There didn't used P2PRTSPCommand to parse the data.
+    //P2PRTSPCommand only known by P2PSystemCommandFactory
+    ///////////////////////////////////////////////////////////////////////////
     //Step 1. Parse the system command.
     P2PRTSPCommand p2p_rtsp_command;
     p2p_system_command_factory_->ParseCommand(&p2p_rtsp_command,data,len);

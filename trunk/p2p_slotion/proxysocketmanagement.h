@@ -52,8 +52,9 @@ public:
   //p2p socket signal function
   virtual void OnP2PReceiveData(const char *data, uint16 len);
   bool IsMe(uint32 socket);
-
+  virtual void OnP2PWrite(AsyncP2PSocket *);
 protected:
+
   //Internal Socket Signal function
   virtual void OnInternalRead(talk_base::AsyncSocket* socket);
   virtual void OnInternalWrite(talk_base::AsyncSocket* socket);
@@ -67,9 +68,10 @@ protected:
   virtual void WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
     talk_base::FifoBuffer *buffer);
   virtual void WriteBufferDataToP2P(talk_base::FifoBuffer *buffer);
-
+private:
+  void ParseRTSP(char *data, size_t *len);
 protected:
-  static const int KBufferSize = 10240;
+  static const int KBufferSize = 1024 * 64;
   talk_base::scoped_ptr<talk_base::AsyncSocket> int_socket_;
   talk_base::scoped_ptr<AsyncP2PSocket> p2p_socket_;
   talk_base::FifoBuffer out_buffer_;
@@ -78,6 +80,7 @@ protected:
   SocketTableManagement        *socket_table_management_;
   P2PSystemCommandFactory      *p2p_system_command_factory_;
 private:
+  bool                          internal_date_wait_receive_;
   DISALLOW_EVIL_CONSTRUCTORS(ProxySocketBegin);
 };
 

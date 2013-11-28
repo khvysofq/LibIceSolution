@@ -39,6 +39,8 @@
 AsyncP2PSocket::AsyncP2PSocket(AbstractVirtualNetwork *virtual_network)
   :virtual_network_(virtual_network),has_data_(0)
 {
+  virtual_network_->SignalStreamWrite.connect(this,
+    &AsyncP2PSocket::OnStreamWrite);
 }
 
 void AsyncP2PSocket::Send(uint32 socket, SocketType socket_type,
@@ -57,6 +59,12 @@ void AsyncP2PSocket::Send(uint32 socket, SocketType socket_type,
 size_t AsyncP2PSocket::GetAvalibeSendData(){
   return MAX_SAVE_DATA_LEN - has_data_;
 }
+
+void AsyncP2PSocket::OnStreamWrite(talk_base::StreamInterface *stream){
+  LOG(LS_INFO) << __FUNCTION__;
+  SignalWriteEvent(this);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 RTSPProxyServer *ProxyServerFactory::CreateRTSPProxyServer(

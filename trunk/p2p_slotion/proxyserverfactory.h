@@ -50,15 +50,17 @@ class RTSPProxyServer;
 class ProxySocketManagement;
 class RTSPClientSocket;
 
-class AsyncP2PSocket
+class AsyncP2PSocket : public sigslot::has_slots<>
 {
 public:
   AsyncP2PSocket(AbstractVirtualNetwork *virtual_network);
   virtual void Send(uint32 socket, SocketType socket_type,
     const char *data, uint16 len,size_t *written);
   size_t GetAvalibeSendData();
+  sigslot::signal1<AsyncP2PSocket *> SignalWriteEvent;
+  void OnStreamWrite(talk_base::StreamInterface *);
 private:
-  static const size_t MAX_SAVE_DATA_LEN = 10240;
+  static const size_t MAX_SAVE_DATA_LEN = 1024 * 64;
   AbstractVirtualNetwork *virtual_network_;
   size_t              has_data_;
   DISALLOW_EVIL_CONSTRUCTORS(AsyncP2PSocket);

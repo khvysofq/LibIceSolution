@@ -106,7 +106,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
 
   //void ShowServerConnectionPeer();
   //void set_server_ip(talk_base::SocketAddress server_address);
-  virtual bool UpdataPeerInfor(std::string infor);
+  virtual bool UpdataPeerInfor(const std::string &infor);
 
  protected:
    //send message to p2p server

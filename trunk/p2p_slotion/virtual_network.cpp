@@ -34,8 +34,14 @@
  */
 
 #include "virtual_network.h"
-#include "networkbytebuffer.h"
 
+#include "networkbytebuffer.h"
+#include "sockettablemanagement.h"
+
+///////////////////////////////////////////////////////////////////////////
+//TODO:(GuangleiHe) TIME: 11/26/2013
+//Format the debug information when the class is complete.
+///////////////////////////////////////////////////////////////////////////
 VirtualNetwork::VirtualNetwork(AbstractICEConnection *p2p_ice_connection):
   AbstractVirtualNetwork(p2p_ice_connection)
 {
@@ -49,7 +55,7 @@ VirtualNetwork::VirtualNetwork(AbstractICEConnection *p2p_ice_connection):
   receive_network_header_ = new NetworkHeader();
   receive_low_buffer_  = new char[RECEIVE_BUFFER_LEN];;
   receive_current_len_ = 0;
-  reading_states_ = READING_HEADER_IDE;
+  reading_states_ = READING_HEADER_IDE_1;
 
   //other
   socket_table_management_ = SocketTableManagement::Instance();
@@ -74,62 +80,150 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
 {
   LOG(LS_INFO) << "^^^" << __FUNCTION__;
   size_t res = 0;
-  int    error = 0;
+  uint8 one_byte;
+  ///////////////////////////////////////////////////////////////////////////
+  //BUSINESS LOGIC NOTE (GuangleiHe, 11/26/2013)
+  //Below code read p2p network data by a stream interface. Because the p2p 
+  //network use stun packet to make sure whether the peer is online, and 
+  //Libjingle responder auto. So some read call will got zero length data.
+  ///////////////////////////////////////////////////////////////////////////
   talk_base::StreamResult result = stream->ReadAll(temp_buffer_,
-    RECEIVE_BUFFER_LEN,&res,&error);
+    RECEIVE_BUFFER_LEN,&res,NULL);
 
   if(res){
-    //LOG(LS_ERROR) << "receive data length is " << res;
+    ///////////////////////////////////////////////////////////////////////////
+    //TODO:(GuangleiHe) TIME: 11/26/2013
+    //This is a long code parse package algorithm. It's sure to improved by a short 
+    //code algorithm, but it's hard to improve efficiency algorithm. So I have
+    //no time to do this.
+    ///////////////////////////////////////////////////////////////////////////
     NetworkByteBuffer network_byte_buffer(temp_buffer_,res);
 
+    ///////////////////////////////////////////////////////////////////////////
+    //ALGORITHM NOTE (GuangleiHe, 11/26/2013)
+    //Below code is parse a network header. It parse data one byte by
+    //one byte.
+    ///////////////////////////////////////////////////////////////////////////
     size_t current_reading = 0;
     while(network_byte_buffer.Length() > 0 ){
-      if(reading_states_ == READING_HEADER_IDE){
-        uint32 network_header_ide;
-        network_byte_buffer.ReadUInt32(&network_header_ide);
-        if(network_header_ide == P2P_NETWORKER_HEADER_IDE){
+      // 1. reading first unsigned int data, P2P_NETWORKER_HEADER_IDE(0X01234567)
+      if(reading_states_ == READING_HEADER_IDE_1){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->header_ide_ &= 0X0;
+        receive_network_header_->header_ide_ |= one_byte;
+        reading_states_ = READING_HEADER_IDE_2;
+      }
+      else if(reading_states_ == READING_HEADER_IDE_2){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->header_ide_ <<= 8;
+        receive_network_header_->header_ide_ |= one_byte;
+        reading_states_ = READING_HEADER_IDE_3;
+      }
+      else if(reading_states_ == READING_HEADER_IDE_3){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->header_ide_ <<= 8;
+        receive_network_header_->header_ide_ |= one_byte;
+        reading_states_ = READING_HEADER_IDE_4;
+      }
+      else if(reading_states_ == READING_HEADER_IDE_4){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->header_ide_ <<= 8;
+        receive_network_header_->header_ide_ |= one_byte;
+        if(receive_network_header_->header_ide_ == P2P_NETWORKER_HEADER_IDE){
           LOG(LS_VERBOSE) << "\t got P2P_NETWORKER_HEADER_IDE";
-          reading_states_ = READING_LOCAL_SOCKET;
-        } else{
-          LOG(LS_ERROR) <<"\t reading network header identifier error " 
-            << network_byte_buffer.Length();
-          break;
+          reading_states_ = READING_LOCAL_SOCKET_1;
+        }
+        else{
+          LOG(LS_ERROR) << "\t can't P2P_NETWORKER_HEADER_IDE";
         }
       }
-      else if(reading_states_ == READING_LOCAL_SOCKET){
-        uint32 local_socket;
-        network_byte_buffer.ReadUInt32(&local_socket);
-        receive_network_header_->local_socket_ = local_socket;
-        reading_states_ = READING_REMOTE_SOCKET;
-        LOG(LS_VERBOSE) << "\t got READING_LOCAL_SOCKET " << local_socket;
+
+      //2. reading second unsigned int data, the local socket number
+      else if(reading_states_ == READING_LOCAL_SOCKET_1){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->local_socket_ &= 0X0;
+        receive_network_header_->local_socket_ |= one_byte;
+        reading_states_ = READING_LOCAL_SOCKET_2;
       }
-      else if(reading_states_ == READING_REMOTE_SOCKET){
-        uint32 remote_socket;
-        network_byte_buffer.ReadUInt32(&remote_socket);
-        receive_network_header_->remote_socket_ = remote_socket;
-        reading_states_ = READING_SOCKET_TYPE;
-        LOG(LS_VERBOSE) << "\t got READING_REMOTE_SOCKET " << remote_socket;
+      else if(reading_states_ == READING_LOCAL_SOCKET_2){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->local_socket_ <<= 8;
+        receive_network_header_->local_socket_ |= one_byte;
+        reading_states_ = READING_LOCAL_SOCKET_3;
       }
-      else if(reading_states_ == READING_SOCKET_TYPE){
-        uint16 socket_type;
-        network_byte_buffer.ReadUInt16(&socket_type);
-        receive_network_header_->socket_type_ = socket_type;
-        reading_states_ = READING_DATA_LENGTH;
-        LOG(LS_VERBOSE) << "\t got READING_SOCKET_TYPE " << socket_type;
+      else if(reading_states_ == READING_LOCAL_SOCKET_3){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->local_socket_ <<= 8;
+        receive_network_header_->local_socket_ |= one_byte;
+        reading_states_ = READING_LOCAL_SOCKET_4;
       }
-      else if(reading_states_ == READING_DATA_LENGTH){
-        uint16 data_len;
-        network_byte_buffer.ReadUInt16(&data_len);
-        if((data_len > 0) && data_len < RECEIVE_BUFFER_LEN){
-          receive_network_header_->data_len_ = data_len;
-          reading_states_ = READING_DATA;
-          //LOG(LS_ERROR) << "\t got READING_DATA_LENGTH " << data_len;
-        } else{
-          LOG(LS_ERROR) << "\t receive data length error " << data_len;
-          reading_states_ = READING_HEADER_IDE;
-          break;
-        }
+      else if(reading_states_ == READING_LOCAL_SOCKET_4){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->local_socket_ <<= 8;
+        receive_network_header_->local_socket_ |= one_byte;
+        LOG(LS_VERBOSE) << "\t got P2P_NETWORKER_LOCAL_SOCKET";
+        reading_states_ = READING_REMOTE_SOCKET_1;
       }
+
+      //3. reading third unsigned int data, the remote socket number
+      else if(reading_states_ == READING_REMOTE_SOCKET_1){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->remote_socket_ &= 0X0;
+        receive_network_header_->remote_socket_ |= one_byte;
+        reading_states_ = READING_REMOTE_SOCKET_2;
+      }
+      else if(reading_states_ == READING_REMOTE_SOCKET_2){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->remote_socket_ <<= 8;
+        receive_network_header_->remote_socket_ |= one_byte;
+        reading_states_ = READING_REMOTE_SOCKET_3;
+      }
+      else if(reading_states_ == READING_REMOTE_SOCKET_3){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->remote_socket_ <<= 8;
+        receive_network_header_->remote_socket_ |= one_byte;
+        reading_states_ = READING_REMOTE_SOCKET_4;
+      }
+      else if(reading_states_ == READING_REMOTE_SOCKET_4){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->remote_socket_ <<= 8;
+        receive_network_header_->remote_socket_ |= one_byte;
+        LOG(LS_VERBOSE) << "\t got P2P_NETWORKER_REMOTE_SOCKET";
+        reading_states_ = READING_SOCKET_TYPE_1;
+      }
+
+      //4. reading a unsigned short data, the socket type 
+      //[TCP_SOCK = 1 or UDP_SOCK = 2]
+      else if(reading_states_ == READING_SOCKET_TYPE_1){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->socket_type_ &= 0X0;
+        receive_network_header_->socket_type_ |= one_byte;
+        reading_states_ = READING_SOCKET_TYPE_2;
+      }
+      else if(reading_states_ == READING_SOCKET_TYPE_2){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->socket_type_ <<= 8;
+        receive_network_header_->socket_type_ |= one_byte;
+        LOG(LS_VERBOSE) << "\t got P2P_NETWORKER_SOCKTYPE";
+        reading_states_ = READING_DATA_LENGTH_1;
+      }
+
+      //5. reading unsigned sort data, the network package length. 
+      else if(reading_states_ == READING_DATA_LENGTH_1){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->data_len_ &= 0X0;
+        receive_network_header_->data_len_ |= one_byte;
+        reading_states_ = READING_DATA_LENGTH_2;
+      }
+      else if(reading_states_ == READING_DATA_LENGTH_2){
+        network_byte_buffer.ReadUInt8(&one_byte);
+        receive_network_header_->data_len_ <<= 8;
+        receive_network_header_->data_len_ |= one_byte;
+        LOG(LS_VERBOSE) << "\t got P2P_NETWORKER_DATA_LENGTH";
+        reading_states_ = READING_DATA;
+      }
+
+      //6. reading the last data, it's relay data from remote peer.
       else if(reading_states_ == READING_DATA){
         if(network_byte_buffer.Length() >= 
           receive_network_header_->data_len_ - receive_current_len_){
@@ -140,21 +234,17 @@ void VirtualNetwork::OnReceiveDataFromLowLayer(talk_base::StreamInterface*
           SignalSendDataToUpLayer(receive_network_header_->local_socket_,
             receive_network_header_->socket_type_,receive_low_buffer_,
             receive_network_header_->data_len_);
-
-          reading_states_ = READING_HEADER_IDE;
+          reading_states_ = READING_HEADER_IDE_1;
           receive_current_len_ = 0;
         } else {
           int t = network_byte_buffer.Length();
-
           network_byte_buffer.ReadBytes(&receive_low_buffer_[receive_current_len_],
             network_byte_buffer.Length());
-
           receive_current_len_ += t;
         }
       }
     }
   }
-  LOG(LS_INFO) << "\tdata receive end";
 }
 
 void VirtualNetwork::OnReceiveDataFromUpLayer(uint32 socket,SocketType socket_type,
@@ -165,7 +255,6 @@ void VirtualNetwork::OnReceiveDataFromUpLayer(uint32 socket,SocketType socket_ty
   ASSERT(len != 0);
 
   size_t remain_buffer_length = p2p_ice_connection_->GetRemainBufferLength();
-  //std::cout << "remain buffer length is " << remain_buffer_length << std::endl;
 
   if(remain_buffer_length == 0 ||
     p2p_ice_connection_->IsBlock()){
@@ -199,15 +288,18 @@ void VirtualNetwork::OnReceiveDataFromUpLayer(uint32 socket,SocketType socket_ty
   //BUG NOTE (GuangleiHe, 11/15/2013)
   //Maybe there has a bug.
   //because the Claer function of talk_base::ByteBuffer not release, but
-  // it maybe can't write data forever.
+  //it maybe can't write data forever.
   ///////////////////////////////////////////////////////////////////////////
   send_byte_buffer_->Clear();
 
   //4. send the relay data to low layer
   SignalSendDataToLowLayer(data,*written);
-  //LOG(LS_ERROR) << "send data length is " << len;
 }
 
+void VirtualNetwork::OnStreamWrite(talk_base::StreamInterface *stream){
+  LOG(LS_INFO) << "^^^" << __FUNCTION__;
+  SignalStreamWrite(stream);
+}
 
 void VirtualNetwork::AddInNetworkHeader(uint32 local_socket, SocketType socket_type,
                                      uint16 len){
@@ -253,9 +345,12 @@ void VirtualNetwork::ConvertNetworkHeaderToBuffer(){
   send_byte_buffer_->WriteUInt16(send_network_header_->socket_type_);
   //5. Write data packet length in send buffer
   send_byte_buffer_->WriteUInt16(send_network_header_->data_len_);
-
 }
 
+///////////////////////////////////////////////////////////////////////////
+//BUSINESS LOGIC NOTE (GuangleiHe, 11/26/2013)
+//For MassageHandler class, it a thread function.
+///////////////////////////////////////////////////////////////////////////
 void VirtualNetwork::OnMessage(talk_base::Message* msg){
-
+  //Nothing
 }

@@ -24,9 +24,6 @@
     <ClInclude Include="defaults.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CoreP2PMediator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="peer_connection_server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -66,6 +63,15 @@
     <ClInclude Include="proxyserverfactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="asyncp2ppackagesocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p2pconnectionmanagement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p2psourcemanagement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -78,9 +84,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="defaults.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CoreP2PMediator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="peer_connection_server.cc">
@@ -120,6 +123,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="proxyserverfactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="asyncp2ppackagesocket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p2pconnectionmanagement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p2psourcemanagement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

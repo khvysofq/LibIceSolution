@@ -394,6 +394,7 @@ void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
         // The body of the response will be a list of already connected peers.
         if (content_length) {
           size_t pos = eoh + 4;
+          bool has_member = false;
           while (pos < control_data_.size()) {
             size_t eol = control_data_.find('\n', pos);
             if (eol == std::string::npos)
@@ -406,11 +407,13 @@ void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
               &resource,&connected) && id != my_id_) {
                 online_peers_[id].peer_name_ = name;
                 online_peers_[id].resource_ = resource;
+                has_member = true;
                 LOG(LS_INFO)<<"Current Connection Peer\t"<<id<<"\t"<<name;
-                SignalOnlinePeers(online_peers_);
             }
             pos = eol + 1;
           }
+          if(has_member)
+            SignalOnlinePeers(online_peers_);
         }
         ASSERT(is_connected());
         SignalStatesChange(STATES_P2P_SERVER_LOGIN_SUCCEED);
@@ -431,19 +434,6 @@ void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
     }
   }
 }
-//void PeerConnectionServer::ShowServerConnectionPeer()
-//{
-//  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
-//  for(Peers::iterator iter =  online_peers_.begin();
-//    iter != online_peers_.end();iter++)
-//    LOG(LS_INFO)<<iter->first<<"\t"<<iter->second;
-//}
-//void PeerConnectionServer::set_server_ip(talk_base::SocketAddress server_address)
-//{
-//  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
-//  server_address_ =   server_address;
-//}
-
 
 void PeerConnectionServer::OnHangingGetRead(talk_base::AsyncSocket* socket) {
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
@@ -469,10 +459,10 @@ void PeerConnectionServer::OnHangingGetRead(talk_base::AsyncSocket* socket) {
             if (connected) {
               online_peers_[id].peer_name_ = name;
               online_peers_[id].resource_ = resource;
-              SignalOnlinePeers(online_peers_);
+              SignalAPeerLogin(id,online_peers_[id]);
             } else {
+              SignalAPeerLogout(id,online_peers_[id]);
               online_peers_.erase(id);
-              SignalOnlinePeers(online_peers_);
             }
         }
       } else {
@@ -584,9 +574,11 @@ void PeerConnectionServer::OnClose(talk_base::AsyncSocket* socket, int err) {
   }
 }
 
-bool PeerConnectionServer::UpdataPeerInfor(std::string infor){
+bool PeerConnectionServer::UpdataPeerInfor(const std::string &infor){
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
 
+  std::cout << infor << std::endl;
+  
   std::string* msg = new std::string(infor);
   if (msg) {
     // For convenience, we always run the message through the queue.

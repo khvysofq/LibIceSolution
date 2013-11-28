@@ -42,9 +42,12 @@ public:
   virtual void SignInP2PServer() = 0;
   virtual bool SignOutP2PServer() = 0;
   sigslot::signal1<StatesChangeType>  SignalStatesChange;
-  sigslot::signal1<const PeerInfors>  SignalOnlinePeers;
+  sigslot::signal1<const PeerInfors &>  SignalOnlinePeers;
 
-  virtual bool UpdataPeerInfor(std::string ) = 0;
+  sigslot::signal2<int,const PeerInfor &> SignalAPeerLogin;
+  sigslot::signal2<int,const PeerInfor &> SignalAPeerLogout;
+
+  virtual bool UpdataPeerInfor(const std::string &) = 0;
   //ice to p2p server interface
   virtual void OnSendMessageToRemotePeer(const std::string&, int) = 0;
   sigslot::signal2<const std::string,int> SignalReceiveMessageFromRemotePeer;
@@ -72,7 +75,8 @@ public:
   /////////////////////////////////////////////////////////
   //user interface 
   sigslot::signal1<StatesChangeType>  SignalStatesChange;
-  
+  sigslot::signal1<talk_base::StreamInterface *> SignalStreamWrite;
+
   virtual bool IsBlock() const = 0;
   virtual size_t GetRemainBufferLength() const = 0;
   virtual void DestroyPeerConnectionIce() = 0;
@@ -128,6 +132,9 @@ public:
 
       p2p_ice_connection_->SignalSendDataToUpLayer.connect(this,
         &AbstractVirtualNetwork::OnReceiveDataFromLowLayer);
+      p2p_ice_connection->SignalStreamWrite.connect(this,
+        &AbstractVirtualNetwork::OnStreamWrite);
+
       SignalSendDataToLowLayer.connect(p2p_ice_connection_,
         &AbstractICEConnection::OnReceiveDataFromUpLayer);
   }
@@ -136,6 +143,8 @@ public:
   sigslot::signal4<uint32 ,SocketType,const char *, uint16> SignalSendDataToUpLayer;
   virtual void OnReceiveDataFromUpLayer(uint32,SocketType,const char*,uint16,
     size_t *) = 0;
+  virtual void OnStreamWrite(talk_base::StreamInterface *) = 0;
+  sigslot::signal1<talk_base::StreamInterface *> SignalStreamWrite;
 public:
   //ice part 
   sigslot::signal2<const char *, int> SignalSendDataToLowLayer;

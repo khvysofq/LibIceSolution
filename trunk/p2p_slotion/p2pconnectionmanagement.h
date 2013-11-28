@@ -4,11 +4,11 @@
  * 
  * Author   : GuangLei He
  * Email    : guangleihe@gmail.com
- * Created  : 2013/11/19      19:14
- * Filename : F:\GitHub\trunk\p2p_slotion\asyncrtspclientsocket.cpp
+ * Created  : 2013/11/27      11:07
+ * Filename : F:\GitHub\trunk\p2p_slotion\p2pconnectionmanagement.h
  * File path: F:\GitHub\trunk\p2p_slotion
- * File base: asyncrtspclientsocket
- * File ext : cpp
+ * File base: p2pconnectionmanagement
+ * File ext : h
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,44 +33,35 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "talk/base/bytebuffer.h"
+#ifndef P2P_CONNECTION_MANAGEMENT_H_
+#define P2P_CONNECTION_MANAGEMENT_H_
 
-#include "asyncrtspclientsocket.h"
-#include "proxyserverfactory.h"
+#include <set>
 
+#include "talk/base/sigslot.h"
+#include "talk/base/socketaddress.h"
+#include "p2psourcemanagement.h"
+#include "mediator_pattern.h"
 
-//////////////////////////////////////////////////////////////////////////
-RTSPClientSocket::RTSPClientSocket(
-  AsyncP2PSocket *p2p_socket,talk_base::AsyncSocket *int_socket,
-  uint32 server_socket_number,const talk_base::SocketAddress &server_addr)
-  :ProxySocketBegin(p2p_socket,int_socket),server_socket_number_(server_socket_number)
+class P2PConnectionManagement : public sigslot::has_slots<>
 {
+public:
+  virtual int Connect(talk_base::SocketAddress &addr);
+private:
+  AbstractVirtualNetwork *IsPeerConnected(int peer_id);
+private:
 
-  int_socket_->SignalConnectEvent.connect(this,
-    &RTSPClientSocket::OnInternalConnect);
+  typedef std::map<int,AbstractVirtualNetwork *> P2PConnections;
+  P2PConnections      current_connect_peer_;
+  P2PSourceManagement *p2p_source_management_;
+public:
+  //Singleton Pattern Function
+  P2PConnectionManagement(){}
+  static P2PConnectionManagement *Instance();
+private:
+  //Singleton Pattern variable
+  static P2PConnectionManagement *p2p_connection_management_;
+};
 
-  int_socket_->Connect(server_addr);
-}
 
-
-
-void RTSPClientSocket::OnInternalConnect(
-  talk_base::AsyncSocket* socket)
-{
-  //The Client connect was accept
-  //Then Send the connect succeed to remote peer
-  ASSERT(int_socket_.get() == socket);
-  //generate a reply string
-  socket_table_management_->AddNewLocalSocket((uint32)socket,
-    server_socket_number_,TCP_SOCKET);
-
-  talk_base::ByteBuffer *reply_string = 
-    p2p_system_command_factory_->ReplyRTSPClientSocketSucceed(
-    server_socket_number_,(uint32)int_socket_.get());
-  //send this string to remote peer
-
-  p2p_socket_->Send((uint32)socket,TCP_SOCKET, reply_string->Data(),
-    P2PRTSPCOMMAND_LENGTH,NULL);
-  //delete the string
-  p2p_system_command_factory_->DeleteRTSPClientCommand(reply_string);
-}
+#endif // !P2P_CONNECTION_MANAGEMENT_H_

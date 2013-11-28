@@ -247,11 +247,13 @@ void PeerConnectionIce::OnStreamEvent(talk_base::StreamInterface* stream,
 
   if (events & talk_base::SE_WRITE) {
     if (stream == local_tunnel_) {
-      std::cout << "\ttalk_base::SE_WRITE  ????????????????????????"
-        << std::endl;
+      //std::cout << "\ttalk_base::SE_WRITE  ????????????????????????"
+      //  << std::endl;
       send_data_buffer_->SetNormalState();
-      if(send_data_buffer_->SendDataUsedStream(local_tunnel_))
+      if(send_data_buffer_->SendDataUsedStream(local_tunnel_)){
         SignalStatesChange(STATES_ICE_TUNNEL_SEND_DATA);
+        SignalStreamWrite(stream);
+      }
     }
   }
 

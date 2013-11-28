@@ -131,6 +131,7 @@ int main(int argc, char** argv) {
               // no need to do anything.
               socket_done = false;
             } else if (s->PathEquals("/update")){
+              printf("%s\n",s->data().c_str());
               clients.UpdateMemberInfor(s,member);
             }else {
               ChannelMember* target = clients.IsTargetedRequest(s);
