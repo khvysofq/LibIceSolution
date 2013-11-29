@@ -84,9 +84,11 @@
     <ClInclude Include="asyncrtspclientsocket.h" />
     <ClInclude Include="asyncrtspproxysocketserver.h" />
     <ClInclude Include="asynctcpsocketnormal.h" />
+    <ClInclude Include="datamultiplexmachine.h" />
     <ClInclude Include="defaults.h" />
     <ClInclude Include="mediator_pattern.h" />
     <ClInclude Include="networkbytebuffer.h" />
+    <ClInclude Include="p2pconnectionimplementator.h" />
     <ClInclude Include="p2pconnectionmanagement.h" />
     <ClInclude Include="p2pserverconnectionmanagement.h" />
     <ClInclude Include="p2psourcemanagement.h" />
@@ -98,18 +100,18 @@
     <ClInclude Include="proxysocketmanagement.h" />
     <ClInclude Include="senddatabuffer.h" />
     <ClInclude Include="sockettablemanagement.h" />
-    <ClInclude Include="virtual_application.h" />
-    <ClInclude Include="virtual_network.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="asyncp2ppackagesocket.cpp" />
     <ClCompile Include="asyncrtspclientsocket.cpp" />
     <ClCompile Include="asyncrtspproxysocketserver.cpp" />
     <ClCompile Include="asynctcpsocketnormal.cpp" />
+    <ClCompile Include="datamultiplexmachine.cpp" />
     <ClCompile Include="defaults.cc" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mediator_pattern.cpp" />
     <ClCompile Include="networkbytebuffer.cpp" />
+    <ClCompile Include="p2pconnectionimplementator.cpp" />
     <ClCompile Include="p2pconnectionmanagement.cpp" />
     <ClCompile Include="p2pserverconnectionmanagement.cpp" />
     <ClCompile Include="p2psourcemanagement.cpp" />
@@ -121,8 +123,6 @@
     <ClCompile Include="proxysocketmanagement.cpp" />
     <ClCompile Include="senddatabuffer.cpp" />
     <ClCompile Include="sockettablemanagement.cpp" />
-    <ClCompile Include="virtual_application.cpp" />
-    <ClCompile Include="virtual_network.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

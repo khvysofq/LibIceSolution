@@ -121,6 +121,7 @@ public:
   void SetLocalPeerId(int peer_id);
   bool IsSetLocalPeerName() const ;
   const std::string GetRemotePeerNameByPeerId(int peer_id);
+  int  GetRemotePeerIdByPeerName(const std::string &remote_peer_name);
 
   //
   bool AddNewServerResource(ServerResource *server_resource);

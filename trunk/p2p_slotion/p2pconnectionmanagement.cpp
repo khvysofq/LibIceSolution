@@ -36,7 +36,6 @@
 #include "p2pconnectionmanagement.h"
 #include "p2psourcemanagement.h"
 #include "peer_connection_ice.h"
-#include "virtual_network.h"
 
 //////////////////////////////////////////////////////////////////////////
 //Singleton Pattern Function
@@ -61,7 +60,6 @@ void P2PConnectionManagement::Initialize(
   worker_thread_ = worker_thread;
 
   p2p_ice_connection_ = new PeerConnectionIce(worker_thread_,signal_thread_);
-  virtual_network_    = new VirtualNetwork(p2p_ice_connection_);
 
   p2p_ice_connection_->SignalStatesChange.connect(this,
     &P2PConnectionManagement::OnStatesChange);
@@ -96,11 +94,33 @@ AbstractICEConnection *P2PConnectionManagement::GetP2PICEConnection() const{
   return p2p_ice_connection_;
 }
 
+bool P2PConnectionManagement::CreateP2PConnectionImplementator(
+  const std::string &remote_jid,talk_base::StreamInterface *stream)
+{
+  //1. Find is connected
+  for(P2PConnections::iterator iter = current_connect_peer_.begin();
+    iter != current_connect_peer_.end(); iter++){
+    if((*iter)->IsMe(remote_jid)){
+      LOG(LS_ERROR) << "The remote peer is connected, you didn't create.";
+      return false;
+    }
+  }
 
-AbstractVirtualNetwork *P2PConnectionManagement::IsPeerConnected(int peer_id){
-  P2PConnections::iterator iter = current_connect_peer_.find(peer_id);
-  if(iter != current_connect_peer_.end())
-    return iter->second;
+  P2PConnectionImplementator *p2p_connection =
+    new P2PConnectionImplementator(remote_jid,stream);
+
+  current_connect_peer_.insert(p2p_connection);
+
+  return true;
+}
+
+
+P2PConnectionImplementator *P2PConnectionManagement::IsPeerConnected(
+  int remote_peer_id)
+{
+  //1. find remote peer name, used remote peer id by P2PSourceManagement
+  const std::string remote_peer_name = 
+    p2p_source_management_->GetRemotePeerNameByPeerId(remote_peer_id);
   return NULL;
 }
 

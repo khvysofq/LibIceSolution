@@ -32,8 +32,12 @@
 * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "proxysocketmanagement.h"
+
 #include "proxyserverfactory.h"
+
+#include "talk/base/thread.h"
+#include "proxysocketmanagement.h"
+#include "p2psystemcommand.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -191,6 +195,11 @@ void ProxySocketBegin::WriteBufferDataToP2P(talk_base::FifoBuffer *buffer){
 //////////////////////////////////////////////////////////////////////////
 //Implement ProxySocketManagement
 
+ProxySocketManagement::ProxySocketManagement(){
+  p2p_system_command_factory_ = P2PSystemCommandFactory::Instance();
+  current_thread_             = talk_base::Thread::Current();
+}
+
 void ProxySocketManagement::RegisterProxySocket(
   uint32 local_socket, ProxySocketBegin *proxy_socket_begin)
 {
@@ -198,6 +207,8 @@ void ProxySocketManagement::RegisterProxySocket(
   proxy_socket_begin_map_.insert(ProxySocketBeginMap::value_type(local_socket,
     proxy_socket_begin));
 }
+
+
 
 ///////////////////////////////////////////////////////////////////////////
 //TODO:(GuangleiHe) TIME: 11/20/2013
@@ -230,4 +241,44 @@ bool ProxySocketManagement::RunSocketProccess(
   }
   iter->second->OnP2PReceiveData(data,len);
   return true;
+}
+
+void ProxySocketManagement::OnReceiveP2PData(uint32 socket, 
+                                             SocketType socket_type,
+                                             const char *data, uint16 len)
+{
+  LOG(LS_INFO) << "---" << __FUNCTION__;
+  LOG(LS_INFO) << "-----------------------------";
+  LOG(LS_INFO) << "\t socket = " << socket;
+  LOG(LS_INFO) << "\t socket type = " << socket_type;
+  LOG(LS_INFO) << "\t data length = " << len;
+  LOG(LS_INFO) << "-----------------------------";
+  if(!RunSocketProccess(socket,socket_type,data,len))
+  {
+    //Not found the socket, it must be a system command that create a client socket.
+    LOG(LS_INFO) << "Create New Client Socket";
+    ///////////////////////////////////////////////////////////////////////////
+    //BUSINESS LOGIC NOTE (GuangleiHe, 11/28/2013)
+    //There didn't used P2PRTSPCommand to parse the data.
+    //P2PRTSPCommand only known by P2PSystemCommandFactory
+    ///////////////////////////////////////////////////////////////////////////
+    //Step 1. Parse the system command.
+    P2PRTSPCommand p2p_rtsp_command;
+    p2p_system_command_factory_->ParseCommand(&p2p_rtsp_command,data,len);
+    if(p2p_rtsp_command.p2p_system_command_type_ != P2P_SYSTEM_CREATE_RTSP_CLIENT){
+      LOG(LS_ERROR) << "Parse p2p system command error";
+      return ;
+    }
+    //Step 2. Create AsyncSocket object.
+    talk_base::AsyncSocket *int_socket 
+      = current_thread_->socketserver()->CreateAsyncSocket(SOCK_STREAM);
+
+    //Step 3. Create server SocketAddress
+    talk_base::SocketAddress server_addr(p2p_rtsp_command.client_connection_ip_,
+      p2p_rtsp_command.client_connection_port_);
+
+    //Step 4. Create RTSPClient Socket
+    ProxyServerFactory::CreateRTSPClientSocket(this,
+      NULL,int_socket,p2p_rtsp_command.server_socket_,server_addr);
+  }
 }

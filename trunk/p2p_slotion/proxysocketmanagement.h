@@ -37,12 +37,13 @@
 #define P2P_SLOTION_PROXY_SOCKET_MANAGEMENT_H_
 
 #include "talk/base/socketadapters.h"
+#include "talk/base/stream.h"
 //#include "proxyserverfactory.h"
 
-#include "p2psystemcommand.h"
-#include "sockettablemanagement.h"
 
+class SocketTableManagement;
 class AsyncP2PSocket;
+class P2PSystemCommandFactory;
 
 class ProxySocketBegin : public sigslot::has_slots<>
 {
@@ -93,6 +94,7 @@ class ProxySocketManagement
 {
 public:
   ProxySocketManagement(){};
+  void OnReceiveP2PData(uint32 ,SocketType,const char *, uint16);
   void RegisterProxySocket(uint32 local_socket, 
     ProxySocketBegin *proxy_socket_begin);
   const ProxySocketBegin* GetProxySocketBegin(uint32 local_socket);
@@ -103,6 +105,8 @@ public:
   void DestoryAll();
 private:
   ProxySocketBeginMap proxy_socket_begin_map_;
+  P2PSystemCommandFactory      *p2p_system_command_factory_;
+  talk_base::Thread            *current_thread_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ProxySocketManagement);
 };

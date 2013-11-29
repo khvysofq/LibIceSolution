@@ -47,8 +47,8 @@ AsyncP2PPackageSocket::AsyncP2PPackageSocket(
   partner_socket_(NULL),
   partner_socket_type_(TCP_SOCKET)
 {
-  SignalSendDataToLowLayer.connect(virtual_network_,
-    &AbstractVirtualNetwork::OnReceiveDataFromUpLayer);
+  //SignalSendDataToLowLayer.connect(virtual_network_,
+  //  &AbstractVirtualNetwork::OnReceiveDataFromUpLayer);
 }
 
 //for AsyncSocket

@@ -30,12 +30,6 @@
     <ClInclude Include="p2p_user_client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="virtual_network.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="virtual_application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="asynctcpsocketnormal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -75,6 +69,12 @@
     <ClInclude Include="p2pserverconnectionmanagement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="p2pconnectionimplementator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="datamultiplexmachine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -93,12 +93,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="p2p_user_client.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="virtual_network.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="virtual_application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="asynctcpsocketnormal.cpp">
@@ -138,6 +132,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="p2pserverconnectionmanagement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p2pconnectionimplementator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="datamultiplexmachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

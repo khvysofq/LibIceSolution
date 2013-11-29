@@ -93,14 +93,14 @@
   <Class Name="talk_base::NATSocket" Collapsed="true">
     <Position X="9" Y="4.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>oIAQgEIpwChQAECJAUgAAIBwhqAAgAAAQAAAAACAAAE=</HashCode>
+      <HashCode>oIAQgEIJwChQAECJAUgAAIBwhqAAgAAAQAAAAACAAAE=</HashCode>
       <FileName>base\natsocketfactory.cc</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="talk_base::PhysicalSocket" Collapsed="true">
     <Position X="4.75" Y="4.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AIAAgEAgQAAYAEDLAUlEAIABBoAAAFAUSAAIQACAAAA=</HashCode>
+      <HashCode>AIAAgEAgQAAYAEDLAUlEAMABBoAAAFAUSAAIQACAAAA=</HashCode>
       <FileName>base\physicalsocketserver.cc</FileName>
     </TypeIdentifier>
   </Class>
@@ -191,7 +191,7 @@
   <Class Name="talk_base::NATServer" Collapsed="true">
     <Position X="16.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAgAAAACAAGQAAAAAAAAACAEBAAAAAAQBEMAAEAAAg=</HashCode>
+      <HashCode>AAAgAAAACAAGQAAAAAAAAACEEAAAAAAAQBEMAAEAAAg=</HashCode>
       <FileName>base\natserver.h</FileName>
     </TypeIdentifier>
   </Class>
@@ -235,18 +235,6 @@
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
-    <NestedTypes>
-      <Class Name="talk_base::NATSocketServer::Translator" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>base\natsocketfactory.h</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-      <Class Name="talk_base::NATSocketServer::TranslatorMap" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>base\natsocketfactory.h</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
     <InheritanceLine Type="talk_base::NATInternalSocketFactory" FixedFromPoint="true">
       <Path>
         <Point X="4.5" Y="17.75" />
@@ -291,13 +279,6 @@
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
-    <NestedTypes>
-      <Class Name="talk_base::Win32SocketServer::MessageWindow" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>base\win32socketserver.h</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
     <TypeIdentifier>
       <HashCode>AQgAAQQJEAAAAgAAAAAAAAAAARQAAAAAABACAAIAUAA=</HashCode>
       <FileName>base\win32socketserver.h</FileName>

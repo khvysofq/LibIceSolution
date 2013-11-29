@@ -35,11 +35,11 @@
 
 #ifndef VIRTUAL_NETWORK_H_
 #define VIRTUAL_NETWORK_H_
-#include "talk/base/bytebuffer.h"
 
 #include "mediator_pattern.h"
-
-class SocketTableManagement;
+#include "peer_connection_ice.h"
+#include "defaults.h"
+#include "sockettablemanagement.h"
 
 class VirtualNetwork :public AbstractVirtualNetwork,
   public talk_base::MessageHandler
@@ -54,53 +54,39 @@ public: // implementation inheritance
   virtual void OnReceiveDataFromUpLayer(uint32,SocketType,const char*,uint16,
     size_t *);
   virtual void OnStreamWrite(talk_base::StreamInterface *stream);
-
   // for MessageHandler
-  virtual void OnMessage(talk_base::Message* msg);
+  void OnMessage(talk_base::Message* msg);
 
 private:  // help function and struct
-  // Destory all object
-  void Destory();
-  void AddInNetworkHeader(uint32 local_socket, SocketType socket_type,uint16 len);
-  void ConvertNetworkHeaderToBuffer();
 
   // reading network header states by low layer (p2p ice layer)
   enum ReadingStates{
-    READING_HEADER_IDE_1,
-    READING_HEADER_IDE_2,
-    READING_HEADER_IDE_3,
-    READING_HEADER_IDE_4,
-    READING_LOCAL_SOCKET_1,
-    READING_LOCAL_SOCKET_2,
-    READING_LOCAL_SOCKET_3,
-    READING_LOCAL_SOCKET_4,
-    READING_REMOTE_SOCKET_1,
-    READING_REMOTE_SOCKET_2,
-    READING_REMOTE_SOCKET_3,
-    READING_REMOTE_SOCKET_4,
-    READING_SOCKET_TYPE_1,
-    READING_SOCKET_TYPE_2,
-    READING_DATA_LENGTH_1,
-    READING_DATA_LENGTH_2,
+    READING_HEADER_IDE,
+    READING_LOCAL_SOCKET,
+    READING_REMOTE_SOCKET,
+    READING_SOCKET_TYPE,
+    READING_DATA_LENGTH,
     READING_DATA
   };
-  ReadingStates         reading_states_;
+
+  // Destory all object
+  void Destory();
+
+  void AddInNetworkHeader(uint32 local_socket, SocketType socket_type,uint16 len);
+  void ConvertNetworkHeaderToBuffer();
 
 private:  // receive up date process
   NetworkHeader         *send_network_header_;
   // help variable that convert the network header struct to NETWORK ORDER
   talk_base::ByteBuffer *send_byte_buffer_;
-
 private:  // receive low layer process
   NetworkHeader         *receive_network_header_;
   uint16                receive_current_len_;
+  ReadingStates         reading_states_;
   char                  *receive_low_buffer_;
 
 private:  // other
   SocketTableManagement *socket_table_management_;
   char                  *temp_buffer_;
-
-  //From google library, close the implicit constructor of the class
-  DISALLOW_EVIL_CONSTRUCTORS(VirtualNetwork);
 };
 #endif

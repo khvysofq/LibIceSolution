@@ -78,6 +78,20 @@ const std::string P2PSourceManagement::GetRemotePeerNameByPeerId(int peer_id){
   return "";
 }
 
+int P2PSourceManagement::GetRemotePeerIdByPeerName(const std::string &remote_peer_name){
+  for(PeerResources::iterator iter = remote_peer_resources_.begin();
+    iter != remote_peer_resources_.end(); iter++)
+  {
+    std::cout << (*iter)->peer_jid_ << std::endl;
+    std::cout << remote_peer_name   << std::endl;
+    if((*iter)->peer_jid_ == remote_peer_name){
+      return (*iter)->peer_id_;
+    }
+  }
+  LOG(LS_ERROR) << "Can't found the peer";
+  return 0;
+}
+
 
 bool P2PSourceManagement::AddNewServerResource(ServerResource *server_resource){
   //
@@ -154,7 +168,6 @@ void P2PSourceManagement::DeleteAllServerResource(ServerResources &server_resour
 }
 
 //////////////////////////////////////////////////////////////////////////
-
 bool P2PSourceManagement::ThePeerResourceIsExisited(PeerResource *peer_resource){
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)

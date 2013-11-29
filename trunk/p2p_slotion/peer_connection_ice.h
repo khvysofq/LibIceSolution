@@ -55,25 +55,16 @@ class PeerConnectionIce
 public:     //user interface
   PeerConnectionIce(talk_base::Thread *worker_thread,
     talk_base::Thread *signal_thread);
-
-public:
   ~PeerConnectionIce();
-  void DestroyPeerConnectionIce();
   void ConnectionToRemotePeer(int remote_peer_id);
 
-  
-  //receive messages that from remote peer by p2p server
-  virtual void OnReceiveMessageFromRemotePeer(const std::string, int);
-  virtual void OnReceiveDataFromUpLayer(const char *, int);
-  virtual bool IsBlock() const ;
-  virtual size_t GetRemainBufferLength() const ;
 private:    //p2p server function and some help function
-
+  void DestroyPeerConnectionIce();
+  //receive messages that from remote peer by p2p server
+  void OnReceiveMessageFromRemotePeer(const std::string msg,int peer_id);
 private:  //libjingle system function
   // implements the MessageHandler interface
   void OnMessage(talk_base::Message* msg);
-  void ReadData(talk_base::StreamInterface *stream);
-  virtual void WriteData(const char *data, int len);
 private:    //ICE part function
   enum {REMOTE_PEER_MESSAGE};
   //interior message that start college transport information
@@ -88,31 +79,18 @@ private:    //ICE part function
     buzz::Jid jid, std::string description,
     cricket::Session* session);
   //data event
-  void OnStreamEvent(talk_base::StreamInterface* stream, int events,
-    int error);
-
-  static const int SEND_BUFFER_LENGTH = 8 * 1024;
 
 private:    //ICE part member
   talk_base::Thread               *worker_thread_;
   talk_base::Thread               *signal_thread_;
-  cricket::HttpPortAllocator      *http_allocator_;
   talk_base::BasicNetworkManager  *basic_network_manager_;
   cricket::SessionManager         *session_manager_;
   cricket::TunnelSessionClient    *tunnel_session_client_;
-  talk_base::StreamInterface      *local_tunnel_;
-  talk_base::FifoBuffer           *receive_momery_buffer_;
-  char                            *send_buffer_;
   cricket::BasicPortAllocator     *basic_prot_allocator_;
   
-  SendDataBuffer                  *send_data_buffer_;
-
 private:    //p2p server member
-  buzz::Jid                       *local_jid_;
-  buzz::Jid                       *remote_jid_;
-  int                             remote_id_;
-  std::vector<talk_base::SocketAddress> stun_hosts_;
   P2PSourceManagement             *p2p_source_management_;
+  P2PConnectionManagement         *p2p_connection_management_;
 };
 
 

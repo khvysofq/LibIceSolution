@@ -34,13 +34,13 @@
  */
 
 #include "talk/base/json.h"
+#include "talk/base/helpers.h"
 
 #include "p2p_user_client.h"
-#include "virtual_network.h"
-#include "virtual_application.h"
 #include "peer_connection_ice.h"
 #include "peer_connection_server.h"
 
+#include "sockettablemanagement.h"
 #include "p2psourcemanagement.h"
 #include "p2pconnectionmanagement.h"
 #include "p2pserverconnectionmanagement.h"
@@ -71,12 +71,23 @@ P2PUserClient::~P2PUserClient(){
 void P2PUserClient::Initiatlor(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
 
-  std::string first_local_peer_name = GetCurrentComputerUserName();
-  first_local_peer_name += JID_DEFAULT_DOMAIN;
+  std::string local_peer_name = GetCurrentComputerUserName();
+
+  //Create a random string with local peer name
+  std::string random_string;
+  talk_base::CreateRandomString(8,RANDOM_BASE64,&random_string);
+
+  local_peer_name += random_string;
+  local_peer_name += JID_DEFAULT_DOMAIN;
+
+  //translator local_peer_name with lower character
+  //because the ICE protect just needs lower character 
+  std::transform(local_peer_name.begin(),local_peer_name.end(),
+    local_peer_name.begin(),tolower);
 
   p2p_source_management_->AddNewServerResource("RTSP_SERVER","192.168.1.1",554,"RTSP");
   p2p_source_management_->AddNewServerResource("HTTP_SERVER","192.168.1.1",80,"HTTP");
-  p2p_source_management_->SetLocalPeerName(first_local_peer_name);
+  p2p_source_management_->SetLocalPeerName(local_peer_name);
 
 
   p2p_connection_management_->Initialize(signal_thread_,worker_thread_);

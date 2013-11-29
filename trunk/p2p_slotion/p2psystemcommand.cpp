@@ -33,8 +33,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "talk/base/logging.h"
+#include "talk/base/common.h"
 #include "p2psystemcommand.h"
-#include "virtual_network.h"
+
 
 P2PSystemCommandFactory 
   *P2PSystemCommandFactory::p2p_system_command_factory_ = NULL;

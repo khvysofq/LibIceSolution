@@ -36,11 +36,11 @@
 #include "asyncrtspproxysocketserver.h"
 #include "asyncrtspclientsocket.h"
 //////////////////////////////////////////////////////////////////////////
-AsyncP2PSocket::AsyncP2PSocket(AbstractVirtualNetwork *virtual_network)
-  :virtual_network_(virtual_network),has_data_(0)
+AsyncP2PSocket::AsyncP2PSocket()
+  :has_data_(0)
 {
-  virtual_network_->SignalStreamWrite.connect(this,
-    &AsyncP2PSocket::OnStreamWrite);
+  //virtual_network_->SignalStreamWrite.connect(this,
+  //  &AsyncP2PSocket::OnStreamWrite);
 }
 
 void AsyncP2PSocket::Send(uint32 socket, SocketType socket_type,
@@ -50,8 +50,6 @@ void AsyncP2PSocket::Send(uint32 socket, SocketType socket_type,
   if(len == 0)
     return ;
   size_t w = 0;
-  virtual_network_->OnReceiveDataFromUpLayer(socket,socket_type,data,
-    len,&w);
   if(written)
     *written = w;
 }

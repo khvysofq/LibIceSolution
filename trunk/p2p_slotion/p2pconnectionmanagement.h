@@ -41,6 +41,7 @@
 #include "talk/base/sigslot.h"
 #include "talk/base/socketaddress.h"
 #include "mediator_pattern.h"
+#include "p2pconnectionimplementator.h"
 
 class P2PSourceManagement;
 
@@ -61,16 +62,19 @@ public:
   //When you call this function, you must be sure that the peer id 
   //is correct.
   virtual int Connect(int peer_id);
+
+  //There
+  bool CreateP2PConnectionImplementator(const std::string &remote_jid,
+    talk_base::StreamInterface *stream);
 private:
-  AbstractVirtualNetwork *IsPeerConnected(int peer_id);
+  P2PConnectionImplementator *IsPeerConnected(int remote_peer_id);
   void OnStatesChange(StatesChangeType states_type);
 private:
 
-  typedef std::map<int,AbstractVirtualNetwork *> P2PConnections;
+  typedef std::set<P2PConnectionImplementator *> P2PConnections;
   P2PConnections      current_connect_peer_;
   P2PSourceManagement *p2p_source_management_;
 
-  AbstractVirtualNetwork  *virtual_network_;
   AbstractICEConnection   *p2p_ice_connection_;
   talk_base::Thread       *signal_thread_;
   talk_base::Thread       *worker_thread_;
