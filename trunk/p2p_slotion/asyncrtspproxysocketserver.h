@@ -48,7 +48,6 @@
 #include "p2psystemcommand.h"
 #include "proxysocketmanagement.h"
 
-class AsyncP2PSocket;
 class ProxySocketManagement;
 class ProxySocketBegin;
 
@@ -81,9 +80,7 @@ private:
 class RTSPProxyServer : public sigslot::has_slots<>
 {
 public:
-  RTSPProxyServer(ProxySocketManagement *proxy_socket_management,
-    AsyncP2PSocket *p2p_socket,
-    talk_base::SocketFactory *int_factory, 
+  RTSPProxyServer(talk_base::SocketFactory *int_factory, 
     const talk_base::SocketAddress &int_addr);
 
 protected:
@@ -97,8 +94,6 @@ private:
   //Because the smart pointer maybe can't used as a normal parameter
   ///////////////////////////////////////////////////////////////////////////
   talk_base::scoped_ptr<talk_base::AsyncSocket> server_socket_;
-  talk_base::scoped_ptr<AsyncP2PSocket> p2p_socket_;
-  talk_base::scoped_ptr<ProxySocketManagement> proxy_socket_management_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RTSPProxyServer);
 };
@@ -107,21 +102,20 @@ private:
 class RTSPServerSocketStart : public ProxySocketBegin
 {
 public:
-  RTSPServerSocketStart(AsyncP2PSocket * p2p_socket,
-    talk_base::AsyncProxyServerSocket *int_socket);
+  RTSPServerSocketStart(talk_base::AsyncProxyServerSocket *int_socket);
 private:
   void OnRTSPConnection(const char *data, size_t len);
   void OnConnectRequest(talk_base::AsyncProxyServerSocket* socket,
     const talk_base::SocketAddress& addr);
-  virtual void OnP2PReceiveData(const char *data, uint16 len);
-  virtual void OnInternalRead(talk_base::AsyncSocket* socket);
+
+  virtual void ReadSocketDataToBuffer(talk_base::AsyncSocket *socket,
+    talk_base::FifoBuffer *buffer);
   //Some help function
 private:
-  enum RTSPProxyServerState{
-    RP_CLIENT_CONNCTED,RP_SEND_RTSP_CLIENT_CREATE_COMMAND,RP_SCUCCEED
-  } state_;
+  void ParseRTSP(char *data, size_t *len);
+  bool ConnectTheAddr(const std::string &server_ip);
+private:
   talk_base::AsyncProxyServerSocket *rtsp_socket_;
-  bool has_wait_data;
   DISALLOW_EVIL_CONSTRUCTORS(RTSPServerSocketStart);
 };
 

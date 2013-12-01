@@ -107,7 +107,8 @@ PeerConnectionIce::~PeerConnectionIce(){
   DestroyPeerConnectionIce();
 };
 
-void PeerConnectionIce::ConnectionToRemotePeer(int remote_peer_id)
+void PeerConnectionIce::ConnectionToRemotePeer(
+  ProxySocketBegin *proxy_socket_begin,int remote_peer_id)
 {
   LOG(LS_INFO) << "===" << __FUNCTION__;
   //initialize tunnel session client
@@ -119,9 +120,8 @@ void PeerConnectionIce::ConnectionToRemotePeer(int remote_peer_id)
   talk_base::StreamInterface *stream = tunnel_session_client_->CreateTunnel(
     remote_jid,DEFAULT_DECRIBE);
 
-  p2p_connection_management_->CreateP2PConnectionImplementator(remote_jid.Str(),
+  p2p_connection_management_->CreateProxyP2PSession(proxy_socket_begin,remote_jid.Str(),
     stream);
-  SignalStatesChange(STATES_ICE_START_PEER_CONNECTION);
 }
 
 void PeerConnectionIce::OnReceiveMessageFromRemotePeer(const std::string msg, 
@@ -183,7 +183,7 @@ void PeerConnectionIce::OnIncomingTunnel(cricket::TunnelSessionClient* client,
   LOG(LS_INFO) << "===" << __FUNCTION__;
   talk_base::StreamInterface *stream = client->AcceptTunnel(session);
 
-  p2p_connection_management_->CreateP2PConnectionImplementator(jid.Str(),
+  p2p_connection_management_->CreateProxyP2PSession(NULL,jid.Str(),
     stream);
 }
 

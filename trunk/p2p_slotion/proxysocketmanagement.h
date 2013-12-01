@@ -38,22 +38,31 @@
 
 #include "talk/base/socketadapters.h"
 #include "talk/base/stream.h"
+#include "defaults.h"
 //#include "proxyserverfactory.h"
 
 
 class SocketTableManagement;
-class AsyncP2PSocket;
 class P2PSystemCommandFactory;
+class P2PConnectionManagement;
+class ProxyP2PSession;
+class P2PConnectionImplementator;
 
 class ProxySocketBegin : public sigslot::has_slots<>
 {
 public:
-  ProxySocketBegin(AsyncP2PSocket *p2p_socket,
-    talk_base::AsyncSocket *int_socket);
+  ProxySocketBegin(talk_base::AsyncSocket *int_socket);
+
+  uint32 GetSocketNumber() const{return (uint32)(int_socket_.get());}
+
+  virtual bool StartConnect(const talk_base::SocketAddress& addr);
+  virtual void OnP2PPeerConnectSucceed(ProxyP2PSession *proxy_p2p_session);
+  virtual void OnP2PSocketConnectSucceed(ProxyP2PSession *proxy_p2p_session);
   //p2p socket signal function
-  virtual void OnP2PReceiveData(const char *data, uint16 len);
+  virtual void OnP2PRead(const char *data, uint16 len);
   bool IsMe(uint32 socket);
-  virtual void OnP2PWrite(AsyncP2PSocket *);
+  virtual void OnP2PWrite(talk_base::StreamInterface *stream);
+  virtual void OnP2PClose(talk_base::StreamInterface *stream);
 protected:
 
   //Internal Socket Signal function
@@ -69,46 +78,28 @@ protected:
   virtual void WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
     talk_base::FifoBuffer *buffer);
   virtual void WriteBufferDataToP2P(talk_base::FifoBuffer *buffer);
-private:
-  void ParseRTSP(char *data, size_t *len);
 protected:
+  enum{
+    SOCK_CLOSE,
+    SOCK_CONNECTED,
+    SOCK_CONNECT_PEER,
+    SOCK_PEER_CONNECT_SUCCEED,
+    SOCK_CONNECT_SERVER,
+  }int_socket_state_,p2p_socket_state_;
   static const int KBufferSize = 1024 * 64;
   talk_base::scoped_ptr<talk_base::AsyncSocket> int_socket_;
-  talk_base::scoped_ptr<AsyncP2PSocket> p2p_socket_;
   talk_base::FifoBuffer out_buffer_;
   talk_base::FifoBuffer in_buffer_;
 
   SocketTableManagement        *socket_table_management_;
   P2PSystemCommandFactory      *p2p_system_command_factory_;
-private:
+  P2PConnectionManagement      *p2p_connection_management_;
+  talk_base::SocketAddress      remote_peer_addr_;
+//private:
   bool                          internal_date_wait_receive_;
+  ProxyP2PSession              *proxy_p2p_session_;
+  P2PConnectionImplementator   *p2p_connection_implementator_;
   DISALLOW_EVIL_CONSTRUCTORS(ProxySocketBegin);
-};
-
-///////////////////////////////////////////////////////////////////////////
-//TODO:(GuangleiHe) TIME: 11/20/2013
-//Should implement P2PSocketFactory and inherit by SocketFactory
-//
-///////////////////////////////////////////////////////////////////////////
-class ProxySocketManagement
-{
-public:
-  ProxySocketManagement(){};
-  void OnReceiveP2PData(uint32 ,SocketType,const char *, uint16);
-  void RegisterProxySocket(uint32 local_socket, 
-    ProxySocketBegin *proxy_socket_begin);
-  const ProxySocketBegin* GetProxySocketBegin(uint32 local_socket);
-  bool  RunSocketProccess(uint32 socket, SocketType socket_type,
-    const char *data, uint16 len);
-
-  typedef std::map<uint32, ProxySocketBegin*> ProxySocketBeginMap;
-  void DestoryAll();
-private:
-  ProxySocketBeginMap proxy_socket_begin_map_;
-  P2PSystemCommandFactory      *p2p_system_command_factory_;
-  talk_base::Thread            *current_thread_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(ProxySocketManagement);
 };
 
 #endif

@@ -43,16 +43,21 @@
 #include "defaults.h"
 
 class SocketTableManagement;
-
-class MultiplexTunnelInterface{
-public:
-  virtual void OnReceiveMultiplexData(const char *data, uint16 len) = 0;
-  sigslot::signal4<uint32 ,SocketType,const char *, uint16> SignalSendDataToUpLayer;
-};
+class P2PConnectionImplementator;
+///////////////////////////////////////////////////////////////////////////
+//BUSINESS LOGIC NOTE (GuangleiHe, 12/1/2013)
+//There needs the patent class for DataMultiplexMachine and 
+//P2PConnectionImplementator
+///////////////////////////////////////////////////////////////////////////
+//class MultiplexTunnelInterface{
+//public:
+//  virtual void OnReceiveMultiplexData(const char *data, uint16 len) = 0;
+//  sigslot::signal4<uint32 ,SocketType,const char *, uint16> SignalSendDataToUpLayer;
+//};
 
 class DataMultiplexMachine{
 public:
-  DataMultiplexMachine(MultiplexTunnelInterface *multiplex_tunnel_interface);
+  DataMultiplexMachine(P2PConnectionImplementator *p2p_connection_implementator);
   ~DataMultiplexMachine();
   void PacketData(uint32 socket,SocketType socket_type,
     const char *data,uint16 len);
@@ -97,7 +102,7 @@ private:  // receive low layer process
 private:  // other
   SocketTableManagement *socket_table_management_;
 
-  MultiplexTunnelInterface *multiplex_tunnel_interface_;
+  P2PConnectionImplementator *p2p_connection_implementator_;
 };
 
 

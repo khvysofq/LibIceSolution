@@ -98,7 +98,8 @@ void SocketTableManagement::DeleteAllSockets(){
 uint32 SocketTableManagement::GetRemoteSocket(uint32 local_socket){
   SocketTableMap::iterator iter = local_socket_map_.find(local_socket);
   if(iter == local_socket_map_.end()){
-    LOG(LS_ERROR) << "Can't found remote socket in socket map";
+    LOG(LS_VERBOSE) << "Can't found remote socket in socket map, maybe this is\
+      p2p system command";
     return NON_SOCKET;
   }
   return iter->second->remote_socket_;

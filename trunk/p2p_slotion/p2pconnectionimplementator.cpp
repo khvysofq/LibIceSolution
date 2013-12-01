@@ -87,6 +87,7 @@ void P2PConnectionImplementator::OnStreamEvent(
     if(!is_connect_){
       std::cout << "Connected Succeed" << std::endl;
       is_connect_ = true;
+      SignalConnectSucceed(stream);
       return;
     }
     send_data_buffer_->SetNormalState();

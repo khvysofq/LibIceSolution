@@ -47,8 +47,7 @@ class AbstractVirtualNetwork;
 class SendDataBuffer;
 
 class P2PConnectionImplementator 
-  : public sigslot::has_slots<>,
-  public MultiplexTunnelInterface
+  : public sigslot::has_slots<>
 {
 public:
   explicit P2PConnectionImplementator(const std::string &remote_jid,
@@ -59,13 +58,16 @@ public:
   //
   virtual void Send(uint32,SocketType,const char*,uint16,
     size_t *);
-  virtual void OnReceiveMultiplexData(const char *data, uint16 len);
+  virtual void OnReceiveMultiplexData(const char *data, uint16 len); 
+  sigslot::signal4<uint32 ,SocketType,const char *, uint16> SignalStreamRead;
+  sigslot::signal1<talk_base::StreamInterface *> SignalStreamWrite;
+  sigslot::signal1<talk_base::StreamInterface *> SignalStreamClose;
+  sigslot::signal1<talk_base::StreamInterface *> SignalConnectSucceed;
 private:
   void OnStreamEvent(talk_base::StreamInterface* stream,
     int events,int error);
   //application layer
   
-  sigslot::signal1<talk_base::StreamInterface *> SignalStreamWrite;
   void OnReadStreamData(talk_base::StreamInterface *stream);
 private:
   static const int BUFFER_SIZE = 64 * 1024;

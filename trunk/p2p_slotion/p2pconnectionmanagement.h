@@ -44,6 +44,8 @@
 #include "p2pconnectionimplementator.h"
 
 class P2PSourceManagement;
+class ProxySocketBegin;
+class ProxyP2PSession;
 
 class P2PConnectionManagement : public sigslot::has_slots<>
 {
@@ -61,18 +63,24 @@ public:
   AbstractICEConnection *GetP2PICEConnection() const ;
   //When you call this function, you must be sure that the peer id 
   //is correct.
-  virtual int Connect(int peer_id);
+  virtual bool Connect(ProxySocketBegin *proxy_socket_begin,
+    const talk_base::SocketAddress& addr, ProxyP2PSession **proxy_p2p_session);
 
   //There
-  bool CreateP2PConnectionImplementator(const std::string &remote_jid,
-    talk_base::StreamInterface *stream);
+  //bool CreateP2PConnectionImplementator(const std::string &remote_jid,
+  //  talk_base::StreamInterface *stream);
+  
+  bool CreateProxyP2PSession(ProxySocketBegin *proxy_socket_begin,
+    const std::string &remote_jid,talk_base::StreamInterface *stream);
+
+  ProxyP2PSession *WhetherThePeerIsExisted(const std::string remote_peer_name);
 private:
   P2PConnectionImplementator *IsPeerConnected(int remote_peer_id);
   void OnStatesChange(StatesChangeType states_type);
 private:
 
-  typedef std::set<P2PConnectionImplementator *> P2PConnections;
-  P2PConnections      current_connect_peer_;
+  typedef std::set<ProxyP2PSession *> ProxyP2PSessions;
+  ProxyP2PSessions    proxy_p2p_sessions_;
   P2PSourceManagement *p2p_source_management_;
 
   AbstractICEConnection   *p2p_ice_connection_;

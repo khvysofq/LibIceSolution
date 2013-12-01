@@ -328,16 +328,17 @@ void P2PSourceManagement::ShowAllInfors(){
 
 //////////////////////////////////////////////////////////////////////////
 //For P2PConnectionManagement Interface
-int P2PSourceManagement::SreachPeerByServerResource(
+const std::string P2PSourceManagement::SreachPeerByServerResource(
   const talk_base::SocketAddress &addr)
 {
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++){
       if(SreachServerResource((*iter)->server_resources_,addr)){
-        return (*iter)->peer_id_;
+        return (*iter)->peer_jid_;
       }
   }
-  return 0;
+  LOG(LS_ERROR) << "Can't find this peer";
+  return std::string();
 }
 
 bool P2PSourceManagement::SreachServerResource(

@@ -87,7 +87,7 @@ public:
   }
 
   //P2PConnectionManagement interface
-  int SreachPeerByServerResource(
+  const std::string SreachPeerByServerResource(
     const talk_base::SocketAddress &addr);
   bool SreachServerResource(const ServerResources &server_resources, 
     const talk_base::SocketAddress& addr);

@@ -38,22 +38,23 @@
 #include "talk/base/thread.h"
 #include "proxysocketmanagement.h"
 #include "p2psystemcommand.h"
+#include "p2pconnectionmanagement.h"
+#include "proxyp2psession.h"
 
 
 //////////////////////////////////////////////////////////////////////////
 //Implement ProxySocketBegin
-ProxySocketBegin::ProxySocketBegin(AsyncP2PSocket *p2p_socket,
-                                   talk_base::AsyncSocket *int_socket)
+ProxySocketBegin::ProxySocketBegin(talk_base::AsyncSocket *int_socket)
                                    :int_socket_(int_socket),
-                                   p2p_socket_(p2p_socket),
+                                   p2p_connection_implementator_(NULL),
                                    out_buffer_(KBufferSize),
                                    in_buffer_(KBufferSize)
 {
   socket_table_management_ = SocketTableManagement::Instance();
   p2p_system_command_factory_ = P2PSystemCommandFactory::Instance();
+  p2p_connection_management_  = P2PConnectionManagement::Instance();
+
   internal_date_wait_receive_ = false;
-  p2p_socket_->SignalWriteEvent.connect(this,
-    &ProxySocketBegin::OnP2PWrite);
 
   int_socket_->SignalReadEvent.connect(this, &ProxySocketBegin::OnInternalRead);
   int_socket_->SignalWriteEvent.connect(this, &ProxySocketBegin::OnInternalWrite);
@@ -65,20 +66,24 @@ bool ProxySocketBegin::IsMe(uint32 socket){
   return ((uint32)int_socket_.get()) == socket;
 }
 
-void ProxySocketBegin::OnP2PReceiveData(const char *data, uint16 len){
+void ProxySocketBegin::OnP2PRead(const char *data, uint16 len){
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
 
   ReadP2PDataToBuffer(data,len,&in_buffer_);
   WriteBufferDataToSocket(int_socket_.get(),&in_buffer_);
 }
 
-void ProxySocketBegin::OnP2PWrite(AsyncP2PSocket *p2p_socket){
+void ProxySocketBegin::OnP2PWrite(talk_base::StreamInterface *stream){
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
   WriteBufferDataToP2P(&out_buffer_);
   if(internal_date_wait_receive_){
     ReadSocketDataToBuffer(int_socket_.get(),&out_buffer_);
     WriteBufferDataToP2P(&out_buffer_);
   }
+}
+
+void ProxySocketBegin::OnP2PClose(talk_base::StreamInterface *stream){
+  int_socket_->Close();
 }
 
 //ProxySocketBegin protected function
@@ -111,55 +116,11 @@ void ProxySocketBegin::ReadSocketDataToBuffer(talk_base::AsyncSocket *socket,
     internal_date_wait_receive_ = false;
     void* p = buffer->GetWriteBuffer(&size);
     read = socket->Recv(p, size);
-
-    if(strncmp(RTSP_HEADER,(const char *)p,RTSP_HEADER_LENGTH) == 0){
-      ParseRTSP((char *)p,(size_t *)&read);
-
-      for(int i = 0; i < read; i++){
-        std::cout <<((char*)p)[i];
-      }
-      std::cout << std::endl;
-    }
     buffer->ConsumeWriteBuffer(talk_base::_max(read, 0));
-
   }
   else {
     internal_date_wait_receive_ = true;
   }
-}
-
-void ProxySocketBegin::ParseRTSP(char *data, size_t *len){
-  size_t header_len = RTSP_HEADER_LENGTH;
-  size_t backlash_pos = 0;
-  size_t break_char_pos = 0;
-  char serverip[64];
-  size_t serverip_length = 0;
-
-  memset(serverip,0,64);
-
-  //1. Find backlash position and break char position
-  for(size_t i = header_len; i < *len; i++){
-    if(data[i] == RTSP_BACKLASH)
-      //add 1 because the / is no a member of server ip
-        backlash_pos = i + 1; 
-    if(data[i] == RTSP_BREAK_CHAR){
-      break_char_pos = i;
-      break;
-    }
-  }
-
-  //2. get the server ip and port
-  serverip_length = break_char_pos - backlash_pos;
-  strncpy(serverip,data + backlash_pos, serverip_length);
-  std::cout << serverip << std::endl;
-
-  serverip_length += 1;
-  //3. delete the server ip in the data
-  for(size_t i = break_char_pos + 1; i < *len; i++){
-    data[i - serverip_length] = data[i];
-    data[i] = 0;
-  }
-  *len -= serverip_length;
 }
 
 void ProxySocketBegin::ReadP2PDataToBuffer(const char *data, uint16 len,
@@ -188,97 +149,44 @@ void ProxySocketBegin::WriteBufferDataToP2P(talk_base::FifoBuffer *buffer){
   size_t size;
   size_t written = 0;
   const void* p = buffer->GetReadData(&size);
-  p2p_socket_->Send((uint32)int_socket_.get(),TCP_SOCKET,(const char *)p,size,&written);
+  p2p_connection_implementator_->Send((uint32)int_socket_.get(),
+    TCP_SOCKET,(const char *)p,size,&written);
   buffer->ConsumeReadData(written);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//Implement ProxySocketManagement
+bool ProxySocketBegin::StartConnect(const talk_base::SocketAddress& addr){
+  //remote_peer_addr_ = addr;
+  ASSERT(int_socket_state_ == SOCK_CONNECTED
+    && p2p_socket_state_ == SOCK_CLOSE);
 
-ProxySocketManagement::ProxySocketManagement(){
-  p2p_system_command_factory_ = P2PSystemCommandFactory::Instance();
-  current_thread_             = talk_base::Thread::Current();
-}
-
-void ProxySocketManagement::RegisterProxySocket(
-  uint32 local_socket, ProxySocketBegin *proxy_socket_begin)
-{
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
-  proxy_socket_begin_map_.insert(ProxySocketBeginMap::value_type(local_socket,
-    proxy_socket_begin));
-}
-
-
-
-///////////////////////////////////////////////////////////////////////////
-//TODO:(GuangleiHe) TIME: 11/20/2013
-//DestoryAll object at the proxy socket management.
-///////////////////////////////////////////////////////////////////////////
-void ProxySocketManagement::DestoryAll(){
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
-}
-
-const ProxySocketBegin *ProxySocketManagement::GetProxySocketBegin(
-  uint32 local_socket)
-{
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
-  ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(local_socket);
-  if(iter == proxy_socket_begin_map_.end()){
-    LOG(LS_ERROR) << "Can't find the object in the ProxySocketManagement";
-    return NULL;
+  p2p_socket_state_ = SOCK_CONNECT_PEER;
+  p2p_connection_management_->Connect(this,addr,&proxy_p2p_session_);
+  if(proxy_p2p_session_){
+    p2p_socket_state_ = SOCK_PEER_CONNECT_SUCCEED;
+    return true;
+    //Needs states change
   }
-  return iter->second;
+  return false;
 }
 
-bool ProxySocketManagement::RunSocketProccess(
-  uint32 socket, SocketType socket_type,const char *data, uint16 len)
-{  
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
-  ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(socket);
-  if(iter == proxy_socket_begin_map_.end()){
-    LOG(LS_ERROR) << "Can't Find the object in the ProxySocketManagement";
-    return false;
-  }
-  iter->second->OnP2PReceiveData(data,len);
-  return true;
-}
-
-void ProxySocketManagement::OnReceiveP2PData(uint32 socket, 
-                                             SocketType socket_type,
-                                             const char *data, uint16 len)
+void ProxySocketBegin::OnP2PPeerConnectSucceed(ProxyP2PSession 
+                                           *proxy_p2p_session)
 {
-  LOG(LS_INFO) << "---" << __FUNCTION__;
-  LOG(LS_INFO) << "-----------------------------";
-  LOG(LS_INFO) << "\t socket = " << socket;
-  LOG(LS_INFO) << "\t socket type = " << socket_type;
-  LOG(LS_INFO) << "\t data length = " << len;
-  LOG(LS_INFO) << "-----------------------------";
-  if(!RunSocketProccess(socket,socket_type,data,len))
-  {
-    //Not found the socket, it must be a system command that create a client socket.
-    LOG(LS_INFO) << "Create New Client Socket";
-    ///////////////////////////////////////////////////////////////////////////
-    //BUSINESS LOGIC NOTE (GuangleiHe, 11/28/2013)
-    //There didn't used P2PRTSPCommand to parse the data.
-    //P2PRTSPCommand only known by P2PSystemCommandFactory
-    ///////////////////////////////////////////////////////////////////////////
-    //Step 1. Parse the system command.
-    P2PRTSPCommand p2p_rtsp_command;
-    p2p_system_command_factory_->ParseCommand(&p2p_rtsp_command,data,len);
-    if(p2p_rtsp_command.p2p_system_command_type_ != P2P_SYSTEM_CREATE_RTSP_CLIENT){
-      LOG(LS_ERROR) << "Parse p2p system command error";
-      return ;
-    }
-    //Step 2. Create AsyncSocket object.
-    talk_base::AsyncSocket *int_socket 
-      = current_thread_->socketserver()->CreateAsyncSocket(SOCK_STREAM);
+  ASSERT(int_socket_state_ == SOCK_CONNECTED
+    && p2p_socket_state_ == SOCK_CONNECT_PEER);
+  //initialize p2p data tunnel
+  ASSERT(p2p_connection_implementator_ == NULL);
+  ASSERT(proxy_p2p_session_ == NULL);
+  proxy_p2p_session_ = proxy_p2p_session;
+  p2p_connection_implementator_ 
+    = proxy_p2p_session->GetP2PConnectionImplementator();
+  p2p_socket_state_ = SOCK_PEER_CONNECT_SUCCEED;
+  proxy_p2p_session_->CreateClientSocketConnection((uint32)int_socket_.get(),
+    remote_peer_addr_);
+}
 
-    //Step 3. Create server SocketAddress
-    talk_base::SocketAddress server_addr(p2p_rtsp_command.client_connection_ip_,
-      p2p_rtsp_command.client_connection_port_);
-
-    //Step 4. Create RTSPClient Socket
-    ProxyServerFactory::CreateRTSPClientSocket(this,
-      NULL,int_socket,p2p_rtsp_command.server_socket_,server_addr);
-  }
+void ProxySocketBegin::OnP2PSocketConnectSucceed(ProxyP2PSession *proxy_p2p_session){
+  ASSERT(int_socket_state_ == SOCK_CONNECTED
+    && p2p_socket_state_ == SOCK_PEER_CONNECT_SUCCEED);
+  p2p_socket_state_ = SOCK_CONNECTED;
 }

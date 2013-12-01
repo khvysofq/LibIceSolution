@@ -62,6 +62,11 @@ struct P2PRTSPCommand{
 const uint16 P2PRTSPCOMMAND_LENGTH 
   = sizeof(P2PRTSPCommand);
 
+///////////////////////////////////////////////////////////////////////////
+//TODO:(GuangleiHe) TIME: 12/1/2013
+//Remove the P2P System Command Factory to a normal class. every function in  
+//the class as a static function.
+///////////////////////////////////////////////////////////////////////////
 class P2PSystemCommandFactory
 {
 public:
@@ -77,8 +82,13 @@ public:
 
   void DeleteRTSPClientCommand(talk_base::ByteBuffer *data);
 
-  bool ParseCommand(P2PRTSPCommand *client_socket_command,
-    const char *data, uint16 len);
+  bool ParseCommand(const char *data, 
+    uint16 len,
+    uint32 *p2p_system_command_type,
+    uint32 *server_socket,
+    uint32 *client_socket,
+    uint32 *client_connection_ip,
+    uint16 *client_connection_port);
 
 private:
   static P2PSystemCommandFactory *p2p_system_command_factory_; 

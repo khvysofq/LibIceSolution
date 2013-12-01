@@ -35,60 +35,29 @@
 #include "proxyserverfactory.h"
 #include "asyncrtspproxysocketserver.h"
 #include "asyncrtspclientsocket.h"
-//////////////////////////////////////////////////////////////////////////
-AsyncP2PSocket::AsyncP2PSocket()
-  :has_data_(0)
-{
-  //virtual_network_->SignalStreamWrite.connect(this,
-  //  &AsyncP2PSocket::OnStreamWrite);
-}
-
-void AsyncP2PSocket::Send(uint32 socket, SocketType socket_type,
-                          const char *data, uint16 len, size_t *written)
-{
-  LOG(LS_INFO) << "6. " << __FUNCTION__;
-  if(len == 0)
-    return ;
-  size_t w = 0;
-  if(written)
-    *written = w;
-}
-
-size_t AsyncP2PSocket::GetAvalibeSendData(){
-  return MAX_SAVE_DATA_LEN - has_data_;
-}
-
-void AsyncP2PSocket::OnStreamWrite(talk_base::StreamInterface *stream){
-  LOG(LS_INFO) << __FUNCTION__;
-  SignalWriteEvent(this);
-}
+#include "proxyp2psession.h"
 
 
 //////////////////////////////////////////////////////////////////////////
 RTSPProxyServer *ProxyServerFactory::CreateRTSPProxyServer(
-  ProxySocketManagement *proxy_socket_management,
-  AsyncP2PSocket *p2p_socket,
   talk_base::SocketFactory *int_factory,
   const talk_base::SocketAddress &local_rtsp_addr)
 {
   LOG(LS_INFO) << "1. " << __FUNCTION__;
-  return new RTSPProxyServer(proxy_socket_management,
-    p2p_socket,int_factory,local_rtsp_addr);
+  return new RTSPProxyServer(int_factory,local_rtsp_addr);
 }
 
 RTSPClientSocket* ProxyServerFactory::CreateRTSPClientSocket(
-  ProxySocketManagement *proxy_socket_management,
-  AsyncP2PSocket *p2p_socket,
+  ProxyP2PSession *proxy_p2p_session,
   talk_base::AsyncSocket *int_socket,
   uint32 server_socket_number,
   const talk_base::SocketAddress &server_rtsp_addr)
 {
   RTSPClientSocket *rtsp_client_socket = 
-    new RTSPClientSocket(p2p_socket,int_socket,
+    new RTSPClientSocket(int_socket,
     server_socket_number,server_rtsp_addr);
 
-  proxy_socket_management->RegisterProxySocket((uint32)int_socket,
-    rtsp_client_socket);
+  proxy_p2p_session->RegisterProxySocket(rtsp_client_socket);
 
   return rtsp_client_socket;
 }

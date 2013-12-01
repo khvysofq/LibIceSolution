@@ -75,6 +75,9 @@
     <ClInclude Include="datamultiplexmachine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="proxyp2psession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -138,6 +141,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="datamultiplexmachine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="proxyp2psession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

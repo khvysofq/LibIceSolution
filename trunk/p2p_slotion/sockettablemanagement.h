@@ -50,6 +50,11 @@ struct SocketTable{
   SocketType socket_type_;
 };
 
+///////////////////////////////////////////////////////////////////////////
+//TODO:(GuangleiHe) TIME: 12/1/2013
+//remove the socket table management to a normal class. Not a singleton 
+//pattern. Because, each proxy session has it own socket table.
+///////////////////////////////////////////////////////////////////////////
 class SocketTableManagement
 {
 public:

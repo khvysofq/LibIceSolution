@@ -44,6 +44,7 @@
 #include "p2psourcemanagement.h"
 #include "p2pconnectionmanagement.h"
 #include "p2pserverconnectionmanagement.h"
+#include "proxyserverfactory.h"
 
 
 static const int TEST_SEND_BUFFER   = 4096;
@@ -94,31 +95,19 @@ void P2PUserClient::Initiatlor(){
   p2p_server_connection_management_->SetIceDataTunnel(
     p2p_connection_management_->GetP2PICEConnection());
 
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 
 void P2PUserClient::StartRun(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
   p2p_server_connection_management_->SignInP2PServer(ServerAddr);
-  //p2p_server_connection_->set_server_address(ServerAddr);
-  //p2p_server_connection_->SignInP2PServer();
+  ProxyServerFactory::CreateRTSPProxyServer(signal_thread_->socketserver(),
+    KLocalRTSPServer);
 }
 
 void P2PUserClient::ConnectionToPeer(int peer_id){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
-  p2p_connection_management_->Connect(peer_id);
+  //p2p_connection_management_->Connect(peer_id);
 }
 
 void P2PUserClient::Destory(){

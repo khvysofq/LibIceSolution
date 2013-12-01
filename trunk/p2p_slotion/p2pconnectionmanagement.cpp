@@ -36,6 +36,8 @@
 #include "p2pconnectionmanagement.h"
 #include "p2psourcemanagement.h"
 #include "peer_connection_ice.h"
+#include "proxyp2psession.h"
+#include "proxysocketmanagement.h"
 
 //////////////////////////////////////////////////////////////////////////
 //Singleton Pattern Function
@@ -61,58 +63,97 @@ void P2PConnectionManagement::Initialize(
 
   p2p_ice_connection_ = new PeerConnectionIce(worker_thread_,signal_thread_);
 
-  p2p_ice_connection_->SignalStatesChange.connect(this,
-    &P2PConnectionManagement::OnStatesChange);
 }
 
-int P2PConnectionManagement::Connect(int peer_id){
+bool P2PConnectionManagement::Connect(ProxySocketBegin *proxy_socket_begin,
+                                     const talk_base::SocketAddress& addr,
+                                     ProxyP2PSession **proxy_p2p_session)
+{
+  //1. Find the peer id by resource server address
+  std::string remote_peer_name = 
+    p2p_source_management_->SreachPeerByServerResource(addr);
+  if(remote_peer_name.empty())
+    return false;
 
-  p2p_ice_connection_->ConnectionToRemotePeer(peer_id);
+  //2. Whether the peer is connected
+  *proxy_p2p_session = WhetherThePeerIsExisted(remote_peer_name);
+  
+  //Existed
+  if(*proxy_p2p_session){
+    return true;
+  }
 
-  ////0. Get the instance of the P2PSourceManagement
-  //p2p_source_management_ = P2PSourceManagement::Instance();
+  //else
+  int remote_peer_id = 
+    p2p_source_management_->GetRemotePeerIdByPeerName(remote_peer_name);
 
-  ////1. whether the peer exists.
-  //int peer_id = p2p_source_management_->SreachPeerByServerResource(addr);
-  //if(peer_id == 0){
-  //  LOG(LS_ERROR) << "Can't found the server addr";
-  //  return -1;
-  //}
-  ////2. Whether the peer is connected.
-  ////3. The Connection peer resource manage by P2P Resource management
-  //AbstractVirtualNetwork *virtual_network = IsPeerConnected(peer_id);
-  //if(!virtual_network){
-  //  LOG(LS_VERBOSE) << "The Peer Can't connected";
-  //}
-  ////3. Create new connect request
+  //connect this peer
+  p2p_ice_connection_->ConnectionToRemotePeer(proxy_socket_begin,remote_peer_id);
 
-  ////4. return the virtual network object.
-  return 0;
+  return true;
+}
+
+ProxyP2PSession *P2PConnectionManagement::WhetherThePeerIsExisted(
+  const std::string remote_peer_name)
+{
+  for(ProxyP2PSessions::iterator iter = proxy_p2p_sessions_.begin();
+    iter != proxy_p2p_sessions_.end(); iter++)
+  {
+    if((*iter)->IsMe(remote_peer_name))
+      return (*iter);
+  }
+  return NULL;
 }
 
 AbstractICEConnection *P2PConnectionManagement::GetP2PICEConnection() const{
   return p2p_ice_connection_;
 }
 
-bool P2PConnectionManagement::CreateP2PConnectionImplementator(
-  const std::string &remote_jid,talk_base::StreamInterface *stream)
+bool P2PConnectionManagement::CreateProxyP2PSession(
+  ProxySocketBegin *proxy_socket_begin,const std::string &remote_jid,
+  talk_base::StreamInterface *stream)
 {
-  //1. Find is connected
-  for(P2PConnections::iterator iter = current_connect_peer_.begin();
-    iter != current_connect_peer_.end(); iter++){
-    if((*iter)->IsMe(remote_jid)){
-      LOG(LS_ERROR) << "The remote peer is connected, you didn't create.";
-      return false;
-    }
+  //1. Check the connection is existed.
+  ProxyP2PSession *proxy_p2p_session = WhetherThePeerIsExisted(
+    remote_jid);
+  if(proxy_p2p_session){
+    LOG(LS_WARNING) << "The peer is existed";
+    if(proxy_socket_begin)
+      proxy_socket_begin->OnP2PPeerConnectSucceed(proxy_p2p_session);
+    return false;
   }
 
-  P2PConnectionImplementator *p2p_connection =
+  //2. create p2p connection implementator
+  P2PConnectionImplementator *p2p_connection_implementator =
     new P2PConnectionImplementator(remote_jid,stream);
 
-  current_connect_peer_.insert(p2p_connection);
+  //3. create proxy p2p session
+  proxy_p2p_session = new ProxyP2PSession(p2p_connection_implementator);
 
+  //4. Then add this proxy p2p session to ProxyP2PSessions
+  proxy_p2p_sessions_.insert(proxy_p2p_session);
   return true;
 }
+
+//bool P2PConnectionManagement::CreateP2PConnectionImplementator(
+//  const std::string &remote_jid,talk_base::StreamInterface *stream)
+//{
+//  //1. Find is connected
+//  for(P2PConnections::iterator iter = current_connect_peer_.begin();
+//    iter != current_connect_peer_.end(); iter++){
+//    if((*iter)->IsMe(remote_jid)){
+//      LOG(LS_ERROR) << "The remote peer is connected, you didn't create.";
+//      return false;
+//    }
+//  }
+//
+//  P2PConnectionImplementator *p2p_connection =
+//    new P2PConnectionImplementator(remote_jid,stream);
+//
+//  current_connect_peer_.insert(p2p_connection);
+//
+//  return true;
+//}
 
 
 P2PConnectionImplementator *P2PConnectionManagement::IsPeerConnected(

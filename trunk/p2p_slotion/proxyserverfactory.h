@@ -49,22 +49,7 @@
 class RTSPProxyServer;
 class ProxySocketManagement;
 class RTSPClientSocket;
-
-class AsyncP2PSocket : public sigslot::has_slots<>
-{
-public:
-  AsyncP2PSocket();
-  virtual void Send(uint32 socket, SocketType socket_type,
-    const char *data, uint16 len,size_t *written);
-  size_t GetAvalibeSendData();
-  sigslot::signal1<AsyncP2PSocket *> SignalWriteEvent;
-  sigslot::signal1<AsyncP2PSocket *> SignalCloseEvent;
-  void OnStreamWrite(talk_base::StreamInterface *);
-private:
-  static const size_t MAX_SAVE_DATA_LEN = 1024 * 64;
-  size_t              has_data_;
-  DISALLOW_EVIL_CONSTRUCTORS(AsyncP2PSocket);
-};
+class ProxyP2PSession;
 
 
 class ProxyServerFactory
@@ -76,14 +61,11 @@ public:
   //To manage the servers that to release those server together.
   ///////////////////////////////////////////////////////////////////////////
   static RTSPProxyServer *CreateRTSPProxyServer(
-    ProxySocketManagement *proxy_socket_management,
-    AsyncP2PSocket *p2p_socket,
     talk_base::SocketFactory *int_factory,
     const talk_base::SocketAddress &local_rtsp_addr);
 
   static RTSPClientSocket *CreateRTSPClientSocket(
-    ProxySocketManagement *proxy_socket_management,
-    AsyncP2PSocket *p2p_socket,
+    ProxyP2PSession *proxy_p2p_session,
     talk_base::AsyncSocket *int_socket,
     uint32 server_socket_number,
     const talk_base::SocketAddress &server_rtsp_addr);

@@ -36,17 +36,16 @@
 #include "talk/base/logging.h"
 
 #include "asyncp2ppackagesocket.h"
-#include "mediator_pattern.h"
+#include "p2pconnectionmanagement.h"
 
 
 //Our function
-AsyncP2PPackageSocket::AsyncP2PPackageSocket(
-  AbstractVirtualNetwork *virtual_network)
-  :virtual_network_(virtual_network),
-  connect_state_(CS_CLOSED),
+AsyncP2PPackageSocket::AsyncP2PPackageSocket()
+  :connect_state_(CS_CLOSED),
   partner_socket_(NULL),
   partner_socket_type_(TCP_SOCKET)
 {
+  p2p_connection_management_ = P2PConnectionManagement::Instance();
   //SignalSendDataToLowLayer.connect(virtual_network_,
   //  &AbstractVirtualNetwork::OnReceiveDataFromUpLayer);
 }
@@ -101,6 +100,10 @@ int AsyncP2PPackageSocket::Connect(const talk_base::SocketAddress& addr){
     return SOCKET_ERROR;
   }
   remote_addr_ = addr;
+  connect_state_ = CS_CONNECTING;
+
+
+
   return 0;
 }
 

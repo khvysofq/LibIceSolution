@@ -41,15 +41,13 @@
 #include "talk/base/sigslot.h"
 #include "talk/base/scoped_ptr.h"
 
-#include "mediator_pattern.h"
 #include "proxysocketmanagement.h"
 
 
 class RTSPClientSocket : public ProxySocketBegin
 {
 public:
-  explicit RTSPClientSocket(AsyncP2PSocket * p2p_socket,
-    talk_base::AsyncSocket *int_socket,
+  explicit RTSPClientSocket(talk_base::AsyncSocket *int_socket,
     uint32 server_socket_number,
     const talk_base::SocketAddress &server_addr);
 private:

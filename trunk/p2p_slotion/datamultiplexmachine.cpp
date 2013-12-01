@@ -37,10 +37,11 @@
 
 #include "networkbytebuffer.h"
 #include "sockettablemanagement.h"
+#include "p2pconnectionimplementator.h"
 
 DataMultiplexMachine::DataMultiplexMachine(
-  MultiplexTunnelInterface *multiplex_tunnel_interface)
-  :multiplex_tunnel_interface_(multiplex_tunnel_interface)
+  P2PConnectionImplementator *p2p_connection_implementator)
+  :p2p_connection_implementator_(p2p_connection_implementator)
 {
 
   send_network_header_ = new NetworkHeader();
@@ -87,7 +88,7 @@ void DataMultiplexMachine::PacketData(
   //layer). For this reason we set the data length is zero to indicate this is
   //a network header data.
   ///////////////////////////////////////////////////////////////////////////
-  multiplex_tunnel_interface_->OnReceiveMultiplexData(
+  p2p_connection_implementator_->OnReceiveMultiplexData(
     send_byte_buffer_->Data(),0);
 
   ///////////////////////////////////////////////////////////////////////////
@@ -99,7 +100,7 @@ void DataMultiplexMachine::PacketData(
   send_byte_buffer_->Clear();
 
   //4. send the relay data to low layer
-  multiplex_tunnel_interface_->OnReceiveMultiplexData(data,len);
+  p2p_connection_implementator_->OnReceiveMultiplexData(data,len);
 }
 
 void DataMultiplexMachine::UnpackData(char *data, uint16 len){
@@ -245,7 +246,7 @@ void DataMultiplexMachine::UnpackData(char *data, uint16 len){
           network_byte_buffer.ReadBytes(&receive_low_buffer_[receive_current_len_],
             receive_network_header_->data_len_ - receive_current_len_);
 
-          multiplex_tunnel_interface_->SignalSendDataToUpLayer(
+          p2p_connection_implementator_->SignalStreamRead(
             receive_network_header_->local_socket_,
             receive_network_header_->socket_type_,receive_low_buffer_,
             receive_network_header_->data_len_);

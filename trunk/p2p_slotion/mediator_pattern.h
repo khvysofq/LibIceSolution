@@ -7,7 +7,7 @@
 #include "talk/base/stream.h"
 
 #include "defaults.h"
-
+class ProxySocketBegin;
 typedef std::map<int,std::string> Peers;
 
 ////////////////////////////////////////////////////////////////////////
@@ -60,11 +60,9 @@ public:
   };
   /////////////////////////////////////////////////////////
   //user interface 
-  sigslot::signal1<StatesChangeType>  SignalStatesChange;
-  sigslot::signal1<talk_base::StreamInterface *> SignalStreamWrite;
-
   virtual void DestroyPeerConnectionIce() = 0;
-  virtual void ConnectionToRemotePeer(int remote_peer_id) = 0;
+  virtual void ConnectionToRemotePeer(ProxySocketBegin *proxy_socket_begin,
+    int remote_peer_id) = 0;
   /////////////////////////////////////////////////////////
   //ice to p2p server interface
   virtual void OnReceiveMessageFromRemotePeer(const std::string,int)  = 0;

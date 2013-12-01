@@ -104,9 +104,12 @@ void P2PSystemCommandFactory::DeleteRTSPClientCommand(talk_base::ByteBuffer *dat
   delete data;
 }
 
-bool P2PSystemCommandFactory::ParseCommand(
-  P2PRTSPCommand *client_socket_command,const char *data,
-  uint16 len)
+bool P2PSystemCommandFactory::ParseCommand(const char *data, uint16 len,
+                                           uint32 *p2p_system_command_type,
+                                           uint32 *server_socket,
+                                           uint32 *client_socket,
+                                           uint32 *client_connection_ip,
+                                           uint16 *client_connection_port)
 {
   if(len != P2PRTSPCOMMAND_LENGTH){
     LOG(LS_ERROR) << "\t The length of data is not expected length";
@@ -114,22 +117,23 @@ bool P2PSystemCommandFactory::ParseCommand(
   }
   talk_base::ByteBuffer byte_buffer(data,len);
 
+  uint32 p2p_system_command_ide;
+  uint16 padding_byte;
   //
-  byte_buffer.ReadUInt32(&client_socket_command->p2p_system_command_ide_);
-  if(client_socket_command->p2p_system_command_ide_ 
-    != P2P_SYSTEM_COMMAND_IDE){
+  byte_buffer.ReadUInt32(&p2p_system_command_ide);
+  if(p2p_system_command_ide != P2P_SYSTEM_COMMAND_IDE){
       LOG(LS_ERROR) << "\t The P2P P2P_SYSTEM_COMMAND_IDE error " 
-        << client_socket_command->p2p_system_command_ide_;
+        << p2p_system_command_ide;
       return false;
   }
 
-  byte_buffer.ReadUInt32(&client_socket_command->p2p_system_command_type_);
-  byte_buffer.ReadUInt32(&client_socket_command->server_socket_);
-  byte_buffer.ReadUInt32(&client_socket_command->client_socket_);
-  byte_buffer.ReadUInt32(&client_socket_command->client_connection_ip_);
-  byte_buffer.ReadUInt16(&client_socket_command->client_connection_port_);
-  byte_buffer.ReadUInt16(&client_socket_command->padding_byte_);
-  if(client_socket_command->padding_byte_ != P2P_SYSTEM_COMMAND_PADDING_BYTE)
+  byte_buffer.ReadUInt32(p2p_system_command_type);
+  byte_buffer.ReadUInt32(server_socket);
+  byte_buffer.ReadUInt32(client_socket);
+  byte_buffer.ReadUInt32(client_connection_ip);
+  byte_buffer.ReadUInt16(client_connection_port);
+  byte_buffer.ReadUInt16(&padding_byte);
+  if(padding_byte != P2P_SYSTEM_COMMAND_PADDING_BYTE)
   {
     LOG(LS_ERROR) << "the padding_byte is error";
     return false;

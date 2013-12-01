@@ -39,14 +39,14 @@
 #include "talk/base/asyncsocket.h"
 
 typedef uint16 SocketType;
-class AbstractVirtualNetwork;
+class P2PConnectionManagement;
 
 class AsyncP2PPackageSocket 
   : public talk_base::AsyncSocket,
   public sigslot::has_slots<>
 {
  public:
-   AsyncP2PPackageSocket(AbstractVirtualNetwork *virtual_network);
+   AsyncP2PPackageSocket();
 
    sigslot::signal5<uint32,SocketType,const char*,uint16,
      size_t *> SignalSendDataToLowLayer;
@@ -59,12 +59,12 @@ class AsyncP2PPackageSocket
 
    // Returns the address to which the socket is bound.  If the socket is not
    // bound, then the any-address is returned.
-   //Local address is the local peer address and port
+   // Local address is the local peer address and port
    virtual talk_base::SocketAddress GetLocalAddress();
 
    // Returns the address to which the socket is connected.  If the socket is
    // not connected, then the any-address is returned.
-   //remote address is the relay connect address, not the remote peer address
+   // remote address is the relay connect address, not the remote peer address
    virtual talk_base::SocketAddress GetRemoteAddress();
 
    //IEEE Std 1003.1
@@ -128,12 +128,12 @@ class AsyncP2PPackageSocket
 
 private:
   int error_;
-  AbstractVirtualNetwork    *virtual_network_;
   ConnState                 connect_state_;
   talk_base::SocketAddress  remote_addr_;
   talk_base::SocketAddress  local_addr_;
   talk_base::AsyncSocket    *partner_socket_;
   SocketType                partner_socket_type_;
+  P2PConnectionManagement   *p2p_connection_management_;
 };
 
 

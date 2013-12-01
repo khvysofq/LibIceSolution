@@ -46,6 +46,7 @@
 class SendDataBuffer;
 class P2PSourceManagement;
 class P2PConnectionManagement;
+class ProxySocketBegin;
 
 
 class PeerConnectionIce
@@ -56,7 +57,8 @@ public:     //user interface
   PeerConnectionIce(talk_base::Thread *worker_thread,
     talk_base::Thread *signal_thread);
   ~PeerConnectionIce();
-  void ConnectionToRemotePeer(int remote_peer_id);
+  void ConnectionToRemotePeer(ProxySocketBegin *proxy_socket_begin,
+    int remote_peer_id);
 
 private:    //p2p server function and some help function
   void DestroyPeerConnectionIce();
