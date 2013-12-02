@@ -37,7 +37,7 @@ static const char RANDOM_BASE64[64] = {
   'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
   'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '_'
+  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '0'
 };
 
 //////////////////////////////////////////////////////////
@@ -83,13 +83,13 @@ const int NETWORKHEADER_LENGTH = sizeof(NetworkHeader);
 //////////////////////////////////////////////////////////
 //ICE help define
 const std::string HTTP_USER_AGENT     = "HTTP_USER_AGENT";
-const std::string JID_DEFAULT_DOMAIN  = "@Test.com/p2p";
-const std::string DEFAULT_DECRIBE    = "p2p solution test";
+const std::string JID_DEFAULT_DOMAIN  = "@vzenith.com/p2p";
+const std::string DEFAULT_DECRIBE     = "p2p solution test";
 
 //virtual network layer help define
-const int NON_SOCKET                =  0;
-const SocketType          TCP_SOCKET = 1;
-const SocketType          UDP_SOCKET = 2;
+const int NON_SOCKET                 =  0;
+const SocketType          TCP_SOCKET =  1;
+const SocketType          UDP_SOCKET =  2;
 
 std::string GetEnvVarOrDefault(const char* env_var_name,
                                const char* default_value);

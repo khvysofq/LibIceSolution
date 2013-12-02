@@ -65,6 +65,9 @@ public:
   //is correct.
   virtual bool Connect(ProxySocketBegin *proxy_socket_begin,
     const talk_base::SocketAddress& addr, ProxyP2PSession **proxy_p2p_session);
+  virtual bool ConnectBySourceIde(ProxySocketBegin *proxy_socket_begin,
+    const std::string &source_id, ProxyP2PSession **proxy_p2p_session,
+    talk_base::SocketAddress *addr);
 
   //There
   //bool CreateP2PConnectionImplementator(const std::string &remote_jid,

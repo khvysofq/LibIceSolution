@@ -48,6 +48,8 @@ static const int P2P_SYSTEM_COMMAND_PADDING_BYTE= 0XFF;
 
 const int P2P_SYSTEM_CREATE_RTSP_CLIENT         = 1;
 const int P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED = 2;
+const int P2P_SYSTEM_SERVER_SOCKET_CLOSE        = 3;
+const int P2P_SYSTEM_CLIENT_SOCKET_CLOSE        = 4;
 struct P2PRTSPCommand{
   uint32 p2p_system_command_ide_;
   uint32 p2p_system_command_type_;
@@ -75,12 +77,22 @@ public:
 
   bool IsP2PSystemCommand(const char *data, int len);
 
+  ///////////////////////////////////////////////////////////////////////////
+  //TODO:(GuangleiHe) TIME: 12/2/2013
+  //the name of this function is same in ProxySocketFactory, change it.
+  ///////////////////////////////////////////////////////////////////////////
   talk_base::ByteBuffer *CreateRTSPClientSocket(
     uint32 socket,const talk_base::SocketAddress &addr);
   talk_base::ByteBuffer *ReplyRTSPClientSocketSucceed(uint32 server_socket,
     uint32 client_socket);
+  talk_base::ByteBuffer *RTSPServerSocketClose(uint32 server_socket,
+    uint32 client_socket);
+  talk_base::ByteBuffer *RTSPClientSocketClose(uint32 server_socket,
+    uint32 client_socket);
+
 
   void DeleteRTSPClientCommand(talk_base::ByteBuffer *data);
+
 
   bool ParseCommand(const char *data, 
     uint16 len,

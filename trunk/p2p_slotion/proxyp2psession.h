@@ -65,13 +65,15 @@ public:
   //p2p system management
   void CreateClientSocketConnection(uint32 socket,
     const talk_base::SocketAddress& addr);
-  void ReplayClientSocketCreateSucceed(uint32 client_socket, 
-    uint32 server_socket,const talk_base::SocketAddress &addr);
+  void ReplayClientSocketCreateSucceed(uint32 server_socket, 
+    uint32 client_socket,const talk_base::SocketAddress &addr);
+  void P2PServerSocketClose(uint32 server_socket);
+  void P2PClientSocketClose(uint32 client_socket);
 
 private:
   //p2p system management
   bool ProceesSystemCommand(const char *data, uint16 len);
-  
+  void CloseP2PSocket(uint32 socket);
   //
   bool  RunSocketProccess(uint32 socket, SocketType socket_type,
     const char *data, uint16 len);

@@ -46,25 +46,25 @@
 const std::string SERVER_NAME           = "SERVER_NAME";
 const std::string SERVER_IP             = "SERVER_IP";
 const std::string SERVER_PORT           = "SERVER_PORT";
-const std::string SOURCE_TYPE           = "SOURCE_TYPE";
+const std::string SOURCE_IDE            = "SOURCE_IDE";
 const std::string PEER_JID              = "PEER_JID";
 const std::string SERVER_RESOURCE_ARRAY = "SERVER_RESOURCE_ARRAY";
 
 struct ServerResource{
 
   ServerResource():server_name_(""),server_ip_(""),server_port_(0),
-    server_type_(""){}
+    server_ide_(""){}
 
   ServerResource(const std::string &server_name,
     const std::string &server_ip, int server_port,
-    const std::string &server_type)
+    const std::string &server_ide)
     :server_name_(server_name),server_ip_(server_ip),
-    server_port_(server_port),server_type_(server_type){}
+    server_port_(server_port),server_ide_(server_ide){}
 
   std::string server_name_;
   std::string server_ip_;
   int         server_port_;
-  std::string server_type_;
+  std::string server_ide_;
 };
 typedef std::set<ServerResource* > ServerResources;
 
@@ -89,12 +89,18 @@ public:
   //P2PConnectionManagement interface
   const std::string SreachPeerByServerResource(
     const talk_base::SocketAddress &addr);
-  bool SreachServerResource(const ServerResources &server_resources, 
+  const ServerResource *SreachPeerBySourceIde(const std::string &source_ide,
+    std::string *remote_peer_name);
+
+  bool SreachServerResourceByAddr(const ServerResources &server_resources, 
     const talk_base::SocketAddress& addr);
+  const ServerResource *SreachServerResourceByIde(
+    const ServerResources &server_resources, const std::string &source_ide);
 
 
   //This is remote peer resource update function.
   //Those are call back function called by p2p_connection_server
+  //
   //OnOnlinePeers will be call at the first login p2p server
   void OnOnlinePeers(const PeerInfors &peers);
   //OnAPeerLogin called at a new peer login p2p server

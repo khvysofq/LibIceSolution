@@ -43,18 +43,19 @@
 
 #include "proxysocketmanagement.h"
 
+class ProxyP2PSession;
 
 class RTSPClientSocket : public ProxySocketBegin
 {
 public:
-  explicit RTSPClientSocket(talk_base::AsyncSocket *int_socket,
+  explicit RTSPClientSocket(ProxyP2PSession *proxy_p2p_session,
+    talk_base::AsyncSocket *int_socket,
     uint32 server_socket_number,
     const talk_base::SocketAddress &server_addr);
 private:
   void OnInternalConnect(talk_base::AsyncSocket* socket);
 
 private:
-  bool                        connected_;
   uint32                       server_socket_number_;
   DISALLOW_EVIL_CONSTRUCTORS(RTSPClientSocket);
 };

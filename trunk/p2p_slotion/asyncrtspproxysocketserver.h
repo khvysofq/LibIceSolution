@@ -69,7 +69,8 @@ public:
   explicit AsyncRTSPProxyServerSocket(talk_base::AsyncSocket* socket);
 private:
   virtual void ProcessInput(char* data, size_t* len);
-  virtual void SendConnectResult(int result, const talk_base::SocketAddress& addr);
+  virtual void SendConnectResult(int result, 
+    const talk_base::SocketAddress& addr);
 
   static const int KBufferSize = 64 * 1024;
   
@@ -113,9 +114,13 @@ private:
   //Some help function
 private:
   void ParseRTSP(char *data, size_t *len);
+  void ParseRTSPGetSourceName(char *data, size_t *len);
+
   bool ConnectTheAddr(const std::string &server_ip);
+  bool ConnectTheSource(const std::string &source_ide);
 private:
   talk_base::AsyncProxyServerSocket *rtsp_socket_;
+  bool                              is_connect_;
   DISALLOW_EVIL_CONSTRUCTORS(RTSPServerSocketStart);
 };
 

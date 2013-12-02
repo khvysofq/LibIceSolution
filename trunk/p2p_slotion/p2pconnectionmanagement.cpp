@@ -93,6 +93,42 @@ bool P2PConnectionManagement::Connect(ProxySocketBegin *proxy_socket_begin,
   return true;
 }
 
+bool P2PConnectionManagement::ConnectBySourceIde(ProxySocketBegin *proxy_socket_begin,
+                                                 const std::string &source_id, 
+                                                 ProxyP2PSession **proxy_p2p_session,
+                                                 talk_base::SocketAddress *addr)
+{
+  //1. Find the peer id by resource server address
+  std::string remote_peer_name;
+  const ServerResource * res = 
+    p2p_source_management_->SreachPeerBySourceIde(source_id,&remote_peer_name);
+  if(!res)
+    return false;
+  if(!addr){
+    LOG(LS_ERROR) << "the socket address can't set empty";
+    return false;
+  }
+  addr->SetIP(res->server_ip_);
+  addr->SetPort(res->server_port_);
+
+  //2. Whether the peer is connected
+  *proxy_p2p_session = WhetherThePeerIsExisted(remote_peer_name);
+
+  //Existed
+  if(*proxy_p2p_session){
+    return true;
+  }
+
+  //else
+  int remote_peer_id = 
+    p2p_source_management_->GetRemotePeerIdByPeerName(remote_peer_name);
+
+  //connect this peer
+  p2p_ice_connection_->ConnectionToRemotePeer(proxy_socket_begin,remote_peer_id);
+
+  return true;
+}
+
 ProxyP2PSession *P2PConnectionManagement::WhetherThePeerIsExisted(
   const std::string remote_peer_name)
 {
@@ -130,7 +166,15 @@ bool P2PConnectionManagement::CreateProxyP2PSession(
   //3. create proxy p2p session
   proxy_p2p_session = new ProxyP2PSession(p2p_connection_implementator);
 
-  //4. Then add this proxy p2p session to ProxyP2PSessions
+  //4. register this proxy
+  ///////////////////////////////////////////////////////////////////////////
+  //BUSINESS LOGIC NOTE (GuangleiHe, 12/2/2013)
+  //
+  ///////////////////////////////////////////////////////////////////////////
+  if(proxy_socket_begin)
+    proxy_p2p_session->RegisterProxySocket(proxy_socket_begin);
+
+  //5. Then add this proxy p2p session to ProxyP2PSessions
   proxy_p2p_sessions_.insert(proxy_p2p_session);
   return true;
 }

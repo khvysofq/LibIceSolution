@@ -38,6 +38,7 @@
 #include "p2psystemcommand.h"
 #include "proxyserverfactory.h"
 #include "p2pconnectionimplementator.h"
+#include "sockettablemanagement.h"
 
 
 ProxyP2PSession::ProxyP2PSession(P2PConnectionImplementator 
@@ -96,7 +97,7 @@ bool ProxyP2PSession::RunSocketProccess(
     LOG(LS_ERROR) << "Can't Find the object in the ProxySocketManagement";
     return false;
   }
-  //iter->second->OnP2PReceiveData(data,len);
+  iter->second->OnP2PRead(data,len);
   return true;
 }
 
@@ -144,16 +145,13 @@ void ProxyP2PSession::OnConnectSucceed(talk_base::StreamInterface *stream){
   }
 }
 
-
-
 //////////////////////////////////////////////////////////////////////////
 //P2P System command management
 void ProxyP2PSession::CreateClientSocketConnection(
   uint32 socket,const talk_base::SocketAddress& addr)
 {
-  socket_table_management_->AddNewLocalSocket(socket,
-    socket,TCP_SOCKET);
 
+  LOG(LS_INFO) << __FUNCTION__ << addr.ToString();
   //Generate system command that create RTSP client
   talk_base::ByteBuffer *create_rtsp_client_command =
     p2p_system_command_factory_->CreateRTSPClientSocket(socket,addr);
@@ -175,11 +173,14 @@ void ProxyP2PSession::CreateClientSocketConnection(
   p2p_system_command_factory_->DeleteRTSPClientCommand(create_rtsp_client_command);
 }
 
-void ProxyP2PSession::ReplayClientSocketCreateSucceed(uint32 client_socket, uint32 server_socket,
-                                                      const talk_base::SocketAddress &addr)
+void ProxyP2PSession::ReplayClientSocketCreateSucceed(
+  uint32 server_socket, uint32 client_socket,
+  const talk_base::SocketAddress &addr)
 {
+  LOG(LS_INFO) << __FUNCTION__;
+  //socket_table_management_ = SocketTableManagement::Instance();
   //generate a reply string
-  socket_table_management_->AddNewLocalSocket((uint32)socket,
+  socket_table_management_->AddNewLocalSocket(client_socket,
     server_socket,TCP_SOCKET);
 
   talk_base::ByteBuffer *reply_string = 
@@ -187,15 +188,69 @@ void ProxyP2PSession::ReplayClientSocketCreateSucceed(uint32 client_socket, uint
     server_socket,client_socket);
   //send this string to remote peer
 
-  p2p_connection_implementator_->Send(client_socket,TCP_SOCKET, reply_string->Data(),
-    P2PRTSPCOMMAND_LENGTH,NULL);
+  size_t written;
+  p2p_connection_implementator_->Send(0,TCP_SOCKET, reply_string->Data(),
+    P2PRTSPCOMMAND_LENGTH,&written);
+  if(written != P2PRTSPCOMMAND_LENGTH){
+    LOG(LS_ERROR) << "The stream is block, you can't \
+      send the system command";
+  }
+  ASSERT(written == P2PRTSPCOMMAND_LENGTH);
+  //delete the string
+  p2p_system_command_factory_->DeleteRTSPClientCommand(reply_string);
+}
+
+void ProxyP2PSession::P2PServerSocketClose(uint32 server_socket){
+  LOG(LS_INFO) << __FUNCTION__;
+  //socket_table_management_ = SocketTableManagement::Instance();
+  //generate a reply string
+  uint32 client_socket = 
+    socket_table_management_->GetRemoteSocket(server_socket);
+
+  talk_base::ByteBuffer *reply_string = 
+    p2p_system_command_factory_->RTSPServerSocketClose(
+    server_socket,client_socket);
+  //send this string to remote peer
+
+  size_t written;
+  p2p_connection_implementator_->Send(0,TCP_SOCKET, reply_string->Data(),
+    P2PRTSPCOMMAND_LENGTH,&written);
+  if(written != P2PRTSPCOMMAND_LENGTH){
+    LOG(LS_ERROR) << "The stream is block, you can't \
+                     send the system command";
+  }
+  ASSERT(written == P2PRTSPCOMMAND_LENGTH);
+  //delete the string
+  p2p_system_command_factory_->DeleteRTSPClientCommand(reply_string);
+}
+
+void ProxyP2PSession::P2PClientSocketClose(uint32 client_socket){
+
+  LOG(LS_INFO) << __FUNCTION__;
+  //socket_table_management_ = SocketTableManagement::Instance();
+  //generate a reply string
+  uint32 server_socket = 
+    socket_table_management_->GetRemoteSocket(client_socket);
+
+  talk_base::ByteBuffer *reply_string = 
+    p2p_system_command_factory_->RTSPServerSocketClose(
+    server_socket,client_socket);
+  //send this string to remote peer
+
+  size_t written;
+  p2p_connection_implementator_->Send(0,TCP_SOCKET, reply_string->Data(),
+    P2PRTSPCOMMAND_LENGTH,&written);
+  if(written != P2PRTSPCOMMAND_LENGTH){
+    LOG(LS_ERROR) << "The stream is block, you can't \
+                     send the system command";
+  }
+  ASSERT(written == P2PRTSPCOMMAND_LENGTH);
   //delete the string
   p2p_system_command_factory_->DeleteRTSPClientCommand(reply_string);
 }
 
 bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
 
-  LOG(LS_INFO) << "Create New Client Socket";
   ///////////////////////////////////////////////////////////////////////////
   //BUSINESS LOGIC NOTE (GuangleiHe, 11/28/2013)
   //There didn't used P2PRTSPCommand to parse the data.
@@ -208,11 +263,14 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
   uint32 client_connection_ip;
   uint16 client_connection_port;
   if(!p2p_system_command_factory_->ParseCommand(data,len,&p2p_system_command_type,
-    &server_socket,&client_socket,&client_connection_ip,&client_connection_port))
+    &server_socket,&client_socket,&client_connection_ip,&client_connection_port)){
+    LOG(LS_ERROR) << "Parse the p2p system command error";
     return false;
+  }
 
   //////////////////////////////////////////////////////////////////////////
   if(p2p_system_command_type == P2P_SYSTEM_CREATE_RTSP_CLIENT){
+    LOG(LS_INFO) << "Create New Client Socket";
     //Step 1. Create AsyncSocket object.
     talk_base::AsyncSocket *int_socket 
       = current_thread_->socketserver()->CreateAsyncSocket(SOCK_STREAM);
@@ -223,9 +281,26 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
     //Step 3. Create RTSPClient Socket
     ProxyServerFactory::CreateRTSPClientSocket(this,int_socket,
       server_socket,server_addr);
+    return true;
   }
   else if(p2p_system_command_type == P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED){
+    LOG(LS_INFO) << "Client Socket Create Succeed";
+    socket_table_management_->AddNewLocalSocket(server_socket,
+      client_socket,TCP_SOCKET);
     GetProxySocketBegin(server_socket)->OnP2PSocketConnectSucceed(this);
+    return true;
   }
+  else if(p2p_system_command_type == P2P_SYSTEM_SERVER_SOCKET_CLOSE){
+    CloseP2PSocket(client_socket);
+  }
+  else if(p2p_system_command_type == P2P_SYSTEM_CLIENT_SOCKET_CLOSE){
+    CloseP2PSocket(server_socket);
+  }
+  //never reach here.
+  ASSERT(0);
   return true;
+}
+
+void ProxyP2PSession::CloseP2PSocket(uint32 socket){
+  proxy_socket_begin_map_[socket]->OnP2PClose(NULL);
 }

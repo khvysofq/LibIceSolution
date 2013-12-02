@@ -71,15 +71,14 @@ public:
   bool                        is_peer_connect_;
 private:
   void SendRandomData();
-private:
 
   talk_base::Thread           *worker_thread_;
   talk_base::Thread           *signal_thread_;
   bool                        initiator_;
   char                        *receive_buffer_;
 
-  P2PSourceManagement         *p2p_source_management_;
-  P2PServerConnectionManagement *p2p_server_connection_management_;
+  P2PSourceManagement             *p2p_source_management_;
+  P2PServerConnectionManagement   *p2p_server_connection_management_;
   P2PConnectionManagement         *p2p_connection_management_;
 };
 

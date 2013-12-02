@@ -47,6 +47,7 @@
 ProxySocketBegin::ProxySocketBegin(talk_base::AsyncSocket *int_socket)
                                    :int_socket_(int_socket),
                                    p2p_connection_implementator_(NULL),
+                                   proxy_p2p_session_(NULL),
                                    out_buffer_(KBufferSize),
                                    in_buffer_(KBufferSize)
 {
@@ -54,7 +55,7 @@ ProxySocketBegin::ProxySocketBegin(talk_base::AsyncSocket *int_socket)
   p2p_system_command_factory_ = P2PSystemCommandFactory::Instance();
   p2p_connection_management_  = P2PConnectionManagement::Instance();
 
-  internal_date_wait_receive_ = false;
+  //internal_date_wait_receive_ = false;
 
   int_socket_->SignalReadEvent.connect(this, &ProxySocketBegin::OnInternalRead);
   int_socket_->SignalWriteEvent.connect(this, &ProxySocketBegin::OnInternalWrite);
@@ -75,11 +76,8 @@ void ProxySocketBegin::OnP2PRead(const char *data, uint16 len){
 
 void ProxySocketBegin::OnP2PWrite(talk_base::StreamInterface *stream){
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
+  ASSERT(p2p_socket_state_ == SOCK_CONNECTED);
   WriteBufferDataToP2P(&out_buffer_);
-  if(internal_date_wait_receive_){
-    ReadSocketDataToBuffer(int_socket_.get(),&out_buffer_);
-    WriteBufferDataToP2P(&out_buffer_);
-  }
 }
 
 void ProxySocketBegin::OnP2PClose(talk_base::StreamInterface *stream){
@@ -100,8 +98,15 @@ void ProxySocketBegin::OnInternalWrite(talk_base::AsyncSocket *socket){
 
 void ProxySocketBegin::OnInternalClose(talk_base::AsyncSocket* socket, int err){
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
+  CloseP2PSocket();
 }
 
+void ProxySocketBegin::CloseP2PSocket(){
+  if(is_server_)
+    proxy_p2p_session_->P2PServerSocketClose((uint32)int_socket_.get());
+  else
+    proxy_p2p_session_->P2PClientSocketClose((uint32)int_socket_.get());
+}
 
 //////////////////////////////////////////////////////////////////////////
 void ProxySocketBegin::ReadSocketDataToBuffer(talk_base::AsyncSocket *socket, 
@@ -113,13 +118,9 @@ void ProxySocketBegin::ReadSocketDataToBuffer(talk_base::AsyncSocket *socket,
   size_t size;
   int read;
   if (buffer->GetBuffered(&size) && size == 0) {
-    internal_date_wait_receive_ = false;
     void* p = buffer->GetWriteBuffer(&size);
     read = socket->Recv(p, size);
     buffer->ConsumeWriteBuffer(talk_base::_max(read, 0));
-  }
-  else {
-    internal_date_wait_receive_ = true;
   }
 }
 
@@ -136,6 +137,10 @@ void ProxySocketBegin::WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
 {
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
   ASSERT(socket != NULL);
+  
+  if(int_socket_state_ != SOCK_CONNECTED)
+    return ;
+
   size_t size;
   int written;
   const void* p = buffer->GetReadData(&size);
@@ -146,6 +151,11 @@ void ProxySocketBegin::WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
 void ProxySocketBegin::WriteBufferDataToP2P(talk_base::FifoBuffer *buffer){
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
   ASSERT(buffer != NULL);
+
+  if(p2p_socket_state_ != SOCK_CONNECTED){
+    return ;
+  }
+
   size_t size;
   size_t written = 0;
   const void* p = buffer->GetReadData(&size);
@@ -158,10 +168,33 @@ bool ProxySocketBegin::StartConnect(const talk_base::SocketAddress& addr){
   //remote_peer_addr_ = addr;
   ASSERT(int_socket_state_ == SOCK_CONNECTED
     && p2p_socket_state_ == SOCK_CLOSE);
-
   p2p_socket_state_ = SOCK_CONNECT_PEER;
+
+  remote_peer_addr_ = addr;
+
   p2p_connection_management_->Connect(this,addr,&proxy_p2p_session_);
   if(proxy_p2p_session_){
+    p2p_connection_implementator_ 
+      = proxy_p2p_session_->GetP2PConnectionImplementator();
+    p2p_socket_state_ = SOCK_PEER_CONNECT_SUCCEED;
+    return true;
+    //Needs states change
+  }
+  return false;
+}
+
+bool ProxySocketBegin::StartConnectBySourceIde(const std::string &source){
+  //remote_peer_addr_ = addr;
+  ASSERT(int_socket_state_ == SOCK_CONNECTED
+    && p2p_socket_state_ == SOCK_CLOSE);
+  p2p_socket_state_ = SOCK_CONNECT_PEER;
+
+
+  p2p_connection_management_->ConnectBySourceIde(this,source,
+    &proxy_p2p_session_,&remote_peer_addr_);
+  if(proxy_p2p_session_){
+    p2p_connection_implementator_ 
+      = proxy_p2p_session_->GetP2PConnectionImplementator();
     p2p_socket_state_ = SOCK_PEER_CONNECT_SUCCEED;
     return true;
     //Needs states change
@@ -172,14 +205,18 @@ bool ProxySocketBegin::StartConnect(const talk_base::SocketAddress& addr){
 void ProxySocketBegin::OnP2PPeerConnectSucceed(ProxyP2PSession 
                                            *proxy_p2p_session)
 {
+  if(!is_server_)
+    return ;
   ASSERT(int_socket_state_ == SOCK_CONNECTED
     && p2p_socket_state_ == SOCK_CONNECT_PEER);
   //initialize p2p data tunnel
   ASSERT(p2p_connection_implementator_ == NULL);
   ASSERT(proxy_p2p_session_ == NULL);
+
   proxy_p2p_session_ = proxy_p2p_session;
   p2p_connection_implementator_ 
     = proxy_p2p_session->GetP2PConnectionImplementator();
+
   p2p_socket_state_ = SOCK_PEER_CONNECT_SUCCEED;
   proxy_p2p_session_->CreateClientSocketConnection((uint32)int_socket_.get(),
     remote_peer_addr_);
@@ -189,4 +226,5 @@ void ProxySocketBegin::OnP2PSocketConnectSucceed(ProxyP2PSession *proxy_p2p_sess
   ASSERT(int_socket_state_ == SOCK_CONNECTED
     && p2p_socket_state_ == SOCK_PEER_CONNECT_SUCCEED);
   p2p_socket_state_ = SOCK_CONNECTED;
+  OnP2PWrite(NULL);
 }

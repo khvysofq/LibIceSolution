@@ -74,23 +74,27 @@ void P2PConnectionImplementator::OnStreamEvent(
   talk_base::StreamInterface* stream,int events,int error)
 {
   ASSERT(stream_ == stream);
+
   if(error != 0){
     LOG(LS_ERROR) << "The stream got a error";
     return ;
   }
+
+
   if (events & talk_base::SE_READ) {
     //Call send data to up layer
     OnReadStreamData(stream_);
   }
 
   if (events & talk_base::SE_WRITE) {
+
+    send_data_buffer_->SetNormalState();
     if(!is_connect_){
       std::cout << "Connected Succeed" << std::endl;
       is_connect_ = true;
       SignalConnectSucceed(stream);
       return;
     }
-    send_data_buffer_->SetNormalState();
     if(send_data_buffer_->SendDataUsedStream(stream_)){
       SignalStreamWrite(stream_);
     }

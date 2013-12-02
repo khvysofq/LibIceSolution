@@ -42,11 +42,20 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-RTSPClientSocket::RTSPClientSocket(talk_base::AsyncSocket *int_socket,
-  uint32 server_socket_number,const talk_base::SocketAddress &server_addr)
-  :ProxySocketBegin(int_socket),server_socket_number_(server_socket_number)
+RTSPClientSocket::RTSPClientSocket(ProxyP2PSession *proxy_p2p_session,
+                                   talk_base::AsyncSocket *int_socket,
+                                   uint32 server_socket_number,
+                                   const talk_base::SocketAddress &server_addr)
+                                   :ProxySocketBegin(int_socket),
+                                   server_socket_number_(server_socket_number)
 {
+  LOG(LS_INFO) << __FUNCTION__ << server_addr.ToString();
 
+  proxy_p2p_session_ = proxy_p2p_session;
+  p2p_connection_implementator_ = 
+    proxy_p2p_session_->GetP2PConnectionImplementator();
+
+  is_server_ = false;
   int_socket_->SignalConnectEvent.connect(this,
     &RTSPClientSocket::OnInternalConnect);
   p2p_socket_state_ = SOCK_CONNECTED;
@@ -59,13 +68,13 @@ RTSPClientSocket::RTSPClientSocket(talk_base::AsyncSocket *int_socket,
 void RTSPClientSocket::OnInternalConnect(
   talk_base::AsyncSocket* socket)
 {
+  LOG(LS_INFO) << __FUNCTION__;
   ASSERT(p2p_socket_state_ == SOCK_CONNECTED &&
-    p2p_socket_state_ == SOCK_CLOSE);
+    int_socket_state_ == SOCK_CLOSE);
   int_socket_state_ = SOCK_CONNECTED;
   //The Client connect was accept
   //Then Send the connect succeed to remote peer
   ASSERT(int_socket_.get() == socket);
   proxy_p2p_session_->ReplayClientSocketCreateSucceed(server_socket_number_,
-    (uint32)int_socket_.get(),remote_peer_addr_);
-
+    (uint32)socket,remote_peer_addr_);
 }

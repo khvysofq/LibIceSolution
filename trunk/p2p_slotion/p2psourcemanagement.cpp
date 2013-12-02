@@ -82,8 +82,8 @@ int P2PSourceManagement::GetRemotePeerIdByPeerName(const std::string &remote_pee
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)
   {
-    std::cout << (*iter)->peer_jid_ << std::endl;
-    std::cout << remote_peer_name   << std::endl;
+    //std::cout << (*iter)->peer_jid_ << std::endl;
+    //std::cout << remote_peer_name   << std::endl;
     if((*iter)->peer_jid_ == remote_peer_name){
       return (*iter)->peer_id_;
     }
@@ -262,7 +262,7 @@ bool P2PSourceManagement::ParseJosonString(PeerResource *peer_resource,
   for(int i = 0; i < size; i++){
     peer_resource->server_resources_.insert(new ServerResource(
       joson_array[i][SERVER_NAME].asCString(),joson_array[i][SERVER_IP].asCString(),
-      joson_array[i][SERVER_PORT].asInt(),joson_array[i][SOURCE_TYPE].asCString()));
+      joson_array[i][SERVER_PORT].asInt(),joson_array[i][SOURCE_IDE].asCString()));
   }
   return true;
 }
@@ -285,8 +285,8 @@ const std::string P2PSourceManagement::GetServerResourceString()
       << "\"" << (*iter)->server_ip_<< "\","
       << "\"" << SERVER_PORT << "\" : "
       << (*iter)->server_port_ << ","
-      << "\"" << SOURCE_TYPE << "\" : "
-      << "\"" << (*iter)->server_type_<< "\""
+      << "\"" << SOURCE_IDE << "\" : "
+      << "\"" << (*iter)->server_ide_<< "\""
       << "}";
     //There very specially
     iter++;
@@ -308,7 +308,7 @@ void P2PSourceManagement::ShowAllServerResourceInfor(
     std::cout <<"\t" << SERVER_NAME << "\t" << (*iter)->server_name_<< std::endl;
     std::cout <<"\t" << SERVER_IP << "\t" << (*iter)->server_ip_<< std::endl;
     std::cout <<"\t" << SERVER_PORT << "\t" << (*iter)->server_port_<< std::endl;
-    std::cout <<"\t" << SOURCE_TYPE << "\t" << (*iter)->server_type_<< std::endl;
+    std::cout <<"\t" << SOURCE_IDE << "\t" << (*iter)->server_ide_<< std::endl;
   }
 }
 
@@ -333,7 +333,7 @@ const std::string P2PSourceManagement::SreachPeerByServerResource(
 {
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++){
-      if(SreachServerResource((*iter)->server_resources_,addr)){
+      if(SreachServerResourceByAddr((*iter)->server_resources_,addr)){
         return (*iter)->peer_jid_;
       }
   }
@@ -341,7 +341,23 @@ const std::string P2PSourceManagement::SreachPeerByServerResource(
   return std::string();
 }
 
-bool P2PSourceManagement::SreachServerResource(
+const ServerResource *P2PSourceManagement::SreachPeerBySourceIde(
+  const std::string &source_ide,std::string *remote_peer_name)
+{
+  for(PeerResources::iterator iter = remote_peer_resources_.begin();
+    iter != remote_peer_resources_.end(); iter++){
+      const ServerResource* res = 
+        SreachServerResourceByIde((*iter)->server_resources_,source_ide);
+      if(res){
+        *remote_peer_name = (*iter)->peer_jid_;
+        return res;
+      }
+  }
+  LOG(LS_ERROR) << "Can't find this peer";
+  return NULL;
+}
+
+bool P2PSourceManagement::SreachServerResourceByAddr(
   const ServerResources &server_resources, const talk_base::SocketAddress& addr)
 {
   const std::string server_ip = addr.ipaddr().ToString();
@@ -353,4 +369,17 @@ bool P2PSourceManagement::SreachServerResource(
     }
   }
   return false;
+}
+
+const ServerResource * P2PSourceManagement::SreachServerResourceByIde(
+  const ServerResources &server_resources, const std::string &source_ide)
+{
+  for(ServerResources::const_iterator iter = server_resources.begin();
+    iter != server_resources.end(); iter++)
+  {
+    if((*iter)->server_ide_ == source_ide){
+      return (*iter);
+    }
+  }
+  return NULL;
 }

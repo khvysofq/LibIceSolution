@@ -45,46 +45,10 @@ AsyncRTSPProxyServerSocket::AsyncRTSPProxyServerSocket(
   :AsyncProxyServerSocket(socket,KBufferSize)
 {
   BufferInput(false);
-  //Turn off data process in AsyncProxyServerSocket
-  talk_base::SocketAddress server_addr("127.0.0.1",554);
-  SignalConnectRequest(this,server_addr);
 }
 
 void AsyncRTSPProxyServerSocket::ProcessInput(char* data, size_t* len) {
-  LOG(LS_INFO) << __FUNCTION__ << "\t" << len;
-  size_t header_len = RTSP_HEADER_LENGTH;
-  size_t backlash_pos = 0;
-  size_t break_char_pos = 0;
-  char serverip[64];
-  size_t serverip_length = 0;
-
-  memset(serverip,0,64);
-
-  //1. Find backlash position and break char position
-  for(size_t i = header_len; i < *len; i++){
-    if(data[i] == RTSP_BACKLASH)
-      //add 1 because the / is no a member of server ip
-      backlash_pos = i + 1; 
-    if(data[i] == RTSP_BREAK_CHAR){
-      break_char_pos = i;
-      break;
-    }
-  }
-
-  //2. get the server ip and port
-  serverip_length = break_char_pos - backlash_pos;
-  strncpy(serverip,data + backlash_pos, serverip_length);
-  std::cout << serverip << std::endl;
-
-  serverip_length += 1;
-  //3. delete the server ip in the data
-  for(size_t i = break_char_pos + 1; i < *len; i++){
-    data[i - serverip_length] = data[i];
-    data[i] = 0;
-  }
-  *len -= serverip_length;
-  SignalReadEvent(this);
-  BufferInput(false);
+  //LOG(LS_INFO) << __FUNCTION__ << "\t" << len;
 }
 
 void AsyncRTSPProxyServerSocket::SendConnectResult(
@@ -143,7 +107,7 @@ RTSPServerSocketStart::RTSPServerSocketStart(
                        rtsp_socket_(int_socket)
 {
   LOG(LS_INFO) << "4. " << __FUNCTION__;
-
+  is_server_        = true;
   int_socket_state_ = SOCK_CONNECTED;
   p2p_socket_state_ = SOCK_CLOSE;
   
@@ -157,12 +121,7 @@ RTSPServerSocketStart::RTSPServerSocketStart(
 void RTSPServerSocketStart::OnConnectRequest(talk_base::AsyncProxyServerSocket* socket,
                                   const talk_base::SocketAddress& addr)
 {
-  //Generate a p2p system command that let remote peer to create a
-  //RTSP Client socket connection
-  //But at first step is to create a new socket table map
-  //ASSERT(socket == int_socket_.get());
-  //StartConnect(addr);
-  //state_ = RP_SEND_RTSP_CLIENT_CREATE_COMMAND;
+
 }
 
 void RTSPServerSocketStart::ReadSocketDataToBuffer(talk_base::AsyncSocket *socket, 
@@ -174,24 +133,24 @@ void RTSPServerSocketStart::ReadSocketDataToBuffer(talk_base::AsyncSocket *socke
   size_t size;
   int read;
   if (buffer->GetBuffered(&size) && size == 0) {
-    internal_date_wait_receive_ = false;
+//    internal_date_wait_receive_ = false;
     void* p = buffer->GetWriteBuffer(&size);
     read = socket->Recv(p, size);
 
     if(strncmp(RTSP_HEADER,(const char *)p,RTSP_HEADER_LENGTH) == 0){
-      ParseRTSP((char *)p,(size_t *)&read);
 
-      for(int i = 0; i < read; i++){
-        std::cout <<((char*)p)[i];
-      }
-      std::cout << std::endl;
+      ParseRTSPGetSourceName((char *)p,(size_t *)&read);
+
+      //for(int i = 0; i < read; i++){
+      //  std::cout <<((char*)p)[i];
+      //}
+      //std::cout << std::endl;
     }
     buffer->ConsumeWriteBuffer(talk_base::_max(read, 0));
-
   }
-  else {
-    internal_date_wait_receive_ = true;
-  }
+  //else {
+  //  internal_date_wait_receive_ = true;
+  //}
 }
 
 void RTSPServerSocketStart::ParseRTSP(char *data, size_t *len){
@@ -231,11 +190,57 @@ void RTSPServerSocketStart::ParseRTSP(char *data, size_t *len){
 }
 
 bool RTSPServerSocketStart::ConnectTheAddr(const std::string &server_ip){
+  if(p2p_socket_state_ != SOCK_CLOSE)
+    return false;
   //1. Find server ip string, stop at ':'
   int ip_pos = server_ip.find(':');
   int port = ::atoi(server_ip.substr(ip_pos + 1,std::string::npos).c_str());
   talk_base::SocketAddress addr(server_ip.substr(0,ip_pos),port);
 
-  std::cout << addr.ToString() << std::endl;
+  //std::cout << addr.ToString() << std::endl;
   return StartConnect(addr);
 }
+
+void RTSPServerSocketStart::ParseRTSPGetSourceName(char *data, size_t *len){
+  size_t header_len = RTSP_HEADER_LENGTH;
+  size_t backlash_pos = 0;
+  size_t break_char_pos = 0;
+  char source_ide[64];
+  size_t serouce_ide_len = 0;
+
+  memset(source_ide,0,64);
+
+  //1. Find backlash position and break char position
+  for(size_t i = header_len; i < *len; i++){
+    if(data[i] == RTSP_BACKLASH)
+      //add 1 because the / is no a member of server ip
+        backlash_pos = i + 1; 
+    if(data[i] == RTSP_BREAK_CHAR){
+      break_char_pos = i;
+      break;
+    }
+  }
+
+  //2. get the server ip and port
+  serouce_ide_len = break_char_pos - backlash_pos;
+  strncpy(source_ide,data + backlash_pos, serouce_ide_len);
+
+  //
+  ConnectTheSource(source_ide);
+
+  serouce_ide_len += 1;
+  //3. delete the server ip in the data
+  for(size_t i = break_char_pos + 1; i < *len; i++){
+    data[i - serouce_ide_len] = data[i];
+    data[i] = 0;
+  }
+  *len -= serouce_ide_len;
+}
+
+bool RTSPServerSocketStart::ConnectTheSource(const std::string &source_ide){
+  if(p2p_socket_state_ != SOCK_CLOSE)
+    return false;
+  //std::cout << addr.ToString() << std::endl;
+  return StartConnectBySourceIde(source_ide);
+}
+

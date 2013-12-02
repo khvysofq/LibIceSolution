@@ -56,6 +56,7 @@ public:
   uint32 GetSocketNumber() const{return (uint32)(int_socket_.get());}
 
   virtual bool StartConnect(const talk_base::SocketAddress& addr);
+  virtual bool StartConnectBySourceIde(const std::string &source);
   virtual void OnP2PPeerConnectSucceed(ProxyP2PSession *proxy_p2p_session);
   virtual void OnP2PSocketConnectSucceed(ProxyP2PSession *proxy_p2p_session);
   //p2p socket signal function
@@ -63,7 +64,10 @@ public:
   bool IsMe(uint32 socket);
   virtual void OnP2PWrite(talk_base::StreamInterface *stream);
   virtual void OnP2PClose(talk_base::StreamInterface *stream);
+  
 protected:
+
+  virtual void CloseP2PSocket();
 
   //Internal Socket Signal function
   virtual void OnInternalRead(talk_base::AsyncSocket* socket);
@@ -96,7 +100,12 @@ protected:
   P2PConnectionManagement      *p2p_connection_management_;
   talk_base::SocketAddress      remote_peer_addr_;
 //private:
-  bool                          internal_date_wait_receive_;
+  //bool                          internal_date_wait_receive_;
+  ///////////////////////////////////////////////////////////////////////////
+  //BUSINESS LOGIC NOTE (GuangleiHe, 12/2/2013)
+  //remove the is_server_ control in a function to set by derived classes.
+  ///////////////////////////////////////////////////////////////////////////
+  bool                          is_server_;
   ProxyP2PSession              *proxy_p2p_session_;
   P2PConnectionImplementator   *p2p_connection_implementator_;
   DISALLOW_EVIL_CONSTRUCTORS(ProxySocketBegin);

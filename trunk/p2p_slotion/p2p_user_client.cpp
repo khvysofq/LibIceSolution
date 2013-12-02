@@ -64,6 +64,7 @@ P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
 
   is_peer_connect_ = false;
 }
+
 P2PUserClient::~P2PUserClient(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
 
@@ -74,9 +75,9 @@ void P2PUserClient::Initiatlor(){
 
   std::string local_peer_name = GetCurrentComputerUserName();
 
-  //Create a random string with local peer name
+  ////Create a random string with local peer name
   std::string random_string;
-  talk_base::CreateRandomString(8,RANDOM_BASE64,&random_string);
+  talk_base::CreateRandomString(4,RANDOM_BASE64,&random_string);
 
   local_peer_name += random_string;
   local_peer_name += JID_DEFAULT_DOMAIN;
@@ -86,10 +87,11 @@ void P2PUserClient::Initiatlor(){
   std::transform(local_peer_name.begin(),local_peer_name.end(),
     local_peer_name.begin(),tolower);
 
-  p2p_source_management_->AddNewServerResource("RTSP_SERVER","192.168.1.1",554,"RTSP");
-  p2p_source_management_->AddNewServerResource("HTTP_SERVER","192.168.1.1",80,"HTTP");
+  p2p_source_management_->AddNewServerResource("RTSP_SERVER",
+    "127.0.0.1",554,random_string);
+  p2p_source_management_->AddNewServerResource("HTTP_SERVER",
+    "127.0.0.1",80,random_string);
   p2p_source_management_->SetLocalPeerName(local_peer_name);
-
 
   p2p_connection_management_->Initialize(signal_thread_,worker_thread_);
   p2p_server_connection_management_->SetIceDataTunnel(
@@ -97,16 +99,16 @@ void P2PUserClient::Initiatlor(){
 
 }
 
-
 void P2PUserClient::StartRun(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
   p2p_server_connection_management_->SignInP2PServer(ServerAddr);
-  ProxyServerFactory::CreateRTSPProxyServer(signal_thread_->socketserver(),
-    KLocalRTSPServer);
 }
 
 void P2PUserClient::ConnectionToPeer(int peer_id){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
+  std::cout << "Listen " << KLocalRTSPServer.ToString() << std::endl;
+  ProxyServerFactory::CreateRTSPProxyServer(signal_thread_->socketserver(),
+    KLocalRTSPServer);
   //p2p_connection_management_->Connect(peer_id);
 }
 
@@ -114,12 +116,8 @@ void P2PUserClient::Destory(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
 }
 
-
 void P2PUserClient::SendRandomData(){
   LOG(LS_INFO) << "+++" << __FUNCTION__;
-  signal_thread_->PostDelayed(20,this);
-  SocketTableManagement::Instance()->AddNewLocalSocket(123,
-    123,TCP_SOCKET);
 }
 
 void P2PUserClient::OnMessage(talk_base::Message* msg){
