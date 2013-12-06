@@ -55,6 +55,10 @@ SendDataBuffer::~SendDataBuffer(){
   delete fifo_buffer_;
 }
 
+void SendDataBuffer::Destory(){
+  fifo_buffer_->Close();
+}
+
 bool SendDataBuffer::SaveData(const char *data, size_t len){
   LOG(LS_INFO) << __FUNCTION__;
   ASSERT(len != 0 && data != NULL);

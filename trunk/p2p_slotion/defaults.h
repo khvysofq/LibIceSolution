@@ -31,6 +31,7 @@
 #include <string>
 #include <map>
 #include "talk/base/stream.h"
+#include "talk/base/logging.h"
 
 static const char RANDOM_BASE64[64] = {
   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
@@ -39,6 +40,24 @@ static const char RANDOM_BASE64[64] = {
   'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '0'
 };
+
+//////////////////////////////////////////////////////////////////////////
+//Define logging
+
+typedef uint32 LOG_FILTER;
+
+const int ALWAYS_INFOR          = (0X1);
+//operation for object create and destroy
+const int OFOI                  = ((0X1<<1));
+const int SERVER_DATA_INFOR     = ((0X1<<2));
+const int P2P_ICE_DATA_INFOR    = ((0X1<<3));
+const int P2P_TUNNEL_DATA_INFOR = ((0X1<<4));
+const int PROXY_SOCKET_INFOR    = ((0X1<<5));
+
+extern LOG_FILTER log_filter;
+#define LOG_F_S(sev,level) (log_filter & level)?LOG_F(sev):LOG(LS_SENSITIVE)
+
+
 
 //////////////////////////////////////////////////////////
 const int kDefaultServerPort = 8888;

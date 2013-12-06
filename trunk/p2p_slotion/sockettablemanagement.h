@@ -73,7 +73,6 @@ public:
   typedef std::map<uint32,SocketTable *> SocketTableMap;
 private:
   static SocketTableManagement *socket_table_management_;
-  SocketTableMap               remote_socket_map_;
   SocketTableMap               local_socket_map_;
 };
 

@@ -54,7 +54,8 @@ public:
     const talk_base::SocketAddress &server_addr);
 private:
   void OnInternalConnect(talk_base::AsyncSocket* socket);
-
+  //virtual void OnInternalClose(talk_base::AsyncSocket* socket,
+  //  int err);
 private:
   uint32                       server_socket_number_;
   DISALLOW_EVIL_CONSTRUCTORS(RTSPClientSocket);

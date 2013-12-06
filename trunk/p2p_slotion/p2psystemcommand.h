@@ -50,6 +50,8 @@ const int P2P_SYSTEM_CREATE_RTSP_CLIENT         = 1;
 const int P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED = 2;
 const int P2P_SYSTEM_SERVER_SOCKET_CLOSE        = 3;
 const int P2P_SYSTEM_CLIENT_SOCKET_CLOSE        = 4;
+const int P2P_SYSTEM_SERVER_SOCKET_CLOSE_SUCCEED= 5;
+const int P2P_SYSTEM_CLIENT_SOCKET_CLOSE_SUCCEED= 6;
 struct P2PRTSPCommand{
   uint32 p2p_system_command_ide_;
   uint32 p2p_system_command_type_;
@@ -89,7 +91,10 @@ public:
     uint32 client_socket);
   talk_base::ByteBuffer *RTSPClientSocketClose(uint32 server_socket,
     uint32 client_socket);
-
+  talk_base::ByteBuffer *RTSPSocketClose(uint32 server_socket,
+    uint32 client_socket,bool is_server);
+  talk_base::ByteBuffer *RTSPSocketCloseSucceed(uint32 server_socket,
+    uint32 client_socket,bool is_server);
 
   void DeleteRTSPClientCommand(talk_base::ByteBuffer *data);
 

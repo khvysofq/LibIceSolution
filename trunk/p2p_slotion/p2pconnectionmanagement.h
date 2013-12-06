@@ -32,6 +32,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+/*
+  This class management all p2p connection that create by user question. This
+  class used the Singleton Pattern that means there is only one p2p connection
+  management object in this program.
+  1. It create ProxyP2PSession object and destroy it. 
+  2. It manage p2p ice class, 
+*/
 
 #ifndef P2P_CONNECTION_MANAGEMENT_H_
 #define P2P_CONNECTION_MANAGEMENT_H_
@@ -63,18 +70,18 @@ public:
   AbstractICEConnection *GetP2PICEConnection() const ;
   //When you call this function, you must be sure that the peer id 
   //is correct.
-  virtual bool Connect(ProxySocketBegin *proxy_socket_begin,
-    const talk_base::SocketAddress& addr, ProxyP2PSession **proxy_p2p_session);
-  virtual bool ConnectBySourceIde(ProxySocketBegin *proxy_socket_begin,
-    const std::string &source_id, ProxyP2PSession **proxy_p2p_session,
-    talk_base::SocketAddress *addr);
+  //virtual bool Connect(ProxySocketBegin *proxy_socket_begin,
+  //  const talk_base::SocketAddress& addr, ProxyP2PSession **proxy_p2p_session);
+  virtual ProxyP2PSession *ConnectBySourceIde(const std::string &source_id,
+    talk_base::SocketAddress *addr, bool *is_existed);
 
   //There
   //bool CreateP2PConnectionImplementator(const std::string &remote_jid,
   //  talk_base::StreamInterface *stream);
   
-  bool CreateProxyP2PSession(ProxySocketBegin *proxy_socket_begin,
-    const std::string &remote_jid,talk_base::StreamInterface *stream);
+  bool CreateProxyP2PSession(const std::string &remote_jid,
+    talk_base::StreamInterface *stream);
+  void DeleteProxyP2PSession(ProxyP2PSession *proxy_p2p_session);
 
   ProxyP2PSession *WhetherThePeerIsExisted(const std::string remote_peer_name);
 private:

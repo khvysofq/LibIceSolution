@@ -59,15 +59,13 @@ DataMultiplexMachine::DataMultiplexMachine(
 }
 
 void DataMultiplexMachine::Destory(){
-  LOG(LS_INFO) << "^^^" << __FUNCTION__;
+  LOG_F_S(LS_INFO,OFOI) << "Destory";
+}
+DataMultiplexMachine::~DataMultiplexMachine(){
   delete send_network_header_;
   delete send_byte_buffer_;
   delete receive_network_header_;
   delete receive_low_buffer_;
-}
-DataMultiplexMachine::~DataMultiplexMachine(){
-  LOG(LS_INFO) << "^^^" << __FUNCTION__;
-  Destory();
 }
 
 void DataMultiplexMachine::PacketData(
@@ -268,7 +266,7 @@ void DataMultiplexMachine::UnpackData(char *data, uint16 len){
 void DataMultiplexMachine::AddInNetworkHeader(
   uint32 local_socket, SocketType socket_type,uint16 len)
 {
-  LOG(LS_INFO) << "^^^" << __FUNCTION__;
+  LOG(LS_VERBOSE) << "^^^" << __FUNCTION__;
   ///////////////////////////////////////////////////////////////////////////
   //BUSINESS LOGIC NOTE (GuangleiHe, 11/15/2013)
   //it is important to known that for rationality logic,
@@ -281,24 +279,24 @@ void DataMultiplexMachine::AddInNetworkHeader(
 
   //1. get remote socket
   uint32 remote_socket = socket_table_management_->GetRemoteSocket(local_socket);
-  LOG(LS_INFO) << "\t" << remote_socket;
+  LOG(LS_VERBOSE) << "\t" << remote_socket;
   //2. set remote socket to local socket of the network header
   send_network_header_->local_socket_  = remote_socket;
 
-  LOG(LS_INFO) << "\t" << remote_socket;
+  LOG(LS_VERBOSE) << "\t" << remote_socket;
   //3. set local socket to remote socket of the network header
   send_network_header_->remote_socket_ = local_socket;
 
-  LOG(LS_INFO) << "\t" << local_socket;
+  LOG(LS_VERBOSE) << "\t" << local_socket;
   //4. setting other
   send_network_header_->data_len_      = len;
-  LOG(LS_INFO) << "\t" << len;
+  LOG(LS_VERBOSE) << "\t" << len;
   send_network_header_->socket_type_   = socket_type;
-  LOG(LS_INFO) << "\t" << socket_type;
+  LOG(LS_VERBOSE) << "\t" << socket_type;
 }
 
 void DataMultiplexMachine::ConvertNetworkHeaderToBuffer(){
-  LOG(LS_INFO) << "^^^" << __FUNCTION__;
+  LOG(LS_VERBOSE) << "^^^" << __FUNCTION__;
 
   //1. Write P2P_NETWORKER_HEADER_IDE to send buffer
   send_byte_buffer_->WriteUInt32(send_network_header_->header_ide_);

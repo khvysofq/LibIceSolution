@@ -5,6 +5,7 @@
 #include "talk/base/stream.h"
 #include "p2p_user_client.h"
 
+#include "defaults.h"
 
 int choose = 0;
 
@@ -27,9 +28,11 @@ int main(void)
   //((talk_base::FileStream *)log_file_stream_)->Open(
   //  "C:/log.txt","wb",NULL);
   //talk_base::LogMessage::LogToStream(log_file_stream_,
-  //  talk_base::LoggingSeverity::LS_ERROR);
+  //  talk_base::LoggingSeverity::LS_INFO);
   talk_base::LogMessage::LogToDebug(
     talk_base::LoggingSeverity::LS_ERROR);
+
+  log_filter = P2P_ICE_DATA_INFOR | P2P_TUNNEL_DATA_INFOR;
 
   talk_base::Thread *main_thread 
     = talk_base::Thread::Current();

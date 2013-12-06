@@ -57,11 +57,10 @@ public:     //user interface
   PeerConnectionIce(talk_base::Thread *worker_thread,
     talk_base::Thread *signal_thread);
   ~PeerConnectionIce();
-  void ConnectionToRemotePeer(ProxySocketBegin *proxy_socket_begin,
-    int remote_peer_id);
+  virtual talk_base::StreamInterface *ConnectionToRemotePeer(int remote_peer_id);
 
 private:    //p2p server function and some help function
-  void DestroyPeerConnectionIce();
+  void Destroy();
   //receive messages that from remote peer by p2p server
   void OnReceiveMessageFromRemotePeer(const std::string msg,int peer_id);
 private:  //libjingle system function

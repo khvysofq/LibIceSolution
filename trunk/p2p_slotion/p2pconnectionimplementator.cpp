@@ -42,26 +42,40 @@ P2PConnectionImplementator::P2PConnectionImplementator(
   const std::string &remote_jid,talk_base::StreamInterface *stream)
   :remote_jid_(remote_jid),stream_(stream)
 {
-  //0. Initialize basic parts
+  LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) 
+    << "\t Create A New P2PConnectionImplementator";
+
+  //Initialize basic parts
   send_data_buffer_      = new SendDataBuffer();
   temp_read_buffer_      = new char[BUFFER_SIZE];
   data_multiplex_machine_ = new DataMultiplexMachine(this);
   is_connect_ = false;
 
-  //1. Configuration the stream events interface
+  //Configuration the stream events interface
   stream_->SignalEvent.connect(this,
     &P2PConnectionImplementator::OnStreamEvent);
-
-  //2. 
 }
 
-bool P2PConnectionImplementator::IsMe(const std::string &remote_jid)
-{
-  if(remote_jid_ == remote_jid)
-    return true;
-  return false;
+P2PConnectionImplementator::~P2PConnectionImplementator(){
+  delete send_data_buffer_;
+  delete temp_read_buffer_;
+  delete data_multiplex_machine_;
 }
 
+void P2PConnectionImplementator::Destory(){
+  send_data_buffer_->Destory();
+}
+
+void P2PConnectionImplementator::CloseStream(){
+  if(stream_->GetState() == talk_base::SS_CLOSED){
+    return ;
+  }
+  stream_->Close();
+  SignalConnectSucceed.disconnect_all();
+  SignalStreamClose.disconnect_all();
+  SignalStreamRead.disconnect_all();
+  SignalStreamWrite.disconnect_all();
+}
 
 //////////////////////////////////////////////////////////////
 //TEST NOTE (GuangleiHe, 11/29/2013)
@@ -80,17 +94,19 @@ void P2PConnectionImplementator::OnStreamEvent(
     return ;
   }
 
-
   if (events & talk_base::SE_READ) {
+    LOG_F(LS_INFO) << "Stream SE_READ";
     //Call send data to up layer
     OnReadStreamData(stream_);
   }
 
   if (events & talk_base::SE_WRITE) {
-
+    LOG_F(LS_INFO) << "Stream SE_WRITE";
     send_data_buffer_->SetNormalState();
+
     if(!is_connect_){
-      std::cout << "Connected Succeed" << std::endl;
+      LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) << "Connected Succeed" 
+        << std::endl;
       is_connect_ = true;
       SignalConnectSucceed(stream);
       return;
@@ -101,8 +117,10 @@ void P2PConnectionImplementator::OnStreamEvent(
   }
 
   if (events & talk_base::SE_CLOSE) {
-    LOG(LS_VERBOSE) << "The stream closed";
+    LOG_F(LS_INFO) << "Stream SE_CLOSE";
+    LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) << "The stream closed";
     stream_->Close();
+    SignalStreamClose(stream);
   }
 }
 
@@ -150,6 +168,7 @@ void P2PConnectionImplementator::OnReadStreamData(
   ///////////////////////////////////////////////////////////////////////////
   talk_base::StreamResult result = stream->Read(temp_read_buffer_,
     RECEIVE_BUFFER_LEN,&res,NULL);
+
   if(res)
     data_multiplex_machine_->UnpackData(temp_read_buffer_,res);
 }

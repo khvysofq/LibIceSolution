@@ -113,10 +113,10 @@ private:
     talk_base::FifoBuffer *buffer);
   //Some help function
 private:
-  void ParseRTSP(char *data, size_t *len);
+  //void ParseRTSP(char *data, size_t *len);
   void ParseRTSPGetSourceName(char *data, size_t *len);
 
-  bool ConnectTheAddr(const std::string &server_ip);
+  //bool ConnectTheAddr(const std::string &server_ip);
   bool ConnectTheSource(const std::string &source_ide);
 private:
   talk_base::AsyncProxyServerSocket *rtsp_socket_;

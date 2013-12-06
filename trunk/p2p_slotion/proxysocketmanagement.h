@@ -48,26 +48,32 @@ class P2PConnectionManagement;
 class ProxyP2PSession;
 class P2PConnectionImplementator;
 
-class ProxySocketBegin : public sigslot::has_slots<>
+class ProxySocketBegin : public sigslot::has_slots<>,
+  public talk_base::MessageHandler
 {
 public:
-  ProxySocketBegin(talk_base::AsyncSocket *int_socket);
+  ProxySocketBegin(talk_base::AsyncSocket *int_socket = NULL);
+  void Destory();
 
   uint32 GetSocketNumber() const{return (uint32)(int_socket_.get());}
 
-  virtual bool StartConnect(const talk_base::SocketAddress& addr);
+  //virtual bool StartConnect(const talk_base::SocketAddress& addr);
   virtual bool StartConnectBySourceIde(const std::string &source);
   virtual void OnP2PPeerConnectSucceed(ProxyP2PSession *proxy_p2p_session);
   virtual void OnP2PSocketConnectSucceed(ProxyP2PSession *proxy_p2p_session);
+  
   //p2p socket signal function
   virtual void OnP2PRead(const char *data, uint16 len);
   bool IsMe(uint32 socket);
   virtual void OnP2PWrite(talk_base::StreamInterface *stream);
   virtual void OnP2PClose(talk_base::StreamInterface *stream);
+  virtual void OnOtherSideSocketCloseSucceed(
+    talk_base::StreamInterface *stream);
   
 protected:
 
   virtual void CloseP2PSocket();
+  virtual void SendCloseSocketSucceed();
 
   //Internal Socket Signal function
   virtual void OnInternalRead(talk_base::AsyncSocket* socket);
@@ -82,6 +88,7 @@ protected:
   virtual void WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
     talk_base::FifoBuffer *buffer);
   virtual void WriteBufferDataToP2P(talk_base::FifoBuffer *buffer);
+  virtual void OnMessage(talk_base::Message* msg);
 protected:
   enum{
     SOCK_CLOSE,
@@ -106,8 +113,10 @@ protected:
   //remove the is_server_ control in a function to set by derived classes.
   ///////////////////////////////////////////////////////////////////////////
   bool                          is_server_;
+  bool                          client_write_date_;
   ProxyP2PSession              *proxy_p2p_session_;
   P2PConnectionImplementator   *p2p_connection_implementator_;
+  talk_base::Thread            *current_thread_;
   DISALLOW_EVIL_CONSTRUCTORS(ProxySocketBegin);
 };
 

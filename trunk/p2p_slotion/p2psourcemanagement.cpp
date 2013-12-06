@@ -67,6 +67,7 @@ void P2PSourceManagement::SetLocalPeerId(int peer_id){
 }
 
 const std::string P2PSourceManagement::GetRemotePeerNameByPeerId(int peer_id){
+
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)
   {
@@ -82,6 +83,8 @@ int P2PSourceManagement::GetRemotePeerIdByPeerName(const std::string &remote_pee
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)
   {
+    std::cout << __FUNCTION__ << "\t get peer id"
+      << std::endl;
     //std::cout << (*iter)->peer_jid_ << std::endl;
     //std::cout << remote_peer_name   << std::endl;
     if((*iter)->peer_jid_ == remote_peer_name){

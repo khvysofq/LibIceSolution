@@ -46,6 +46,7 @@ public:
   SendDataBuffer(size_t buffer_length);
   ~SendDataBuffer();
   
+  void Destory();
   //Save data to FIFO buffer
   bool SaveData(const char *data, size_t len);
 

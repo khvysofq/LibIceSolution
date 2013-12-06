@@ -62,8 +62,8 @@ public:
   void PacketData(uint32 socket,SocketType socket_type,
     const char *data,uint16 len);
   void UnpackData(char *data,uint16 len);
-private:
   void Destory();
+private:
   void AddInNetworkHeader(uint32 local_socket, SocketType socket_type,uint16 len);
   void ConvertNetworkHeaderToBuffer();
 

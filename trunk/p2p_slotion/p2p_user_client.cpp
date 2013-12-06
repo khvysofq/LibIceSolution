@@ -88,7 +88,7 @@ void P2PUserClient::Initiatlor(){
     local_peer_name.begin(),tolower);
 
   p2p_source_management_->AddNewServerResource("RTSP_SERVER",
-    "127.0.0.1",554,random_string);
+    "127.0.0.1",8557,random_string);
   p2p_source_management_->AddNewServerResource("HTTP_SERVER",
     "127.0.0.1",80,random_string);
   p2p_source_management_->SetLocalPeerName(local_peer_name);

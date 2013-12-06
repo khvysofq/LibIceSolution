@@ -52,8 +52,12 @@ class P2PConnectionImplementator
 public:
   explicit P2PConnectionImplementator(const std::string &remote_jid,
     talk_base::StreamInterface *stream);
-
-  bool IsMe(const std::string &remote_jid);
+  ~P2PConnectionImplementator();
+  void Destory();
+  void CloseStream();
+  bool IsMe(const std::string &remote_jid) const {
+    return remote_jid_ == remote_jid;
+  };
 
   //
   virtual void Send(uint32,SocketType,const char*,uint16,

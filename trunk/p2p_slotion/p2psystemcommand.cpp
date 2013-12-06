@@ -137,6 +137,52 @@ talk_base::ByteBuffer *P2PSystemCommandFactory::RTSPClientSocketClose(
 
 }
 
+talk_base::ByteBuffer *P2PSystemCommandFactory::RTSPSocketClose(
+  uint32 server_socket,uint32 client_socket,bool is_server)
+{
+  talk_base::ByteBuffer *byte_buffer = new talk_base::ByteBuffer();
+
+  byte_buffer->WriteUInt32(P2P_SYSTEM_COMMAND_IDE);
+
+  if(is_server)
+    byte_buffer->WriteUInt32(P2P_SYSTEM_SERVER_SOCKET_CLOSE);
+  else
+    byte_buffer->WriteUInt32(P2P_SYSTEM_CLIENT_SOCKET_CLOSE);
+
+  byte_buffer->WriteUInt32(server_socket);
+  byte_buffer->WriteUInt32(client_socket);
+  byte_buffer->WriteUInt32(0);
+  byte_buffer->WriteUInt16(0);
+  byte_buffer->WriteUInt16(P2P_SYSTEM_COMMAND_PADDING_BYTE);
+
+  //Maybe there is a bug.
+  return byte_buffer;
+}
+
+talk_base::ByteBuffer *P2PSystemCommandFactory::RTSPSocketCloseSucceed(
+  uint32 server_socket, uint32 client_socket,bool is_server)
+{
+
+  talk_base::ByteBuffer *byte_buffer = new talk_base::ByteBuffer();
+
+  byte_buffer->WriteUInt32(P2P_SYSTEM_COMMAND_IDE);
+
+  if(is_server)
+    byte_buffer->WriteUInt32(P2P_SYSTEM_SERVER_SOCKET_CLOSE_SUCCEED);
+  else
+    byte_buffer->WriteUInt32(P2P_SYSTEM_CLIENT_SOCKET_CLOSE_SUCCEED);
+
+  byte_buffer->WriteUInt32(server_socket);
+  byte_buffer->WriteUInt32(client_socket);
+  byte_buffer->WriteUInt32(0);
+  byte_buffer->WriteUInt16(0);
+  byte_buffer->WriteUInt16(P2P_SYSTEM_COMMAND_PADDING_BYTE);
+
+  //Maybe there is a bug.
+  return byte_buffer;
+}
+
+
 
 void P2PSystemCommandFactory::DeleteRTSPClientCommand(talk_base::ByteBuffer *data){
   ASSERT(data != NULL);

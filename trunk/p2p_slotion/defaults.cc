@@ -40,7 +40,7 @@
 #include "talk/base/basictypes.h"
 #include "talk/base/socketaddress.h"
 
-
+LOG_FILTER log_filter = ALWAYS_INFOR;
 
 std::string GetEnvVarOrDefault(const char* env_var_name,
                                const char* default_value) {

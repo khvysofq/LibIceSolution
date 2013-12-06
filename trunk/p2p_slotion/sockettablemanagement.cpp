@@ -53,6 +53,9 @@ SocketTableManagement::SocketTableManagement(){
 bool SocketTableManagement::AddNewLocalSocket(uint32 local_socket, uint32 remote_socket,
                                               SocketType socket_type)
 {
+  std::cout << __FUNCTION__ << "\t local socket is \t" << local_socket
+    << "\nremote socket is\t" << remote_socket
+    << std::endl;
   SocketTableMap::iterator iter = local_socket_map_.find(local_socket);
   if(iter != local_socket_map_.end()){
     LOG(LS_ERROR) << "existed local socket";

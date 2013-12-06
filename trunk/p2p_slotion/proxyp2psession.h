@@ -38,20 +38,26 @@
 #include "talk/base//thread.h"
 
 #include "talk/base/basictypes.h"
+#include "talk/base/bytebuffer.h"
 #include "defaults.h"
 
 class ProxySocketBegin;
 class P2PConnectionImplementator;
+class P2PConnectionManagement;
 class P2PSystemCommandFactory;
 class ProxyServerFactory;
 class SocketTableManagement;
 
 
-class ProxyP2PSession : public sigslot::has_slots<>{
+class ProxyP2PSession : public sigslot::has_slots<>,
+  public talk_base::MessageHandler
+{
 public:
-  ProxyP2PSession(P2PConnectionImplementator *p2p_connection_implementator);
-
+  ProxyP2PSession(talk_base::StreamInterface *stream,
+    const std::string &remote_peer_name);
+  ~ProxyP2PSession();
   void RegisterProxySocket(ProxySocketBegin *proxy_socket_begin);
+  void DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begin);
 
   ProxySocketBegin* GetProxySocketBegin(uint32 local_socket){
     return proxy_socket_begin_map_[local_socket];
@@ -59,7 +65,6 @@ public:
   P2PConnectionImplementator *GetP2PConnectionImplementator() const{
     return p2p_connection_implementator_;
   }
-  void DestoryAll();
   bool IsMe(const std::string remote_peer_name)const ;
 
   //p2p system management
@@ -67,13 +72,19 @@ public:
     const talk_base::SocketAddress& addr);
   void ReplayClientSocketCreateSucceed(uint32 server_socket, 
     uint32 client_socket,const talk_base::SocketAddress &addr);
-  void P2PServerSocketClose(uint32 server_socket);
-  void P2PClientSocketClose(uint32 client_socket);
+  //void P2PServerSocketClose(uint32 server_socket);
+  //void P2PClientSocketClose(uint32 server_socket,uint32 client_socket);
+  void P2PSocketClose(uint32 socket, bool is_server);
+  void P2PSocketCloseSucceed(uint32 socket, bool is_server);
 
 private:
+  void Destory();
+  virtual void OnMessage(talk_base::Message *msg);
   //p2p system management
   bool ProceesSystemCommand(const char *data, uint16 len);
   void CloseP2PSocket(uint32 socket);
+  void CloseP2PSocketSucceed(uint32 socket);
+  void IsAllProxySocketClosed();
   //
   bool  RunSocketProccess(uint32 socket, SocketType socket_type,
     const char *data, uint16 len);
@@ -85,14 +96,19 @@ private:
   void OnStreamClose(talk_base::StreamInterface *stream);
   //All proxy get the write events.
   void OnStreamWrite(talk_base::StreamInterface *stream);
+  void SendCommand(talk_base::ByteBuffer *byte_buffer);
 private:
+  static const size_t BUFFER_SIZE = 1024;
   typedef std::map<uint32, ProxySocketBegin*> ProxySocketBeginMap;
   ProxySocketBeginMap          proxy_socket_begin_map_;
+  talk_base::FifoBuffer        *command_send_buffer_;
 
   P2PConnectionImplementator   *p2p_connection_implementator_;
+  P2PConnectionManagement      *p2p_connection_management_;
   P2PSystemCommandFactory      *p2p_system_command_factory_;
   talk_base::Thread            *current_thread_;
   SocketTableManagement        *socket_table_management_;
+  bool                         is_self_close;
 
 };
 

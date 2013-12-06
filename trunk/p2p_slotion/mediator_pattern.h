@@ -60,8 +60,8 @@ public:
   };
   /////////////////////////////////////////////////////////
   //user interface 
-  virtual void DestroyPeerConnectionIce() = 0;
-  virtual void ConnectionToRemotePeer(ProxySocketBegin *proxy_socket_begin,
+  virtual void Destroy() = 0;
+  virtual talk_base::StreamInterface *ConnectionToRemotePeer(
     int remote_peer_id) = 0;
   /////////////////////////////////////////////////////////
   //ice to p2p server interface
