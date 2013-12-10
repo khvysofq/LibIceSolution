@@ -54,6 +54,7 @@ class ProxySocketBegin : public sigslot::has_slots<>,
 public:
   ProxySocketBegin(talk_base::AsyncSocket *int_socket = NULL);
   void Destory();
+  ~ProxySocketBegin();
 
   uint32 GetSocketNumber() const{return (uint32)(int_socket_.get());}
 
@@ -69,11 +70,14 @@ public:
   virtual void OnP2PClose(talk_base::StreamInterface *stream);
   virtual void OnOtherSideSocketCloseSucceed(
     talk_base::StreamInterface *stream);
+  virtual void OnProxySocketConnectFailure(
+    talk_base::StreamInterface *stream);
   
 protected:
 
   virtual void CloseP2PSocket();
   virtual void SendCloseSocketSucceed();
+  virtual void InternalSocketError(talk_base::AsyncSocket* socket, int err);
 
   //Internal Socket Signal function
   virtual void OnInternalRead(talk_base::AsyncSocket* socket);
@@ -89,14 +93,26 @@ protected:
     talk_base::FifoBuffer *buffer);
   virtual void WriteBufferDataToP2P(talk_base::FifoBuffer *buffer);
   virtual void OnMessage(talk_base::Message* msg);
+
+  void SetProxyP2PSession(ProxyP2PSession *proxy_p2p_session);
 protected:
   enum{
-    SOCK_CLOSE,
-    SOCK_CONNECTED,
-    SOCK_CONNECT_PEER,
-    SOCK_PEER_CONNECT_SUCCEED,
-    SOCK_CONNECT_SERVER,
-  }int_socket_state_,p2p_socket_state_;
+    P2P_SOCKET_START,
+    P2P_SOCKET_CONNECTING_PEER,
+    P2P_SOCKET_PEER_CONNECTED,
+    P2P_SOCKET_CONNECTING_PROXY_SOCKET,
+    P2P_SOCKET_PROXY_CONNECTED,
+    P2P_SOCKET_CLOSING,
+    P2P_SOCKET_CLOSED
+  } p2p_socket_state_;
+
+  enum{
+    INT_SCOKET_START,
+    INT_SOCKET_CONNECTING,
+    INT_SOCKET_CONNECTED,
+    INT_SOCKET_CLOSED
+  }int_socket_state_;
+
   static const int KBufferSize = 1024 * 64;
   talk_base::scoped_ptr<talk_base::AsyncSocket> int_socket_;
   talk_base::FifoBuffer out_buffer_;
@@ -113,7 +129,6 @@ protected:
   //remove the is_server_ control in a function to set by derived classes.
   ///////////////////////////////////////////////////////////////////////////
   bool                          is_server_;
-  bool                          client_write_date_;
   ProxyP2PSession              *proxy_p2p_session_;
   P2PConnectionImplementator   *p2p_connection_implementator_;
   talk_base::Thread            *current_thread_;

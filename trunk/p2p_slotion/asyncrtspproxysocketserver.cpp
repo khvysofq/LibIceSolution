@@ -111,8 +111,8 @@ RTSPServerSocketStart::RTSPServerSocketStart(
   std::cout << __FUNCTION__ << "\tCreate RTSPServerSocketStart Object " 
     << std::endl;
   is_server_        = true;
-  int_socket_state_ = SOCK_CONNECTED;
-  p2p_socket_state_ = SOCK_CLOSE;
+  int_socket_state_ = INT_SOCKET_CONNECTED;
+  p2p_socket_state_ = P2P_SOCKET_START;
   
   rtsp_socket_->SignalConnectRequest.connect(this,
     &RTSPServerSocketStart::OnConnectRequest);
@@ -230,9 +230,6 @@ void RTSPServerSocketStart::ParseRTSPGetSourceName(char *data, size_t *len){
 }
 
 bool RTSPServerSocketStart::ConnectTheSource(const std::string &source_ide){
-  if(p2p_socket_state_ != SOCK_CLOSE)
-    return false;
-
   std::cout << __FUNCTION__ << "\t Requesting source is " << source_ide
     << std::endl;
   //std::cout << addr.ToString() << std::endl;

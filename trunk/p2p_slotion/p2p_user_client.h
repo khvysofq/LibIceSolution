@@ -70,6 +70,7 @@ public:
 
   bool                        is_peer_connect_;
 private:
+
   void SendRandomData();
 
   talk_base::Thread           *worker_thread_;

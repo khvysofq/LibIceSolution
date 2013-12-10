@@ -59,7 +59,7 @@ DataMultiplexMachine::DataMultiplexMachine(
 }
 
 void DataMultiplexMachine::Destory(){
-  LOG_F_S(LS_INFO,OFOI) << "Destory";
+//  LOG_F_S(LS_INFO,OFOI) << "Destory";
 }
 DataMultiplexMachine::~DataMultiplexMachine(){
   delete send_network_header_;
@@ -239,7 +239,7 @@ void DataMultiplexMachine::UnpackData(char *data, uint16 len){
     //6. reading the last data, it's relay data from remote peer.
     else if(reading_states_ == READING_DATA){
       if(network_byte_buffer.Length() >= 
-        receive_network_header_->data_len_ - receive_current_len_){
+        size_t(receive_network_header_->data_len_ - receive_current_len_)){
 
           network_byte_buffer.ReadBytes(&receive_low_buffer_[receive_current_len_],
             receive_network_header_->data_len_ - receive_current_len_);

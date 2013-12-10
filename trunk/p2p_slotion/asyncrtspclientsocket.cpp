@@ -53,15 +53,13 @@ RTSPClientSocket::RTSPClientSocket(ProxyP2PSession *proxy_p2p_session,
 
   std::cout << __FUNCTION__ << "\t Connect to " << server_addr.ToString() 
     << std::endl;
-  proxy_p2p_session_ = proxy_p2p_session;
-  p2p_connection_implementator_ = 
-    proxy_p2p_session_->GetP2PConnectionImplementator();
+  SetProxyP2PSession(proxy_p2p_session);
 
   is_server_ = false;
   int_socket_->SignalConnectEvent.connect(this,
     &RTSPClientSocket::OnInternalConnect);
-  p2p_socket_state_ = SOCK_PEER_CONNECT_SUCCEED;
-  int_socket_state_ = SOCK_CLOSE;
+  p2p_socket_state_ = P2P_SOCKET_PEER_CONNECTED;
+  int_socket_state_ = INT_SCOKET_START;
   int_socket_->Connect(server_addr);
   remote_peer_addr_ = server_addr;
 }
@@ -73,16 +71,23 @@ void RTSPClientSocket::OnInternalConnect(
   std::cout << __FUNCTION__ << "\t connect server succeed "
     << std::endl;
   LOG(LS_INFO) << __FUNCTION__;
-  ASSERT(int_socket_state_ == SOCK_CLOSE);
+  ASSERT(int_socket_state_ == INT_SCOKET_START);
 
   //The Client connect was accept
   //Then Send the connect succeed to remote peer
   ASSERT(int_socket_.get() == socket);
+  int_socket_state_ = INT_SOCKET_CONNECTED;
+  p2p_socket_state_ = P2P_SOCKET_PROXY_CONNECTED;
   proxy_p2p_session_->ReplayClientSocketCreateSucceed(server_socket_number_,
     (uint32)socket,remote_peer_addr_);
+}
 
-  int_socket_state_ = SOCK_CONNECTED;
-  p2p_socket_state_ = SOCK_CONNECTED;
+void RTSPClientSocket::InternalSocketError(talk_base::AsyncSocket *socket,int err)
+{
+  proxy_p2p_session_->P2PSocketConnectFailure(
+    server_socket_number_,(uint32)int_socket_.get());
+  p2p_socket_state_ = P2P_SOCKET_CLOSED;
+  Destory();
 }
 //
 //void RTSPClientSocket::OnInternalClose(talk_base::AsyncSocket* socket, int err){

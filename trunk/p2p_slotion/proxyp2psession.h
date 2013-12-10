@@ -72,10 +72,10 @@ public:
     const talk_base::SocketAddress& addr);
   void ReplayClientSocketCreateSucceed(uint32 server_socket, 
     uint32 client_socket,const talk_base::SocketAddress &addr);
-  //void P2PServerSocketClose(uint32 server_socket);
-  //void P2PClientSocketClose(uint32 server_socket,uint32 client_socket);
   void P2PSocketClose(uint32 socket, bool is_server);
   void P2PSocketCloseSucceed(uint32 socket, bool is_server);
+  void P2PSocketConnectFailure(uint32 server_socket,
+    uint32 client_socket);
 
 private:
   void Destory();
@@ -84,6 +84,7 @@ private:
   bool ProceesSystemCommand(const char *data, uint16 len);
   void CloseP2PSocket(uint32 socket);
   void CloseP2PSocketSucceed(uint32 socket);
+  void ConnectProxySocketFailure(uint32 socket);
   void IsAllProxySocketClosed();
   //
   bool  RunSocketProccess(uint32 socket, SocketType socket_type,

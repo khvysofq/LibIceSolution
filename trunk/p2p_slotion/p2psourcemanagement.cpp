@@ -49,7 +49,7 @@ P2PSourceManagement *P2PSourceManagement::Instance(){
 //////////////////////////////////////////////////////////////////////////
 
 void P2PSourceManagement::SetLocalPeerName(const std::string &peer_name){
-  //defualt set the peer id is 0;
+  //default set the peer id is 0;
   local_peer_resource_.peer_id_  = 0;
   local_peer_resource_.peer_jid_ = peer_name;
 }
@@ -95,6 +95,14 @@ int P2PSourceManagement::GetRemotePeerIdByPeerName(const std::string &remote_pee
   return 0;
 }
 
+bool P2PSourceManagement::AddNewServerResources(ServerResources *server_resources){
+
+  for(ServerResources::iterator iter = server_resources->begin();
+    iter != server_resources->end(); iter++){
+      p2p_source_management_->AddNewServerResource((*iter));
+  }
+  SignalRegisterServerResources(GetServerResourceString());
+}
 
 bool P2PSourceManagement::AddNewServerResource(ServerResource *server_resource){
   //

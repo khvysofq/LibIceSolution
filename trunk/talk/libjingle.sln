@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "streamtest", "..\streamtest
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PorxyTest", "..\PorxyTest\PorxyTest.vcxproj", "{40B3CF75-861E-4145-B683-51972FDE385B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibRegister", "..\LibRegitster\LibRegitster.vcxproj", "{0B79C66F-E542-417A-893E-6669D4E2D38B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -203,6 +205,18 @@ Global
 		{40B3CF75-861E-4145-B683-51972FDE385B}.Release|Win32.ActiveCfg = Release|Win32
 		{40B3CF75-861E-4145-B683-51972FDE385B}.Release|Win32.Build.0 = Release|Win32
 		{40B3CF75-861E-4145-B683-51972FDE385B}.Release|x64.ActiveCfg = Release|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Debug|Win32.Build.0 = Debug|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Debug|x64.ActiveCfg = Debug|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Release|Any CPU.ActiveCfg = Release|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Release|Win32.ActiveCfg = Release|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Release|Win32.Build.0 = Release|Win32
+		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

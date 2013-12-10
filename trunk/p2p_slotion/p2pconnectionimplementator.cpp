@@ -42,8 +42,8 @@ P2PConnectionImplementator::P2PConnectionImplementator(
   const std::string &remote_jid,talk_base::StreamInterface *stream)
   :remote_jid_(remote_jid),stream_(stream)
 {
-  LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) 
-    << "\t Create A New P2PConnectionImplementator";
+  //LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) 
+  //  << "\t Create A New P2PConnectionImplementator";
 
   //Initialize basic parts
   send_data_buffer_      = new SendDataBuffer();
@@ -105,8 +105,8 @@ void P2PConnectionImplementator::OnStreamEvent(
     send_data_buffer_->SetNormalState();
 
     if(!is_connect_){
-      LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) << "Connected Succeed" 
-        << std::endl;
+      //LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) << "Connected Succeed" 
+        //<< std::endl;
       is_connect_ = true;
       SignalConnectSucceed(stream);
       return;
@@ -118,7 +118,7 @@ void P2PConnectionImplementator::OnStreamEvent(
 
   if (events & talk_base::SE_CLOSE) {
     LOG_F(LS_INFO) << "Stream SE_CLOSE";
-    LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) << "The stream closed";
+    //LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) << "The stream closed";
     stream_->Close();
     SignalStreamClose(stream);
   }

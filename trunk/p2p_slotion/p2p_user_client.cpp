@@ -87,10 +87,10 @@ void P2PUserClient::Initiatlor(){
   std::transform(local_peer_name.begin(),local_peer_name.end(),
     local_peer_name.begin(),tolower);
 
-  p2p_source_management_->AddNewServerResource("RTSP_SERVER",
-    "127.0.0.1",8557,random_string);
-  p2p_source_management_->AddNewServerResource("HTTP_SERVER",
-    "127.0.0.1",80,random_string);
+  //p2p_source_management_->AddNewServerResource("RTSP_SERVER",
+  //  "127.0.0.1",8557,random_string);
+  //p2p_source_management_->AddNewServerResource("HTTP_SERVER",
+  //  "127.0.0.1",80,random_string);
   p2p_source_management_->SetLocalPeerName(local_peer_name);
 
   p2p_connection_management_->Initialize(signal_thread_,worker_thread_);

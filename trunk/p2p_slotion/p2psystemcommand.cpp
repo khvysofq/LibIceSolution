@@ -182,6 +182,21 @@ talk_base::ByteBuffer *P2PSystemCommandFactory::RTSPSocketCloseSucceed(
   return byte_buffer;
 }
 
+talk_base::ByteBuffer *P2PSystemCommandFactory::RTSPSocketConnectFailure(
+  uint32 server_socket,uint32 client_socket)
+{
+  talk_base::ByteBuffer *byte_buffer = new talk_base::ByteBuffer();
+
+  byte_buffer->WriteUInt32(P2P_SYSTEM_COMMAND_IDE);
+  byte_buffer->WriteUInt32(P2P_SYSTEM_SOCKET_CONNECT_FAILURE);
+  byte_buffer->WriteUInt32(server_socket);
+  byte_buffer->WriteUInt32(client_socket);
+  byte_buffer->WriteUInt32(0);
+  byte_buffer->WriteUInt16(0);
+  byte_buffer->WriteUInt16(P2P_SYSTEM_COMMAND_PADDING_BYTE);
+  //Maybe there is a bug.
+  return byte_buffer;
+}
 
 
 void P2PSystemCommandFactory::DeleteRTSPClientCommand(talk_base::ByteBuffer *data){

@@ -84,8 +84,7 @@ ProxyP2PSession::~ProxyP2PSession(){
 void ProxyP2PSession::RegisterProxySocket(ProxySocketBegin *proxy_socket_begin)
 {
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
-  std::cout << __FUNCTION__ << "\t Register proxy socket"
-    << std::endl;
+  std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(
     proxy_socket_begin->GetSocketNumber());
   if(iter != proxy_socket_begin_map_.end()){
@@ -95,11 +94,13 @@ void ProxyP2PSession::RegisterProxySocket(ProxySocketBegin *proxy_socket_begin)
   }
   proxy_socket_begin_map_.insert(ProxySocketBeginMap::value_type(
     proxy_socket_begin->GetSocketNumber(),proxy_socket_begin));
-
+  std::cout << __FUNCTION__ << "\t Register proxy socket " 
+    << proxy_socket_begin_map_.size() << std::endl;
+  std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
 }
 
 void ProxyP2PSession::DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begin){
-  std::cout << __FUNCTION__ << std::endl;
+  std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   uint32 socket_number = proxy_socket_begin->GetSocketNumber();
   ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(socket_number);
   if(iter != proxy_socket_begin_map_.end()){
@@ -109,6 +110,8 @@ void ProxyP2PSession::DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begi
   } else{
     LOG_F(LS_ERROR) << "Delete Proxy Socket Begin error";
   }
+  std::cout << "Current connect is " << proxy_socket_begin_map_.size() << std::endl;
+  std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   IsAllProxySocketClosed();
 }
 
@@ -269,41 +272,17 @@ void ProxyP2PSession::P2PSocketCloseSucceed(uint32 socket, bool is_server){
   SendCommand(byte_buffer);
 }
 
-//void ProxyP2PSession::P2PServerSocketClose(uint32 server_socket){
-//  LOG(LS_INFO) << __FUNCTION__;
-//  //socket_table_management_ = SocketTableManagement::Instance();
-//  //generate a reply string
-//  is_self_close = true;
-//  uint32 client_socket = 
-//    socket_table_management_->GetRemoteSocket(server_socket);
-//
-//  std::cout << __FUNCTION__ << "\t close server socket \n"
-//    <<"\t server socket is " << server_socket
-//    <<"\t client socket is " << client_socket
-//    << std::endl;
-//  talk_base::ByteBuffer *reply_string = 
-//    p2p_system_command_factory_->RTSPServerSocketClose(
-//    server_socket,client_socket);
-//  //send this string to remote peer
-//  SendCommand(reply_string);
-//}
-//
-//void ProxyP2PSession::P2PClientSocketClose(uint32 server_socket,uint32 client_socket){
-//
-//  LOG(LS_INFO) << __FUNCTION__;
-//  //socket_table_management_ = SocketTableManagement::Instance();
-//  //generate a reply string
-//  is_self_close = true;
-//
-//  std::cout << __FUNCTION__ << "\t close client socket \n"
-//    <<"\t server socket is " << server_socket
-//    <<"\t client socket is " << client_socket
-//    << std::endl;
-//  talk_base::ByteBuffer *reply_string = 
-//    p2p_system_command_factory_->RTSPServerSocketClose(
-//    server_socket,client_socket);
-//  SendCommand(reply_string);
-//}
+void ProxyP2PSession::P2PSocketConnectFailure(uint32 server_socket,
+                                              uint32 client_socket)
+{
+  std::cout << __FUNCTION__ << std::endl;
+
+  talk_base::ByteBuffer *byte_buffer  =
+    p2p_system_command_factory_->RTSPSocketConnectFailure(
+    server_socket,client_socket);
+
+  SendCommand(byte_buffer);
+}
 
 bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
 
@@ -340,7 +319,6 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
     RTSPClientSocket *rtsp_client_socket = 
       ProxyServerFactory::CreateRTSPClientSocket(this,int_socket,
       server_socket,server_addr);
-    RegisterProxySocket(rtsp_client_socket);
   }
   else if(p2p_system_command_type == P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED){
     LOG(LS_INFO) << "Client Socket Create Succeed";
@@ -371,6 +349,9 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
     is_self_close = true;
     CloseP2PSocketSucceed(server_socket);
   }
+  else if(p2p_system_command_type == P2P_SYSTEM_SOCKET_CONNECT_FAILURE){
+    ConnectProxySocketFailure(server_socket);
+  }
   return true;
 }
 
@@ -398,6 +379,18 @@ void ProxyP2PSession::CloseP2PSocketSucceed(uint32 socket){
   }
   std::cout << __FUNCTION__ << "\t Other side socket close succeed";
   proxy_socket_begin_map_[socket]->OnOtherSideSocketCloseSucceed(NULL);
+}
+
+void ProxyP2PSession::ConnectProxySocketFailure(uint32 socket){
+  std::cout << __FUNCTION__ << std::endl;
+  ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(socket);
+  if(iter == proxy_socket_begin_map_.end()){
+    LOG(LS_ERROR) << "The Close Socket is not a member of proxy socket begin map";
+    //Never reach here
+    ASSERT(0);
+    return ;
+  }
+  proxy_socket_begin_map_[socket]->OnProxySocketConnectFailure(NULL);
 }
 
 void ProxyP2PSession::IsAllProxySocketClosed(){

@@ -4,11 +4,11 @@
  * 
  * Author   : GuangLei He
  * Email    : guangleihe@gmail.com
- * Created  : 2013/11/19      19:14
- * Filename : F:\GitHub\trunk\p2p_slotion\asyncrtspclientsocket.h
- * File path: F:\GitHub\trunk\p2p_slotion
- * File base: asyncrtspclientsocket
- * File ext : h
+ * Created  : 2013/12/10      18:48
+ * Filename : F:\GitHub\trunk\LibRegitster\main.cpp
+ * File path: F:\GitHub\trunk\LibRegitster
+ * File base: main
+ * File ext : cpp
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,35 +33,3 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ASYNC_RTSP_CLIENT_SOCKET_H_
-#define ASYNC_RTSP_CLIENT_SOCKET_H_
-
-#include "talk/base/socketadapters.h"
-#include "talk/base/proxyserver.h"
-#include "talk/base/sigslot.h"
-#include "talk/base/scoped_ptr.h"
-
-#include "proxysocketmanagement.h"
-
-class ProxyP2PSession;
-
-class RTSPClientSocket : public ProxySocketBegin
-{
-public:
-  explicit RTSPClientSocket(ProxyP2PSession *proxy_p2p_session,
-    talk_base::AsyncSocket *int_socket,
-    uint32 server_socket_number,
-    const talk_base::SocketAddress &server_addr);
-private:
-  void OnInternalConnect(talk_base::AsyncSocket* socket);
-  virtual void InternalSocketError(talk_base::AsyncSocket* socket, int err);
-  //virtual void OnInternalClose(talk_base::AsyncSocket* socket,
-  //  int err);
-private:
-  uint32                       server_socket_number_;
-  DISALLOW_EVIL_CONSTRUCTORS(RTSPClientSocket);
-};
-
-
-
-#endif

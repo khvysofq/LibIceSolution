@@ -53,9 +53,12 @@ P2PServerConnectionManagement::P2PServerConnectionManagement()
   :p2p_server_connection_(new PeerConnectionServer()),
   state_(SERVER_OBJECT_INITIALIZE)
 {
-
+  is_server_connection_ = false;
 
     p2p_source_management_ = P2PSourceManagement::Instance();
+
+    p2p_source_management_->SignalRegisterServerResources.connect(this,
+      &P2PServerConnectionManagement::OnSignalRegisterServerResources);
 
     p2p_server_connection_->SignalStatesChange.connect(this,
       &P2PServerConnectionManagement::OnServerStatesChange);
@@ -66,41 +69,20 @@ P2PServerConnectionManagement::P2PServerConnectionManagement()
     p2p_server_connection_->SignalAPeerLogout.connect(p2p_source_management_,
       &P2PSourceManagement::OnAPeerLogout);
 
-    ////This is test set.
-    ////Add Server Resource
-    //p2p_source_management_->AddNewServerResource("RTSP_SERVER","192.168.1.1",554,"RTSP");
-    //p2p_source_management_->AddNewServerResource("HTTP_SERVER","192.168.1.1",80,"HTTP");
-    ////Set Local peer name.
-    //std::string local_peer_name = GetCurrentComputerUserName();
-    //local_peer_name += JID_DEFAULT_DOMAIN;
 }
 
-//bool P2PServerConnectionManagement::Initialize(
-//  AbstractP2PServerConnection *p2p_server_connection)
-//{
-//  if(state_ != SERVER_OBJECT_INITIALIZE){
-//    LOG(LS_ERROR) << "The Initialize function only called before Instance";
-//    return false;
-//  }
-//  delete p2p_server_connection_;
-//  p2p_server_connection_ = p2p_server_connection;
-//  return true;
-//}
 
-//void P2PServerConnectionManagement::OnSendMessageToRemotePeer(
-//  int peer_id, const std::string &msg)
-//{
-//  if(state_ != SERVER_CONNECTING_SUCCEED){
-//    LOG(LS_ERROR) << "Server not login succeed";
-//  }
-//  p2p_server_connection_->OnSendMessageToRemotePeer(msg,peer_id);
-//}
-//
-//void P2PServerConnectionManagement::OnReceiveMessageFromRemotePeer(
-//  const std::string msg,int peer_id)
-//{
-//  SignalReceiveMessageFromRemotePeer(peer_id,msg);
-//}
+void P2PServerConnectionManagement::OnSignalRegisterServerResources(
+  const std::string &new_resources_string)
+{
+  /////////////////////////////////////////////////////////
+  //BUG NOTE (GuangleiHe, 11/28/2013)
+  //Maybe there has a bug.
+  //Because if the peer is a client peer that has no 
+  //server resource. What I can do?
+  /////////////////////////////////////////////////////////
+  p2p_server_connection_->UpdataPeerInfor(new_resources_string);
+}
 
 void P2PServerConnectionManagement::OnServerStatesChange(
   StatesChangeType state_type)
@@ -113,14 +95,7 @@ void P2PServerConnectionManagement::OnServerStatesChange(
         LOG(LS_ERROR) << "Has Error at here";
         return ;
       }
-      /////////////////////////////////////////////////////////
-      //BUG NOTE (GuangleiHe, 11/28/2013)
-      //Maybe there has a bug.
-      //Because if the peer is a client peer that no 
-      //server resource. What I can do?
-      /////////////////////////////////////////////////////////
-      p2p_server_connection_->UpdataPeerInfor(
-        p2p_source_management_->GetServerResourceString());
+      is_server_connection_ = true;
       state_ = LOCAL_UPDATA_INFO;
       break;
     }
@@ -207,17 +182,3 @@ void P2PServerConnectionManagement::SetIceDataTunnel(
   ice_connection->SignalSendMessageToRemote.connect(p2p_server_connection_,
     &AbstractP2PServerConnection::OnSendMessageToRemotePeer);
 }
-
-//void P2PServerConnectionManagement::SetLocalName(const std::string &local_name){
-//  if(state_ != SERVER_OBJECT_INITIALIZE){
-//    LOG(LS_ERROR) << "SetLocalName is error";
-//  }
-//  p2p_source_management_->SetLocalPeerName(local_name);
-//  p2p_server_connection_->set_local_peer_name(local_name);
-//  state_ = LOCAL_PEER_NAME_SET;
-//}
-//
-//const std::string P2PServerConnectionManagement::GetLocalName() const {
-//  return p2p_server_connection_->get_local_name();
-//}
-

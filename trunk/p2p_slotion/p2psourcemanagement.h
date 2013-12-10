@@ -85,7 +85,7 @@ public:
   ~P2PSourceManagement(){
     DeleteAllServerResource(local_peer_resource_.server_resources_);
   }
-
+  sigslot::signal1<const std::string &> SignalRegisterServerResources;
   //P2PConnectionManagement interface
   const std::string SreachPeerByServerResource(
     const talk_base::SocketAddress &addr);
@@ -130,6 +130,7 @@ public:
   int  GetRemotePeerIdByPeerName(const std::string &remote_peer_name);
 
   //
+  bool AddNewServerResources(ServerResources *server_resources);
   bool AddNewServerResource(ServerResource *server_resource);
   bool AddNewServerResource(const std::string &server_name,
     const std::string &server_ip, int server_port,

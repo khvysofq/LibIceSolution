@@ -47,22 +47,12 @@ public:
   void SignInP2PServer(const talk_base::SocketAddress &server_addr);
   bool UpdatePeerInfor(const std::string &);
   void SetIceDataTunnel(AbstractICEConnection *ice_connection);
-  //All resource are manage by P2PResourceManagement class
-  //so delete those function.
-  //void SetLocalName(const std::string &local_name);
-  //const std::string GetLocalName() const;
 
-  //sigslot::signal2<int,const std::string &> 
-  //  SignalReceiveMessageFromRemotePeer;
-  ////By default the p2p server connection object is PeerConnectionServer
-  ////who define at peer_connection_server.h
-  ////bool Initialize(AbstractP2PServerConnection *p2p_server_connection);
-  //void OnSendMessageToRemotePeer(int peer_id, const std::string &msg);
-
-
-  //void OnReceiveMessageFromRemotePeer(const std::string msg,int peer_id);
 private:
-
+  //For p2p resource management
+  void OnSignalRegisterServerResources(const std::string &new_resources_string);
+  
+  //For p2p server connection
   void OnServerStatesChange(StatesChangeType state_type);
 
   enum{
@@ -74,6 +64,7 @@ private:
   }state_;
   AbstractP2PServerConnection *p2p_server_connection_;
   P2PSourceManagement         *p2p_source_management_;
+  bool                        is_server_connection_;
 
   //////////////////////////////////////////////////////////////////////////
 public:

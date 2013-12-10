@@ -70,13 +70,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>JSONCPP_RELATIVE_PATH;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\;..\third_party\jsoncpp\source\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\build\Release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>expat.lib;Secur32.lib;iphlpapi.lib;libjingle.lib;libjingle_p2p.lib;jsoncpp.lib;winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -99,6 +103,7 @@
     <ClInclude Include="proxyp2psession.h" />
     <ClInclude Include="proxyserverfactory.h" />
     <ClInclude Include="proxysocketmanagement.h" />
+    <ClInclude Include="registerlocalserver.h" />
     <ClInclude Include="senddatabuffer.h" />
     <ClInclude Include="sockettablemanagement.h" />
   </ItemGroup>
@@ -123,6 +128,7 @@
     <ClCompile Include="proxyp2psession.cpp" />
     <ClCompile Include="proxyserverfactory.cpp" />
     <ClCompile Include="proxysocketmanagement.cpp" />
+    <ClCompile Include="registerlocalserver.cpp" />
     <ClCompile Include="senddatabuffer.cpp" />
     <ClCompile Include="sockettablemanagement.cpp" />
   </ItemGroup>
