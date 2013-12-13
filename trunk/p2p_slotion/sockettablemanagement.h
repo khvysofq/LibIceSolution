@@ -36,6 +36,7 @@
 #ifndef SOCKET_TABLE_MANAGEMENT_H_
 #define SOCKET_TABLE_MANAGEMENT_H_
 #include "talk/base/basictypes.h"
+#include "talk/base/asyncpacketsocket.h"
 #include "defaults.h"
 #include <map>
 

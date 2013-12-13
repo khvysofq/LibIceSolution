@@ -1,0 +1,2129 @@
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/5255/trunk/talk/base
+END
+unixfilesystem.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/unixfilesystem.h
+END
+network.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/4872/trunk/talk/base/network.h
+END
+sha1.cc
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4318/trunk/talk/base/sha1.cc
+END
+dbus.cc
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4999/trunk/talk/base/dbus.cc
+END
+linked_ptr.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/linked_ptr.h
+END
+socketaddress.cc
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/socketaddress.cc
+END
+sha1digest.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/sha1digest.h
+END
+byteorder_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4318/trunk/talk/base/byteorder_unittest.cc
+END
+proxyinfo.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/proxyinfo.h
+END
+task_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/task_unittest.cc
+END
+win32socketinit.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/win32socketinit.h
+END
+sec_buffer.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/sec_buffer.h
+END
+rollingaccumulator.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4318/trunk/talk/base/rollingaccumulator.h
+END
+win32regkey.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/5038/trunk/talk/base/win32regkey.cc
+END
+nethelpers.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5120/trunk/talk/base/nethelpers.cc
+END
+proxyserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/proxyserver.h
+END
+winping.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/4318/trunk/talk/base/winping.h
+END
+nssidentity.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4954/trunk/talk/base/nssidentity.h
+END
+sslstreamadapter.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4945/trunk/talk/base/sslstreamadapter.h
+END
+bandwidthsmoother_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/4318/trunk/talk/base/bandwidthsmoother_unittest.cc
+END
+faketaskrunner.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/faketaskrunner.h
+END
+bandwidthsmoother.cc
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4318/trunk/talk/base/bandwidthsmoother.cc
+END
+stringutils_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/stringutils_unittest.cc
+END
+timing.cc
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/4318/trunk/talk/base/timing.cc
+END
+httpcommon_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/httpcommon_unittest.cc
+END
+macwindowpicker.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/macwindowpicker.h
+END
+sslconfig.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/sslconfig.h
+END
+sha1digest_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4941/trunk/talk/base/sha1digest_unittest.cc
+END
+flags.cc
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/flags.cc
+END
+socketaddress_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/4318/trunk/talk/base/socketaddress_unittest.cc
+END
+byteorder.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/byteorder.h
+END
+helpers_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4318/trunk/talk/base/helpers_unittest.cc
+END
+win32.cc
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/win32.cc
+END
+sslsocketfactory.cc
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4318/trunk/talk/base/sslsocketfactory.cc
+END
+fakesslidentity.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4954/trunk/talk/base/fakesslidentity.h
+END
+win32socketserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4999/trunk/talk/base/win32socketserver.h
+END
+firewallsocketserver.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4413/trunk/talk/base/firewallsocketserver.cc
+END
+ratetracker.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/ratetracker.cc
+END
+winping.cc
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/4318/trunk/talk/base/winping.cc
+END
+nethelpers.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/5120/trunk/talk/base/nethelpers.h
+END
+win32toolhelp.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4318/trunk/talk/base/win32toolhelp.h
+END
+win32regkey.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/win32regkey.h
+END
+crc32.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4318/trunk/talk/base/crc32.h
+END
+transformadapter.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/transformadapter.h
+END
+latebindingsymboltable.h
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/4941/trunk/talk/base/latebindingsymboltable.h
+END
+winfirewall_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/winfirewall_unittest.cc
+END
+base64.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/base64.h
+END
+win32securityerrors.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/win32securityerrors.cc
+END
+filelock.cc
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/filelock.cc
+END
+socket_unittest.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/socket_unittest.h
+END
+messagequeue.cc
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4608/trunk/talk/base/messagequeue.cc
+END
+stringutils.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/stringutils.h
+END
+common.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/5255/trunk/talk/base/common.h
+END
+bytebuffer_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/bytebuffer_unittest.cc
+END
+schanneladapter.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/schanneladapter.h
+END
+linux.cc
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/linux.cc
+END
+fileutils.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/fileutils.h
+END
+scoped_ptr.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/5056/trunk/talk/base/scoped_ptr.h
+END
+maccocoasocketserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/maccocoasocketserver.h
+END
+json.cc
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4318/trunk/talk/base/json.cc
+END
+httpbase.cc
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4469/trunk/talk/base/httpbase.cc
+END
+httpcommon-inl.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/httpcommon-inl.h
+END
+template_util.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5038/trunk/talk/base/template_util.h
+END
+crc32_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/crc32_unittest.cc
+END
+fileutils_mock.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/fileutils_mock.h
+END
+httpbase.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/4318/trunk/talk/base/httpbase.h
+END
+physicalsocketserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/physicalsocketserver.h
+END
+asyncfile.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/asyncfile.h
+END
+ratelimiter_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/ratelimiter_unittest.cc
+END
+macutils_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/5217/trunk/talk/base/macutils_unittest.cc
+END
+profiler.cc
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/5053/trunk/talk/base/profiler.cc
+END
+messagehandler.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4608/trunk/talk/base/messagehandler.cc
+END
+base64_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/base64_unittest.cc
+END
+event.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4318/trunk/talk/base/event.h
+END
+md5digest_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4941/trunk/talk/base/md5digest_unittest.cc
+END
+linuxfdwalk_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/linuxfdwalk_unittest.cc
+END
+network_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/5038/trunk/talk/base/network_unittest.cc
+END
+cryptstring.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/cryptstring.h
+END
+messagequeue.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4608/trunk/talk/base/messagequeue.h
+END
+proxyinfo.cc
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/proxyinfo.cc
+END
+asynctcpsocket.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4818/trunk/talk/base/asynctcpsocket.h
+END
+systeminfo.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/systeminfo.h
+END
+signalthread_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/4999/trunk/talk/base/signalthread_unittest.cc
+END
+posix.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4318/trunk/talk/base/posix.h
+END
+task.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/4318/trunk/talk/base/task.h
+END
+autodetectproxy.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/5120/trunk/talk/base/autodetectproxy.h
+END
+signalthread.cc
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4318/trunk/talk/base/signalthread.cc
+END
+ratetracker_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/ratetracker_unittest.cc
+END
+win32filesystem.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/5038/trunk/talk/base/win32filesystem.cc
+END
+httpserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/httpserver.h
+END
+physicalsocketserver_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/4338/trunk/talk/base/physicalsocketserver_unittest.cc
+END
+json.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/4318/trunk/talk/base/json.h
+END
+transformadapter.cc
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4318/trunk/talk/base/transformadapter.cc
+END
+crc32.cc
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/crc32.cc
+END
+nssidentity.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4954/trunk/talk/base/nssidentity.cc
+END
+testclient.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5026/trunk/talk/base/testclient.cc
+END
+pathutils.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/pathutils.h
+END
+diskcache.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/diskcache.h
+END
+urlencode.cc
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/urlencode.cc
+END
+winfirewall.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/winfirewall.cc
+END
+openssladapter.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4941/trunk/talk/base/openssladapter.cc
+END
+messagedigest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/5038/trunk/talk/base/messagedigest.cc
+END
+stringencode.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/stringencode.h
+END
+timing.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/timing.h
+END
+filelock.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/4318/trunk/talk/base/filelock.h
+END
+stream_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/stream_unittest.cc
+END
+schanneladapter.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/schanneladapter.cc
+END
+optionsfile.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/optionsfile.h
+END
+opensslidentity.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4954/trunk/talk/base/opensslidentity.h
+END
+macsocketserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/macsocketserver.h
+END
+helpers.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/4318/trunk/talk/base/helpers.h
+END
+win32toolhelp_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/4318/trunk/talk/base/win32toolhelp_unittest.cc
+END
+win32regkey_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/win32regkey_unittest.cc
+END
+ratetracker.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/ratetracker.h
+END
+physicalsocketserver.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/5120/trunk/talk/base/physicalsocketserver.cc
+END
+testclient_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4461/trunk/talk/base/testclient_unittest.cc
+END
+sslstreamadapter.cc
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4318/trunk/talk/base/sslstreamadapter.cc
+END
+socketadapters.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/socketadapters.h
+END
+ipaddress.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/ipaddress.h
+END
+proxy_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/proxy_unittest.cc
+END
+socketpool.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/socketpool.cc
+END
+socketfactory.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4318/trunk/talk/base/socketfactory.h
+END
+nssstreamadapter.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/nssstreamadapter.h
+END
+natsocketfactory.cc
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/5038/trunk/talk/base/natsocketfactory.cc
+END
+stringencode_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/4318/trunk/talk/base/stringencode_unittest.cc
+END
+asynchttprequest_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/4318/trunk/talk/base/asynchttprequest_unittest.cc
+END
+asyncsocket.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/asyncsocket.cc
+END
+refcount.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/4318/trunk/talk/base/refcount.h
+END
+httprequest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/httprequest.cc
+END
+optionsfile.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/optionsfile.cc
+END
+dscp.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/4818/trunk/talk/base/dscp.h
+END
+asyncudpsocket_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/4318/trunk/talk/base/asyncudpsocket_unittest.cc
+END
+windowpickerfactory.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4318/trunk/talk/base/windowpickerfactory.h
+END
+win32socketinit.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/win32socketinit.cc
+END
+checks.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/checks.h
+END
+rollingaccumulator_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/4318/trunk/talk/base/rollingaccumulator_unittest.cc
+END
+move.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/5056/trunk/talk/base/move.h
+END
+mathutils.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/mathutils.h
+END
+sslstreamadapter_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/4945/trunk/talk/base/sslstreamadapter_unittest.cc
+END
+asyncfile.cc
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/asyncfile.cc
+END
+taskparent.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/taskparent.h
+END
+timeutils_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4815/trunk/talk/base/timeutils_unittest.cc
+END
+latebindingsymboltable.cc
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/5120/trunk/talk/base/latebindingsymboltable.cc
+END
+event_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/event_unittest.cc
+END
+multipart.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/multipart.h
+END
+macwindowpicker_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/4318/trunk/talk/base/macwindowpicker_unittest.cc
+END
+bandwidthsmoother.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4318/trunk/talk/base/bandwidthsmoother.h
+END
+httpcommon.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4461/trunk/talk/base/httpcommon.cc
+END
+messagequeue_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/4696/trunk/talk/base/messagequeue_unittest.cc
+END
+referencecountedsingletonfactory_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/4318/trunk/talk/base/referencecountedsingletonfactory_unittest.cc
+END
+socket.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4818/trunk/talk/base/socket.h
+END
+asynctcpsocket.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4818/trunk/talk/base/asynctcpsocket.cc
+END
+asyncudpsocket.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4818/trunk/talk/base/asyncudpsocket.h
+END
+win32_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/win32_unittest.cc
+END
+ssladapter.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5217/trunk/talk/base/ssladapter.cc
+END
+windowpicker_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/4872/trunk/talk/base/windowpicker_unittest.cc
+END
+macconversion.cc
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/macconversion.cc
+END
+firewallsocketserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/firewallsocketserver.h
+END
+thread.cc
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/4999/trunk/talk/base/thread.cc
+END
+stringdigest.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/stringdigest.h
+END
+json_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/json_unittest.cc
+END
+win32filesystem.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/win32filesystem.h
+END
+socketadapters.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/socketadapters.cc
+END
+pathutils.cc
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/pathutils.cc
+END
+sslidentity.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4954/trunk/talk/base/sslidentity.h
+END
+latebindingsymboltable_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4318/trunk/talk/base/latebindingsymboltable_unittest.cc
+END
+urlencode_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4318/trunk/talk/base/urlencode_unittest.cc
+END
+ratelimiter.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/ratelimiter.cc
+END
+macutils.cc
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/5217/trunk/talk/base/macutils.cc
+END
+timeutils.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/timeutils.h
+END
+libdbusglibsymboltable.h
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/4318/trunk/talk/base/libdbusglibsymboltable.h
+END
+basicdefs.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/basicdefs.h
+END
+logging.cc
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/4941/trunk/talk/base/logging.cc
+END
+win32windowpicker_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/4318/trunk/talk/base/win32windowpicker_unittest.cc
+END
+httprequest.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/httprequest.h
+END
+opensslidentity.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4954/trunk/talk/base/opensslidentity.cc
+END
+cpumonitor_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4999/trunk/talk/base/cpumonitor_unittest.cc
+END
+bytebuffer.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/bytebuffer.h
+END
+nattypes.cc
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/nattypes.cc
+END
+proxydetect_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/proxydetect_unittest.cc
+END
+nullsocketserver_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/4318/trunk/talk/base/nullsocketserver_unittest.cc
+END
+latebindingsymboltable.cc.def
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/4318/trunk/talk/base/latebindingsymboltable.cc.def
+END
+sslidentity.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4519/trunk/talk/base/sslidentity.cc
+END
+sslfingerprint.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4945/trunk/talk/base/sslfingerprint.h
+END
+taskparent.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/taskparent.cc
+END
+diskcache.cc
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/diskcache.cc
+END
+nat_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4461/trunk/talk/base/nat_unittest.cc
+END
+profiler_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4318/trunk/talk/base/profiler_unittest.cc
+END
+openssldigest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4954/trunk/talk/base/openssldigest.cc
+END
+md5digest.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/md5digest.h
+END
+maccocoasocketserver_unittest.mm
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/4999/trunk/talk/base/maccocoasocketserver_unittest.mm
+END
+maccocoasocketserver.mm
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/maccocoasocketserver.mm
+END
+httpcommon.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/httpcommon.h
+END
+dbus_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/dbus_unittest.cc
+END
+fileutils.cc
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/fileutils.cc
+END
+cpumonitor.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/cpumonitor.h
+END
+opensslstreamadapter.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4945/trunk/talk/base/opensslstreamadapter.h
+END
+socketstream.cc
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4318/trunk/talk/base/socketstream.cc
+END
+httpserver_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/httpserver_unittest.cc
+END
+thread_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4999/trunk/talk/base/thread_unittest.cc
+END
+signalthread.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4999/trunk/talk/base/signalthread.h
+END
+sharedexclusivelock.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/sharedexclusivelock.cc
+END
+basictypes.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/basictypes.h
+END
+worker.cc
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/4318/trunk/talk/base/worker.cc
+END
+ipaddress.cc
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/ipaddress.cc
+END
+multipart_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4338/trunk/talk/base/multipart_unittest.cc
+END
+linuxwindowpicker_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/4872/trunk/talk/base/linuxwindowpicker_unittest.cc
+END
+linuxwindowpicker.cc
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4318/trunk/talk/base/linuxwindowpicker.cc
+END
+asyncsocket.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5026/trunk/talk/base/asyncsocket.h
+END
+ifaddrs-android.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/ifaddrs-android.cc
+END
+ifaddrs-android.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/ifaddrs-android.h
+END
+scoped_ref_ptr.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/scoped_ref_ptr.h
+END
+systeminfo.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5038/trunk/talk/base/systeminfo.cc
+END
+diskcache_win32.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/diskcache_win32.h
+END
+win32socketserver.cc
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/5038/trunk/talk/base/win32socketserver.cc
+END
+sslsocketfactory.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/sslsocketfactory.h
+END
+win32.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4318/trunk/talk/base/win32.h
+END
+thread.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4999/trunk/talk/base/thread.h
+END
+compile_assert.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/5038/trunk/talk/base/compile_assert.h
+END
+worker.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/worker.h
+END
+buffer.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/5038/trunk/talk/base/buffer.h
+END
+ipaddress_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4318/trunk/talk/base/ipaddress_unittest.cc
+END
+sigslotrepeater.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/sigslotrepeater.h
+END
+sslstreamadapterhelper.h
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/4945/trunk/talk/base/sslstreamadapterhelper.h
+END
+event.cc
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/event.cc
+END
+maccocoathreadhelper.mm
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/maccocoathreadhelper.mm
+END
+linuxfdwalk.c
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/linuxfdwalk.c
+END
+openssladapter.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/openssladapter.h
+END
+messagedigest.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4318/trunk/talk/base/messagedigest.h
+END
+linuxfdwalk.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/linuxfdwalk.h
+END
+bytebuffer.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/bytebuffer.cc
+END
+macsocketserver.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/macsocketserver.cc
+END
+atomicops.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/5038/trunk/talk/base/atomicops.h
+END
+autodetectproxy_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/5120/trunk/talk/base/autodetectproxy_unittest.cc
+END
+sharedexclusivelock_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/4318/trunk/talk/base/sharedexclusivelock_unittest.cc
+END
+macasyncsocket.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/5120/trunk/talk/base/macasyncsocket.cc
+END
+macconversion.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4318/trunk/talk/base/macconversion.h
+END
+versionparsing.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/versionparsing.cc
+END
+nattypes.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/4318/trunk/talk/base/nattypes.h
+END
+proxydetect.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4338/trunk/talk/base/proxydetect.cc
+END
+nullsocketserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/nullsocketserver.h
+END
+proxydetect.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/proxydetect.h
+END
+nssstreamadapter.cc
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4945/trunk/talk/base/nssstreamadapter.cc
+END
+httpclient.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/5120/trunk/talk/base/httpclient.h
+END
+messagedigest_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/4318/trunk/talk/base/messagedigest_unittest.cc
+END
+messagehandler.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/messagehandler.h
+END
+profiler.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/5053/trunk/talk/base/profiler.h
+END
+md5.cc
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/4380/trunk/talk/base/md5.cc
+END
+winfirewall.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/winfirewall.h
+END
+constructormagic.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/5038/trunk/talk/base/constructormagic.h
+END
+logging.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/5053/trunk/talk/base/logging.h
+END
+win32window_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/win32window_unittest.cc
+END
+sslroots.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/4318/trunk/talk/base/sslroots.h
+END
+optionsfile_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4318/trunk/talk/base/optionsfile_unittest.cc
+END
+asyncudpsocket.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4818/trunk/talk/base/asyncudpsocket.cc
+END
+fileutils_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4318/trunk/talk/base/fileutils_unittest.cc
+END
+checks.cc
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/4318/trunk/talk/base/checks.cc
+END
+posix.cc
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/posix.cc
+END
+task.cc
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4318/trunk/talk/base/task.cc
+END
+windowpicker.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/windowpicker.h
+END
+sharedexclusivelock.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4318/trunk/talk/base/sharedexclusivelock.h
+END
+versionparsing.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/versionparsing.h
+END
+latebindingsymboltable.h.def
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/4318/trunk/talk/base/latebindingsymboltable.h.def
+END
+bind.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/4318/trunk/talk/base/bind.h
+END
+timeutils.cc
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/timeutils.cc
+END
+base64.cc
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/5053/trunk/talk/base/base64.cc
+END
+natsocketfactory.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/natsocketfactory.h
+END
+asynchttprequest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4318/trunk/talk/base/asynchttprequest.cc
+END
+virtualsocketserver.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4413/trunk/talk/base/virtualsocketserver.cc
+END
+win32windowpicker.cc
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4318/trunk/talk/base/win32windowpicker.cc
+END
+fakecpumonitor.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/fakecpumonitor.h
+END
+virtualsocket_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/4872/trunk/talk/base/virtualsocket_unittest.cc
+END
+linux_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/linux_unittest.cc
+END
+systeminfo_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/systeminfo_unittest.cc
+END
+maccocoathreadhelper.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/maccocoathreadhelper.h
+END
+socketaddress.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4318/trunk/talk/base/socketaddress.h
+END
+helpers.cc
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/5038/trunk/talk/base/helpers.cc
+END
+testutils.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4872/trunk/talk/base/testutils.h
+END
+autodetectproxy.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/5120/trunk/talk/base/autodetectproxy.cc
+END
+buffer_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/buffer_unittest.cc
+END
+socketaddresspair.cc
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4318/trunk/talk/base/socketaddresspair.cc
+END
+bind_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/bind_unittest.cc
+END
+socketaddresspair.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4318/trunk/talk/base/socketaddresspair.h
+END
+libdbusglibsymboltable.cc
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/5120/trunk/talk/base/libdbusglibsymboltable.cc
+END
+multipart.cc
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/multipart.cc
+END
+criticalsection.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/criticalsection.h
+END
+scoped_autorelease_pool.mm
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/4318/trunk/talk/base/scoped_autorelease_pool.mm
+END
+socketpool.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/socketpool.h
+END
+testbase64.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/testbase64.h
+END
+macwindowpicker.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/macwindowpicker.cc
+END
+filelock_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4318/trunk/talk/base/filelock_unittest.cc
+END
+stream.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/5038/trunk/talk/base/stream.h
+END
+taskrunner.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/taskrunner.h
+END
+dbus.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/4318/trunk/talk/base/dbus.h
+END
+macsocketserver_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/4999/trunk/talk/base/macsocketserver_unittest.cc
+END
+cpumonitor.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5038/trunk/talk/base/cpumonitor.cc
+END
+linux.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4318/trunk/talk/base/linux.h
+END
+scoped_autorelease_pool.h
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/4318/trunk/talk/base/scoped_autorelease_pool.h
+END
+basictypes_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4318/trunk/talk/base/basictypes_unittest.cc
+END
+window.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/4318/trunk/talk/base/window.h
+END
+macasyncsocket.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/macasyncsocket.h
+END
+sslidentity_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/5038/trunk/talk/base/sslidentity_unittest.cc
+END
+sslstreamadapterhelper.cc
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/4945/trunk/talk/base/sslstreamadapterhelper.cc
+END
+urlencode.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/urlencode.h
+END
+stringencode.cc
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4318/trunk/talk/base/stringencode.cc
+END
+linuxwindowpicker.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4318/trunk/talk/base/linuxwindowpicker.h
+END
+unixfilesystem.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/unixfilesystem.cc
+END
+win32window.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/win32window.cc
+END
+win32windowpicker.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4318/trunk/talk/base/win32windowpicker.h
+END
+stream.cc
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/5038/trunk/talk/base/stream.cc
+END
+win32window.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/win32window.h
+END
+asynctcpsocket_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/4318/trunk/talk/base/asynctcpsocket_unittest.cc
+END
+sha1.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/4318/trunk/talk/base/sha1.h
+END
+bind.h.pump
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/4318/trunk/talk/base/bind.h.pump
+END
+opensslstreamadapter.cc
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4945/trunk/talk/base/opensslstreamadapter.cc
+END
+win32socketserver_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/4318/trunk/talk/base/win32socketserver_unittest.cc
+END
+ssladapter.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/5217/trunk/talk/base/ssladapter.h
+END
+socketstream.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/socketstream.h
+END
+testechoserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4818/trunk/talk/base/testechoserver.h
+END
+proxyserver.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/proxyserver.cc
+END
+versionparsing_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/4318/trunk/talk/base/versionparsing_unittest.cc
+END
+natserver.cc
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/5038/trunk/talk/base/natserver.cc
+END
+pathutils_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4318/trunk/talk/base/pathutils_unittest.cc
+END
+gunit_prod.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4786/trunk/talk/base/gunit_prod.h
+END
+httpclient.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5120/trunk/talk/base/httpclient.cc
+END
+asyncpacketsocket.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4818/trunk/talk/base/asyncpacketsocket.h
+END
+socketserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/socketserver.h
+END
+fakenetwork.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/fakenetwork.h
+END
+openssldigest.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/4954/trunk/talk/base/openssldigest.h
+END
+sigslot.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/4318/trunk/talk/base/sigslot.h
+END
+stringutils.cc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4318/trunk/talk/base/stringutils.cc
+END
+socket_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/5038/trunk/talk/base/socket_unittest.cc
+END
+gunit.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4318/trunk/talk/base/gunit.h
+END
+network.cc
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/5038/trunk/talk/base/network.cc
+END
+taskrunner.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/taskrunner.cc
+END
+atomicops_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4318/trunk/talk/base/atomicops_unittest.cc
+END
+referencecountedsingletonfactory.h
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4318/trunk/talk/base/referencecountedsingletonfactory.h
+END
+flags.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4318/trunk/talk/base/flags.h
+END
+diskcache_win32.cc
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/diskcache_win32.cc
+END
+httpserver.cc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/httpserver.cc
+END
+httpbase_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4338/trunk/talk/base/httpbase_unittest.cc
+END
+natserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/5026/trunk/talk/base/natserver.h
+END
+natserver_main.cc
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/4318/trunk/talk/base/natserver_main.cc
+END
+testclient.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/4318/trunk/talk/base/testclient.h
+END
+asyncresolverinterface.h
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/5120/trunk/talk/base/asyncresolverinterface.h
+END
+macutils.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/5217/trunk/talk/base/macutils.h
+END
+unittest_main.cc
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4318/trunk/talk/base/unittest_main.cc
+END
+ratelimiter.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4318/trunk/talk/base/ratelimiter.h
+END
+sigslot_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4318/trunk/talk/base/sigslot_unittest.cc
+END
+logging_unittest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4999/trunk/talk/base/logging_unittest.cc
+END
+md5.h
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/4318/trunk/talk/base/md5.h
+END
+common.cc
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/4380/trunk/talk/base/common.cc
+END
+virtualsocketserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4318/trunk/talk/base/virtualsocketserver.h
+END
+asynchttprequest.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/4318/trunk/talk/base/asynchttprequest.h
+END

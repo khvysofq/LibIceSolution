@@ -43,6 +43,6 @@ const int DEFUALT_PEER_CHECOUT_PORT_UDP   = 9998;
 //};
 
 //Register in to server
-bool RegisterInPeer(const char *peer_ip, int register_port,int update_port,
+bool LoginPeer(const char *peer_ip, int register_port,int update_port,
                     const char *server_type, const char *server_ip,
                     int server_port, const char *idetifier);

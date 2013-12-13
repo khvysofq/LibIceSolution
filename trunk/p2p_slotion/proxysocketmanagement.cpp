@@ -86,10 +86,10 @@ void ProxySocketBegin::Destory(){
   current_thread_->Post(this,DESTORY_MYSELFT);
 }
 
-bool ProxySocketBegin::IsMe(uint32 socket){
+bool ProxySocketBegin::IsMe(intptr_t socket){
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
   std::cout << __FUNCTION__ << std::endl;
-  return ((uint32)int_socket_.get()) == socket;
+  return ((intptr_t)int_socket_.get()) == socket;
 }
 
 void ProxySocketBegin::OnP2PRead(const char *data, uint16 len){
@@ -146,7 +146,7 @@ void ProxySocketBegin::OnProxySocketConnectFailure(
 void ProxySocketBegin::SendCloseSocketSucceed(){
   std::cout << __FUNCTION__ << std::endl;
 
-  proxy_p2p_session_->P2PSocketCloseSucceed((uint32)int_socket_.get(),
+  proxy_p2p_session_->P2PSocketCloseSucceed((intptr_t)int_socket_.get(),
     is_server_);
   p2p_socket_state_ = P2P_SOCKET_CLOSING;
 }
@@ -198,7 +198,7 @@ void ProxySocketBegin::InternalSocketError(talk_base::AsyncSocket* socket, int e
 void ProxySocketBegin::CloseP2PSocket(){
   //ASSERT(is_server_);
   std::cout <<__FUNCTION__ << std::endl;
-  proxy_p2p_session_->P2PSocketClose((uint32)int_socket_.get(),is_server_);
+  proxy_p2p_session_->P2PSocketClose((intptr_t)int_socket_.get(),is_server_);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -247,7 +247,7 @@ void ProxySocketBegin::WriteBufferDataToP2P(talk_base::FifoBuffer *buffer){
   size_t size;
   size_t written = 0;
   const void* p = buffer->GetReadData(&size);
-  p2p_connection_implementator_->Send((uint32)int_socket_.get(),
+  p2p_connection_implementator_->Send((intptr_t)int_socket_.get(),
     TCP_SOCKET,(const char *)p,size,&written);
   buffer->ConsumeReadData(written);
 }
@@ -302,7 +302,7 @@ void ProxySocketBegin::OnP2PPeerConnectSucceed(ProxyP2PSession
   p2p_socket_state_ = P2P_SOCKET_PEER_CONNECTED;
 
   SetProxyP2PSession(proxy_p2p_session);
-  proxy_p2p_session_->CreateClientSocketConnection((uint32)int_socket_.get(),
+  proxy_p2p_session_->CreateClientSocketConnection((intptr_t)int_socket_.get(),
     remote_peer_addr_);
 
   p2p_socket_state_ = P2P_SOCKET_CONNECTING_PROXY_SOCKET;

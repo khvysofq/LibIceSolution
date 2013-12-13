@@ -133,8 +133,13 @@ void PeerConnectionServer::SignInP2PServer()
     resolver_ = (void *)( new talk_base::AsyncResolver());
     ((talk_base::AsyncResolver*)(resolver_))->SignalWorkDone.connect(this,
       &PeerConnectionServer::OnResolveResult);
-    ((talk_base::AsyncResolver*)(resolver_))->set_address(server_address_);
-    ((talk_base::AsyncResolver*)(resolver_))->Start();
+    
+    //This call is past call with my WIN32 application
+    //((talk_base::AsyncResolver*)(resolver_))->set_address(server_address_);
+    //((talk_base::AsyncResolver*)(resolver_))->Start();
+    
+    //This call is the new call for newlast libjingle labirary
+    ((talk_base::AsyncResolver*)(resolver_))->Start(server_address_);
   } else {
     DoConnect();
   }
@@ -142,7 +147,11 @@ void PeerConnectionServer::SignInP2PServer()
 
 void PeerConnectionServer::OnResolveResult(talk_base::SignalThread *t) {
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
-  if (((talk_base::AsyncResolver*)(resolver_))->error() != 0) {
+  //this call is past libjingle call
+  //if (((talk_base::AsyncResolver*)(resolver_))->error() != 0) {
+
+  //this call is newlast call 
+  if (((talk_base::AsyncResolver*)(resolver_))->GetError() != 0) {  
     SignalStatesChange(ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE);
     ((talk_base::AsyncResolver*)(resolver_))->Destroy(false);
     resolver_ = NULL;

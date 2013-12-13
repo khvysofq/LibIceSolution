@@ -56,7 +56,7 @@ public:
   void Destory();
   ~ProxySocketBegin();
 
-  uint32 GetSocketNumber() const{return (uint32)(int_socket_.get());}
+  intptr_t GetSocketNumber() const{return (intptr_t)(int_socket_.get());}
 
   //virtual bool StartConnect(const talk_base::SocketAddress& addr);
   virtual bool StartConnectBySourceIde(const std::string &source);
@@ -65,7 +65,7 @@ public:
   
   //p2p socket signal function
   virtual void OnP2PRead(const char *data, uint16 len);
-  bool IsMe(uint32 socket);
+  bool IsMe(intptr_t socket);
   virtual void OnP2PWrite(talk_base::StreamInterface *stream);
   virtual void OnP2PClose(talk_base::StreamInterface *stream);
   virtual void OnOtherSideSocketCloseSucceed(

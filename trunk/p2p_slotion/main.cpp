@@ -1,5 +1,4 @@
 //#include <Windows.h>
-#include <crtdbg.h>
 #include <iostream>
 #include "talk/base/logging.h"
 #include "talk/base/stream.h"
@@ -29,8 +28,7 @@ int main(void)
   //  "C:/log.txt","wb",NULL);
   //talk_base::LogMessage::LogToStream(log_file_stream_,
   //  talk_base::LoggingSeverity::LS_INFO);
-  talk_base::LogMessage::LogToDebug(
-    talk_base::LoggingSeverity::LS_ERROR);
+  //talk_base::LogMessage::LogToDebug(talk_base::LoggingSeverity::LS_ERROR);
 
   log_filter = P2P_ICE_DATA_INFOR | P2P_TUNNEL_DATA_INFOR;
 
@@ -40,6 +38,7 @@ int main(void)
   command_thread->Start();
   Worker    worker;
   command_thread->Post(&worker);
+  
 
   //talk_base::Thread *worker_thread = new talk_base::Thread();
   //worker_thread->Start();
@@ -59,6 +58,7 @@ int main(void)
     }
 
     main_thread->ProcessMessages(1000);
+    
   }
 
   main_thread->Run();

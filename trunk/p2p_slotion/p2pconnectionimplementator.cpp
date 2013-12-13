@@ -35,7 +35,7 @@
 
 
 #include "mediator_pattern.h"
-#include "P2PConnectionImplementator.h"
+#include "p2pconnectionimplementator.h"
 #include "senddatabuffer.h"
 
 P2PConnectionImplementator::P2PConnectionImplementator(

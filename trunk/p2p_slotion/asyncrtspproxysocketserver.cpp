@@ -85,7 +85,7 @@ void RTSPProxyServer::OnAcceptEvent(talk_base::AsyncSocket* socket){
     WrapSocket(accept_socket);
 
   std::cout << __FUNCTION__ << "\tAccept a socket " 
-    << (uint32)async_proxy_server_socket <<" socket  " << (uint32)socket
+    << (intptr_t)async_proxy_server_socket <<" socket  " << (intptr_t)socket
     << std::endl;
   //Step 3. create RTSPServerSocketStart object
   RTSPServerSocketStart *rtsp_server_socket_start

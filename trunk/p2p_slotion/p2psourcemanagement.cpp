@@ -102,6 +102,7 @@ bool P2PSourceManagement::AddNewServerResources(ServerResources *server_resource
       p2p_source_management_->AddNewServerResource((*iter));
   }
   SignalRegisterServerResources(GetServerResourceString());
+  return true;
 }
 
 bool P2PSourceManagement::AddNewServerResource(ServerResource *server_resource){

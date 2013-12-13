@@ -103,7 +103,6 @@
     <ClInclude Include="proxyp2psession.h" />
     <ClInclude Include="proxyserverfactory.h" />
     <ClInclude Include="proxysocketmanagement.h" />
-    <ClInclude Include="registerlocalserver.h" />
     <ClInclude Include="senddatabuffer.h" />
     <ClInclude Include="sockettablemanagement.h" />
   </ItemGroup>
@@ -128,7 +127,6 @@
     <ClCompile Include="proxyp2psession.cpp" />
     <ClCompile Include="proxyserverfactory.cpp" />
     <ClCompile Include="proxysocketmanagement.cpp" />
-    <ClCompile Include="registerlocalserver.cpp" />
     <ClCompile Include="senddatabuffer.cpp" />
     <ClCompile Include="sockettablemanagement.cpp" />
   </ItemGroup>

@@ -44,7 +44,7 @@
 //////////////////////////////////////////////////////////////////////////
 RTSPClientSocket::RTSPClientSocket(ProxyP2PSession *proxy_p2p_session,
                                    talk_base::AsyncSocket *int_socket,
-                                   uint32 server_socket_number,
+                                   intptr_t server_socket_number,
                                    const talk_base::SocketAddress &server_addr)
                                    :ProxySocketBegin(int_socket),
                                    server_socket_number_(server_socket_number)
@@ -79,13 +79,13 @@ void RTSPClientSocket::OnInternalConnect(
   int_socket_state_ = INT_SOCKET_CONNECTED;
   p2p_socket_state_ = P2P_SOCKET_PROXY_CONNECTED;
   proxy_p2p_session_->ReplayClientSocketCreateSucceed(server_socket_number_,
-    (uint32)socket,remote_peer_addr_);
+    (intptr_t)socket,remote_peer_addr_);
 }
 
 void RTSPClientSocket::InternalSocketError(talk_base::AsyncSocket *socket,int err)
 {
   proxy_p2p_session_->P2PSocketConnectFailure(
-    server_socket_number_,(uint32)int_socket_.get());
+    server_socket_number_,(intptr_t)int_socket_.get());
   p2p_socket_state_ = P2P_SOCKET_CLOSED;
   Destory();
 }

@@ -32,18 +32,15 @@
 #include <map>
 #include <string>
 
-//#include "talk/base/nethelpers.h"
+#include "talk/base/messagehandler.h"
+#include "talk/base/nethelpers.h"
 #include "talk/base/signalthread.h"
 #include "talk/base/sigslot.h"
-//#include "talk/base/physicalsocketserver.h"
+#include "talk/base/physicalsocketserver.h"
 #include "talk/base/scoped_ptr.h"
 #include "mediator_pattern.h"
 
-class talk_base::AsyncSocket;
-class talk_base::SignalThread;
-class talk_base::SocketAddress;
 class P2PSourceManagement;
-//class talk_base::AsyncResolver;
 
 enum P2PServerMessageType
 {
@@ -78,7 +75,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
   };
 
   PeerConnectionServer();
-  ~PeerConnectionServer();
+  virtual ~PeerConnectionServer();
   
 
   int id() const;
@@ -103,8 +100,8 @@ class PeerConnectionServer : public talk_base::MessageHandler,
 
   // implements the MessageHandler interface
   //only call the function doConnect
-  void OnMessage(talk_base::Message* msg);
-
+  //virtual void OnMessage(talk_base::Message* msg);
+  virtual void OnMessage(talk_base::Message* msg);
   //void ShowServerConnectionPeer();
   //void set_server_ip(talk_base::SocketAddress server_address);
   virtual bool UpdataPeerInfor(const std::string &infor);
