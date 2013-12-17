@@ -66,6 +66,9 @@ public:
   //p2p socket signal function
   virtual void OnP2PRead(const char *data, uint16 len);
   bool IsMe(intptr_t socket);
+
+  virtual void OnIndependentRead(talk_base::StreamInterface *stream);
+
   virtual void OnP2PWrite(talk_base::StreamInterface *stream);
   virtual void OnP2PClose(talk_base::StreamInterface *stream);
   virtual void OnOtherSideSocketCloseSucceed(
@@ -89,6 +92,10 @@ protected:
     talk_base::FifoBuffer *buffer);
   virtual void ReadP2PDataToBuffer(const char *data, uint16 len, 
     talk_base::FifoBuffer *buffer);
+
+  virtual void ReadP2PStreamDatatoBuffer(
+    talk_base::StreamInterface *stream,talk_base::FifoBuffer *buffer);
+
   virtual void WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
     talk_base::FifoBuffer *buffer);
   virtual void WriteBufferDataToP2P(talk_base::FifoBuffer *buffer);

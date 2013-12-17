@@ -1,37 +1,37 @@
 /*
- * p2p solution
- * Copyright 2013, VZ Inc.
- * 
- * Author   : GuangLei He
- * Email    : guangleihe@gmail.com
- * Created  : 2013/11/29      9:25
- * Filename : F:\GitHub\trunk\p2p_slotion\P2PConnectionImplementator.cpp
- * File path: F:\GitHub\trunk\p2p_slotion
- * File base: P2PConnectionImplementator
- * File ext : cpp
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  1. Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
- *  2. Redistributions in binary form must reproduce the above copyright notice,
- *     this list of conditions and the following disclaimer in the documentation
- *     and/or other materials provided with the distribution.
- *  3. The name of the author may not be used to endorse or promote products
- *     derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+* p2p solution
+* Copyright 2013, VZ Inc.
+* 
+* Author   : GuangLei He
+* Email    : guangleihe@gmail.com
+* Created  : 2013/11/29      9:25
+* Filename : F:\GitHub\trunk\p2p_slotion\P2PConnectionImplementator.cpp
+* File path: F:\GitHub\trunk\p2p_slotion
+* File base: P2PConnectionImplementator
+* File ext : cpp
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+*  1. Redistributions of source code must retain the above copyright notice,
+*     this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright notice,
+*     this list of conditions and the following disclaimer in the documentation
+*     and/or other materials provided with the distribution.
+*  3. The name of the author may not be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+* EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+* WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+* OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 
 #include "mediator_pattern.h"
@@ -39,12 +39,12 @@
 #include "senddatabuffer.h"
 
 P2PConnectionImplementator::P2PConnectionImplementator(
-  const std::string &remote_jid,talk_base::StreamInterface *stream)
-  :remote_jid_(remote_jid),stream_(stream)
+  const std::string &remote_jid,talk_base::StreamInterface *stream,
+  bool is_mix_data_mode):remote_jid_(remote_jid),stream_(stream),
+  is_mix_data_mode_(is_mix_data_mode)
 {
   //LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) 
   //  << "\t Create A New P2PConnectionImplementator";
-
   //Initialize basic parts
   send_data_buffer_      = new SendDataBuffer();
   temp_read_buffer_      = new char[BUFFER_SIZE];
@@ -102,17 +102,24 @@ void P2PConnectionImplementator::OnStreamEvent(
 
   if (events & talk_base::SE_WRITE) {
     LOG_F(LS_INFO) << "Stream SE_WRITE";
-    send_data_buffer_->SetNormalState();
+
+    if(is_mix_data_mode_){
+      send_data_buffer_->SetNormalState();
+    }
 
     if(!is_connect_){
-      //LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) << "Connected Succeed" 
-        //<< std::endl;
       is_connect_ = true;
       SignalConnectSucceed(stream);
-      return;
-    }
-    if(send_data_buffer_->SendDataUsedStream(stream_)){
-      SignalStreamWrite(stream_);
+    } 
+    else{
+      if(is_mix_data_mode_){
+        if(send_data_buffer_->SendDataUsedStream(stream_)){
+          SignalStreamWrite(stream_);
+        }
+      }
+      else{
+        SignalStreamWrite(stream_);
+      }
     }
   }
 
@@ -127,6 +134,16 @@ void P2PConnectionImplementator::OnStreamEvent(
 void P2PConnectionImplementator::Send(uint32 socket,SocketType socket_type,
                                       const char *data,uint16 len,
                                       size_t *written)
+{
+  if(is_mix_data_mode_)
+    MixSend(socket,socket_type,data,len,written);
+  else
+    IndependentSend(socket,socket_type,data,len,written);
+}
+
+void P2PConnectionImplementator::MixSend(uint32 socket,SocketType socket_type,
+                                         const char *data,uint16 len,
+                                         size_t *written)
 {
   size_t remain_buffer_length = send_data_buffer_->GetBufferRemainLength();
 
@@ -145,6 +162,15 @@ void P2PConnectionImplementator::Send(uint32 socket,SocketType socket_type,
   data_multiplex_machine_->PacketData(socket,socket_type,data,*written);
 }
 
+void P2PConnectionImplementator::IndependentSend(uint32 socket,SocketType socket_type,
+                                                 const char *data,uint16 len,
+                                                 size_t *written)
+{
+  talk_base::StreamResult res = stream_->Write(data,len,written,NULL);
+}
+
+
+
 void P2PConnectionImplementator::OnReceiveMultiplexData(const char *data, 
                                                         uint16 len)
 {
@@ -159,6 +185,15 @@ void P2PConnectionImplementator::OnReceiveMultiplexData(const char *data,
 void P2PConnectionImplementator::OnReadStreamData(
   talk_base::StreamInterface *stream)
 {
+  if(is_mix_data_mode_)
+    MixReadStreamData(stream);
+  else
+    IndependentReadStreamData(stream);
+}
+
+void P2PConnectionImplementator::MixReadStreamData(
+  talk_base::StreamInterface *stream)
+{
   size_t res = 0;
   ///////////////////////////////////////////////////////////////////////////
   //BUSINESS LOGIC NOTE (GuangleiHe, 11/26/2013)
@@ -171,4 +206,10 @@ void P2PConnectionImplementator::OnReadStreamData(
 
   if(res)
     data_multiplex_machine_->UnpackData(temp_read_buffer_,res);
+}
+
+void P2PConnectionImplementator::IndependentReadStreamData(
+  talk_base::StreamInterface *stream)
+{
+  SignalIndependentStreamRead(stream);
 }

@@ -102,6 +102,16 @@ void ProxySocketBegin::OnP2PRead(const char *data, uint16 len){
   else LOG(LS_ERROR) << __FUNCTION__;
 }
 
+void ProxySocketBegin::OnIndependentRead(talk_base::StreamInterface *stream)
+{
+  LOG(LS_INFO) << "&&&" << __FUNCTION__;
+  ASSERT(p2p_socket_state_ == P2P_SOCKET_PROXY_CONNECTED);
+  ReadP2PStreamDatatoBuffer(stream,&in_buffer_);
+  if(int_socket_state_ == INT_SOCKET_CONNECTED)
+    WriteBufferDataToSocket(int_socket_.get(),&in_buffer_);
+  else LOG(LS_ERROR) << __FUNCTION__;
+}
+
 void ProxySocketBegin::OnP2PWrite(talk_base::StreamInterface *stream){
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
   if(p2p_socket_state_ == P2P_SOCKET_PROXY_CONNECTED)
@@ -225,6 +235,18 @@ void ProxySocketBegin::ReadP2PDataToBuffer(const char *data, uint16 len,
   buffer->Write(data,len,NULL,NULL);
 }
 
+void ProxySocketBegin::ReadP2PStreamDatatoBuffer(
+  talk_base::StreamInterface *stream,talk_base::FifoBuffer *buffer)
+{
+  size_t size;
+  size_t read = 0;
+  if (buffer->GetBuffered(&size) && size == 0) {
+    void* p = buffer->GetWriteBuffer(&size);
+    stream->Read(p, size,&read,NULL);
+    buffer->ConsumeWriteBuffer(read);
+  }
+}
+
 void ProxySocketBegin::WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
                                                talk_base::FifoBuffer *buffer)
 {
@@ -234,7 +256,6 @@ void ProxySocketBegin::WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
   int written;
   const void* p = buffer->GetReadData(&size);
   if(!size){
-    LOG(LS_ERROR) << "P2P Data is Zero length";
     return ;
   }
   written = socket->Send(p, size);
@@ -287,13 +308,15 @@ bool ProxySocketBegin::StartConnectBySourceIde(const std::string &source){
 void ProxySocketBegin::OnP2PPeerConnectSucceed(ProxyP2PSession 
                                                *proxy_p2p_session)
 {
-  std::cout << __FUNCTION__ << "\t Inform the peer connect succeed"
-    << std::endl;
+  std::cout << __FUNCTION__ << std::endl;
+    
   ///////////////////////////////////////////////////////////////////////////
   //BUSINESS LOGIC NOTE (GuangleiHe, 12/9/2013)
   //the blow code show that this is a client, it do not need to create 
   //client socket
   ///////////////////////////////////////////////////////////////////////////
+  //if(p2p_socket_state_ == P2P_SOCKET_CONNECTING_PROXY_SOCKET)
+  //  return ;
   if(!is_server_)
     return ;
 

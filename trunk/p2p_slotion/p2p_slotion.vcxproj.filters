@@ -78,6 +78,12 @@
     <ClInclude Include="proxyp2psession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="p2pindependentconnectmanagement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="proxyindependentsession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -144,6 +150,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="proxyp2psession.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p2pindependentconnectmanagement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="proxyindependentsession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

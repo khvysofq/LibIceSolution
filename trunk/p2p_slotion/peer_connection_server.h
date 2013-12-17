@@ -83,7 +83,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
   const PeerInfors& peers() const;
 
 
-  //connect check the state and then call the doconnect function
+  //connect check the state and then call the do connect function
   virtual void SignInP2PServer();
 
   virtual void OnSendMessageToRemotePeer(const std::string& message, int peer_id);
@@ -159,6 +159,8 @@ class PeerConnectionServer : public talk_base::MessageHandler,
   void OnClose(talk_base::AsyncSocket* socket, int err);
 
   void OnResolveResult(talk_base::SignalThread *t);
+
+  void ReturnInit();
 
   void* resolver_;
   std::string                                   local_peer_name_;

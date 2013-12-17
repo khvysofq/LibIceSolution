@@ -28,7 +28,7 @@ int main(void)
   //  "C:/log.txt","wb",NULL);
   //talk_base::LogMessage::LogToStream(log_file_stream_,
   //  talk_base::LoggingSeverity::LS_INFO);
-  //talk_base::LogMessage::LogToDebug(talk_base::LoggingSeverity::LS_ERROR);
+  talk_base::LogMessage::LogToDebug(talk_base::LoggingSeverity::LS_ERROR);
 
   log_filter = P2P_ICE_DATA_INFOR | P2P_TUNNEL_DATA_INFOR;
 

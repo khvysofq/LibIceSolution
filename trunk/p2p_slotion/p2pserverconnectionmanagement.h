@@ -65,6 +65,8 @@ private:
   AbstractP2PServerConnection *p2p_server_connection_;
   P2PSourceManagement         *p2p_source_management_;
   bool                        is_server_connection_;
+  talk_base::SocketAddress    server_addr_;
+  talk_base::Thread           *current_thread_;
 
   //////////////////////////////////////////////////////////////////////////
 public:

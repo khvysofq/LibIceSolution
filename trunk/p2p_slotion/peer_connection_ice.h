@@ -57,7 +57,8 @@ public:     //user interface
   PeerConnectionIce(talk_base::Thread *worker_thread,
     talk_base::Thread *signal_thread);
   ~PeerConnectionIce();
-  virtual talk_base::StreamInterface *ConnectionToRemotePeer(int remote_peer_id);
+  virtual talk_base::StreamInterface *ConnectionToRemotePeer(
+    const std::string remote_peer_name);
 
 private:    //p2p server function and some help function
   void Destroy();

@@ -54,6 +54,8 @@ class P2PSourceManagement;
 class ProxySocketBegin;
 class ProxyP2PSession;
 
+
+
 class P2PConnectionManagement : public sigslot::has_slots<>
 {
 public:
@@ -66,7 +68,7 @@ public:
   //after call the function. Because It instance PeerConnectionIce
   //object.
   void Initialize(talk_base::Thread *signal_thread,
-    talk_base::Thread *worker_thread);
+    talk_base::Thread *worker_thread,bool mix_connect_mode = true);
   AbstractICEConnection *GetP2PICEConnection() const ;
   //When you call this function, you must be sure that the peer id 
   //is correct.
@@ -74,6 +76,7 @@ public:
   //  const talk_base::SocketAddress& addr, ProxyP2PSession **proxy_p2p_session);
   virtual ProxyP2PSession *ConnectBySourceIde(const std::string &source_id,
     talk_base::SocketAddress *addr, bool *is_existed);
+
 
   //There
   //bool CreateP2PConnectionImplementator(const std::string &remote_jid,
@@ -85,8 +88,25 @@ public:
 
   ProxyP2PSession *WhetherThePeerIsExisted(const std::string remote_peer_name);
 private:
+  ProxyP2PSession *MixConnectBySourceIde(const std::string &source_id,
+    talk_base::SocketAddress *addr, bool *is_existed);
+  ProxyP2PSession *IdependentConnectBySourceIde(const std::string &source_id,
+    talk_base::SocketAddress *addr, bool *is_existed);
+
+  bool MixCreateProxyP2PSession(const std::string &remote_jid,
+    talk_base::StreamInterface *stream);
+  bool IdependentCreateProxyP2PSession(const std::string &remote_jid,
+    talk_base::StreamInterface *stream);
+
+
   P2PConnectionImplementator *IsPeerConnected(int remote_peer_id);
   void OnStatesChange(StatesChangeType states_type);
+
+  enum {
+    MIX_DATA_MODE,
+    INDEPENDENT_MODE
+  } peer_connection_mode_;
+
 private:
 
   typedef std::set<ProxyP2PSession *> ProxyP2PSessions;
@@ -106,6 +126,5 @@ private:
   //Singleton Pattern variable
   static P2PConnectionManagement *p2p_connection_management_;
 };
-
 
 #endif // !P2P_CONNECTION_MANAGEMENT_H_

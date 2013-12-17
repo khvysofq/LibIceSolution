@@ -62,7 +62,7 @@ public:
   //user interface 
   virtual void Destroy() = 0;
   virtual talk_base::StreamInterface *ConnectionToRemotePeer(
-    int remote_peer_id) = 0;
+    const std::string remote_peer_name) = 0;
   /////////////////////////////////////////////////////////
   //ice to p2p server interface
   virtual void OnReceiveMessageFromRemotePeer(const std::string,int)  = 0;

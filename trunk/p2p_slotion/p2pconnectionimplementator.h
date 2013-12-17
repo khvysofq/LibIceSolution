@@ -51,7 +51,7 @@ class P2PConnectionImplementator
 {
 public:
   explicit P2PConnectionImplementator(const std::string &remote_jid,
-    talk_base::StreamInterface *stream);
+    talk_base::StreamInterface *stream,bool is_mix_data_mode = true);
   ~P2PConnectionImplementator();
   void Destory();
   void CloseStream();
@@ -60,10 +60,11 @@ public:
   };
 
   //
-  virtual void Send(uint32,SocketType,const char*,uint16,
-    size_t *);
+  virtual void Send(uint32,SocketType,const char*,uint16,size_t *);
+
   virtual void OnReceiveMultiplexData(const char *data, uint16 len); 
   sigslot::signal4<uint32 ,SocketType,const char *, uint16> SignalStreamRead;
+  sigslot::signal1<talk_base::StreamInterface *> SignalIndependentStreamRead;
   sigslot::signal1<talk_base::StreamInterface *> SignalStreamWrite;
   sigslot::signal1<talk_base::StreamInterface *> SignalStreamClose;
   sigslot::signal1<talk_base::StreamInterface *> SignalConnectSucceed;
@@ -73,12 +74,20 @@ private:
   //application layer
   
   void OnReadStreamData(talk_base::StreamInterface *stream);
+
+
+  void MixReadStreamData(talk_base::StreamInterface *stream);
+  void IndependentReadStreamData(talk_base::StreamInterface *stream);
+
+  void MixSend(uint32,SocketType,const char*,uint16,size_t *);
+  void IndependentSend(uint32,SocketType,const char*,uint16,size_t *);
 private:
   static const int BUFFER_SIZE = 64 * 1024;
   std::string                remote_jid_;
   talk_base::StreamInterface *stream_;
   DataMultiplexMachine       *data_multiplex_machine_;
   bool                       is_connect_;
+  bool                       is_mix_data_mode_;
 
   char                       *temp_read_buffer_;
   SendDataBuffer             *send_data_buffer_;

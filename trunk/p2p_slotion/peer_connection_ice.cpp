@@ -92,8 +92,6 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
 
   tunnel_session_client_->SignalIncomingTunnel.connect(this,
     &PeerConnectionIce::OnIncomingTunnel);
-  //session_manager_->Get
-  //tunnel_session_client_->
 };
 
 void PeerConnectionIce::Destroy(){
@@ -108,17 +106,19 @@ PeerConnectionIce::~PeerConnectionIce(){
 };
 
 talk_base::StreamInterface *PeerConnectionIce::ConnectionToRemotePeer(
-  int remote_peer_id)
+  const std::string remote_peer_name)
 {
   //initialize tunnel session client
-  buzz::Jid remote_jid(
-    p2p_source_management_->GetRemotePeerNameByPeerId(remote_peer_id));
+  buzz::Jid remote_jid(remote_peer_name);
   ASSERT(!remote_jid.IsEmpty());
   //LOG_F_S(LS_INFO,P2P_ICE_DATA_INFOR) << "Start Connection To Remote Peer\n"
   //  << remote_peer_id << "<:>" << remote_jid.Str();
+
+  std::string decribe;
+  talk_base::CreateRandomString(16,RANDOM_BASE64,&decribe);
   
   talk_base::StreamInterface *stream = tunnel_session_client_->CreateTunnel(
-    remote_jid,DEFAULT_DECRIBE);
+    remote_jid,decribe);
   return stream;
 }
 
@@ -170,9 +170,6 @@ void PeerConnectionIce::OnIncomingTunnel(cricket::TunnelSessionClient* client,
                                          cricket::Session* session)
 {
   talk_base::StreamInterface *stream = client->AcceptTunnel(session);
-  
-  //LOG_F_S(LS_INFO,P2P_ICE_DATA_INFOR|P2P_TUNNEL_DATA_INFOR) 
-  //  << "Accept a peer connect";
   
   p2p_connection_management_->CreateProxyP2PSession(jid.Str(),stream);
 }

@@ -54,7 +54,7 @@ class ProxyP2PSession : public sigslot::has_slots<>,
 {
 public:
   ProxyP2PSession(talk_base::StreamInterface *stream,
-    const std::string &remote_peer_name);
+    const std::string &remote_peer_name,bool is_mix_data_mode = true);
   ~ProxyP2PSession();
   void RegisterProxySocket(ProxySocketBegin *proxy_socket_begin);
   void DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begin);
@@ -72,10 +72,17 @@ public:
     const talk_base::SocketAddress& addr);
   void ReplayClientSocketCreateSucceed(uint32 server_socket, 
     uint32 client_socket,const talk_base::SocketAddress &addr);
+  
   void P2PSocketClose(uint32 socket, bool is_server);
+  void MixP2PSocketClose(uint32 socket, bool is_server);
+  void IndependentP2PSocketClose(uint32 socket, bool is_server);
+
   void P2PSocketCloseSucceed(uint32 socket, bool is_server);
   void P2PSocketConnectFailure(uint32 server_socket,
     uint32 client_socket);
+
+  sigslot::signal1<talk_base::StreamInterface *> 
+    SignalIndependentStreamRead;
 
 private:
   void Destory();
@@ -97,8 +104,23 @@ private:
   void OnStreamClose(talk_base::StreamInterface *stream);
   //All proxy get the write events.
   void OnStreamWrite(talk_base::StreamInterface *stream);
+
+  void OnIndependentStreamRead(talk_base::StreamInterface *stream);
+
   void SendCommand(talk_base::ByteBuffer *byte_buffer);
+
+  void CloseAllProxySokcet(talk_base::StreamInterface *stream);
 private:
+  enum{
+    P2P_SOCKET_START,
+    P2P_SOCKET_CONNECTING_PEER,
+    P2P_SOCKET_PEER_CONNECTED,
+    P2P_SOCKET_CONNECTING_PROXY_SOCKET,
+    P2P_SOCKET_PROXY_CONNECTED,
+    P2P_SOCKET_CLOSING,
+    P2P_SOCKET_CLOSED
+  }independent_mode_state_;
+
   static const size_t BUFFER_SIZE = 1024;
   typedef std::map<uint32, ProxySocketBegin*> ProxySocketBeginMap;
   ProxySocketBeginMap          proxy_socket_begin_map_;
@@ -110,7 +132,8 @@ private:
   talk_base::Thread            *current_thread_;
   SocketTableManagement        *socket_table_management_;
   bool                         is_self_close;
-
+  bool                         is_mix_data_mode_;
+  bool                         independent_mode_connected_;
 };
 
 #endif // !PROXY_P2P_SESSION_H_

@@ -138,6 +138,7 @@ public:
   bool DeleteServerResourceByAddr(const talk_base::SocketAddress &addr);
   bool DeleteServerResourceByName(const std::string &server_name);
   void DeleteAllServerResource(ServerResources &server_resource);
+  void DeleteAllOnlinePeerResource();
 
 private:
   PeerResource    local_peer_resource_;

@@ -47,6 +47,8 @@ namespace {
   const char kByeMessage[] = "BYE";
   // Delay between server connection retries, in milliseconds
   const int kReconnectDelay = 2000;
+  const int SEND_MESSAGE    = 1;
+  const int RECONNECT_MESSAGE = 2;
 
   talk_base::AsyncSocket* CreateClientSocket(int family) {
     //#ifdef WIN32
@@ -133,11 +135,11 @@ void PeerConnectionServer::SignInP2PServer()
     resolver_ = (void *)( new talk_base::AsyncResolver());
     ((talk_base::AsyncResolver*)(resolver_))->SignalWorkDone.connect(this,
       &PeerConnectionServer::OnResolveResult);
-    
+
     //This call is past call with my WIN32 application
     //((talk_base::AsyncResolver*)(resolver_))->set_address(server_address_);
     //((talk_base::AsyncResolver*)(resolver_))->Start();
-    
+
     //This call is the new call for newlast libjingle labirary
     ((talk_base::AsyncResolver*)(resolver_))->Start(server_address_);
   } else {
@@ -197,7 +199,7 @@ void PeerConnectionServer::OnSendMessageToRemotePeer(const std::string& message,
     pending_messages_.push_back(new PendMessage(peer_id,P2P_SEND_REMOTE_MESSAGE,msg));
   }
   if(!pending_messages_.empty())
-    talk_base::Thread::Current()->Post(this);
+    talk_base::Thread::Current()->Post(this,SEND_MESSAGE);
 }
 
 bool PeerConnectionServer::SendToPeer(int peer_id, const std::string& message) {
@@ -540,7 +542,7 @@ bool PeerConnectionServer::ParseServerResponse(const std::string& response,
   if (status != 200) {
     LOG(LS_ERROR) << "Received error from server";
     Close();
-    SignalStatesChange(ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE);
+    SignalStatesChange(STATES_P2P_REMOTE_PEER_DISCONNECTED);
     return false;
   }
 
@@ -557,14 +559,33 @@ bool PeerConnectionServer::ParseServerResponse(const std::string& response,
 
   return true;
 }
+void PeerConnectionServer::ReturnInit(){
+  my_id_ = -1;
+  state_ = NOT_CONNECTED;
+  online_peers_.clear();
+}
 
 void PeerConnectionServer::OnClose(talk_base::AsyncSocket* socket, int err) {
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   socket->Close();
 
 #ifdef WIN32
+  if(err == WSAETIMEDOUT || err == WSAECONNABORTED){
+    LOG(WARNING) << "Connection refused; retrying in 2 seconds ";
+    ReturnInit();
+    SignalStatesChange(ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE);
+    talk_base::Thread::Current()->PostDelayed(kReconnectDelay, 
+      this, RECONNECT_MESSAGE);
+  }
   if (err != WSAECONNREFUSED) {
 #else
+  if(err == ETIMEDOUT || err == ECONNABORTED){
+    ReturnInit();
+    SignalStatesChange(ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE);
+    LOG(WARNING) << "Connection refused; retrying in 2 seconds ";
+    talk_base::Thread::Current()->PostDelayed(kReconnectDelay, 
+      this, RECONNECT_MESSAGE);
+  }
   if (err != ECONNREFUSED) {
 #endif
     if (socket == hanging_get_.get()) {
@@ -573,13 +594,15 @@ void PeerConnectionServer::OnClose(talk_base::AsyncSocket* socket, int err) {
         hanging_get_->Close();
         hanging_get_->Connect(server_address_);
       }
-    } else {
-      //callback_->OnMessageSent(err);
+    } 
+    else if (socket == control_socket_.get()){
     }
-  } else {
+  } 
+  else {
     if (socket == control_socket_.get()) {
-      LOG(WARNING) << "Connection refused; retrying in 2 seconds";
-      talk_base::Thread::Current()->PostDelayed(kReconnectDelay, this, 0);
+      LOG(WARNING) << "Connection refused; retrying in 2 seconds ";
+      talk_base::Thread::Current()->PostDelayed(kReconnectDelay, 
+        this, RECONNECT_MESSAGE);
     } else {
       Close();
       SignalStatesChange(ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE);
@@ -591,7 +614,7 @@ bool PeerConnectionServer::UpdataPeerInfor(const std::string &infor){
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
 
   std::cout << infor << std::endl;
-  
+
   std::string* msg = new std::string(infor);
   if (msg) {
     // For convenience, we always run the message through the queue.
@@ -600,7 +623,7 @@ bool PeerConnectionServer::UpdataPeerInfor(const std::string &infor){
     pending_messages_.push_back(new PendMessage(0,P2P_UPDATE_MESSAGE,msg));
   }
   if(!pending_messages_.empty())
-    talk_base::Thread::Current()->Post(this);
+    talk_base::Thread::Current()->Post(this,SEND_MESSAGE);
   return true;
 }
 
@@ -655,7 +678,20 @@ bool PeerConnectionServer::SendMessageToP2PServer(){
 
 void PeerConnectionServer::OnMessage(talk_base::Message* msg) {
   LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
-  SendMessageToP2PServer();
-  if(!pending_messages_.empty())
-    talk_base::Thread::Current()->PostDelayed(100,this);
+  switch(msg->message_id){
+  case SEND_MESSAGE:
+    {
+      SendMessageToP2PServer();
+      if(!pending_messages_.empty())
+        talk_base::Thread::Current()->PostDelayed(100,this);
+      break;
+    }
+  case RECONNECT_MESSAGE:
+    {
+      //state_ = NOT_CONNECTED;
+      DoConnect();
+      break;
+    }
+  }
+
 }

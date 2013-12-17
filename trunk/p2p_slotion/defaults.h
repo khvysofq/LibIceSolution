@@ -80,7 +80,8 @@ const int P2P_NETWORKER_HEADER_IDE        = 0X01234567;
 const int P2P_NETWORKER_HEADER_IDE_HEAD   = P2P_NETWORKER_HEADER_IDE >> 24;
 const int P2P_NETWORKER_HEADER_IDE_MIDDLE = (P2P_NETWORKER_HEADER_IDE >> 8) & 0X0000FFFF;
 const int P2P_NETWORKER_HEADER_IDE_LAST   = P2P_NETWORKER_HEADER_IDE & 0X000000FF;
-const int RECEIVE_BUFFER_LEN       =  1024 * 64;
+const int RECEIVE_BUFFER_LEN              = 1024 * 64;
+
 struct SOCKETHeader{
   int header_ide_;
   int remote_socket_;
@@ -97,6 +98,7 @@ struct NetworkHeader{
   SocketType  socket_type_; //uint16
   uint16      data_len_;
 };
+
 const int NETWORKHEADER_LENGTH = sizeof(NetworkHeader);
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////

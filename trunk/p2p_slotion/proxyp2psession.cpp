@@ -1,37 +1,37 @@
 /*
- * p2p solution
- * Copyright 2013, VZ Inc.
- * 
- * Author   : GuangLei He
- * Email    : guangleihe@gmail.com
- * Created  : 2013/12/01      12:35
- * Filename : F:\GitHub\trunk\p2p_slotion\proxyp2psession.cpp
- * File path: F:\GitHub\trunk\p2p_slotion
- * File base: proxyp2psession
- * File ext : cpp
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  1. Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
- *  2. Redistributions in binary form must reproduce the above copyright notice,
- *     this list of conditions and the following disclaimer in the documentation
- *     and/or other materials provided with the distribution.
- *  3. The name of the author may not be used to endorse or promote products
- *     derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+* p2p solution
+* Copyright 2013, VZ Inc.
+* 
+* Author   : GuangLei He
+* Email    : guangleihe@gmail.com
+* Created  : 2013/12/01      12:35
+* Filename : F:\GitHub\trunk\p2p_slotion\proxyp2psession.cpp
+* File path: F:\GitHub\trunk\p2p_slotion
+* File base: proxyp2psession
+* File ext : cpp
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+*  1. Redistributions of source code must retain the above copyright notice,
+*     this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright notice,
+*     this list of conditions and the following disclaimer in the documentation
+*     and/or other materials provided with the distribution.
+*  3. The name of the author may not be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+* EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+* WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+* OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 #include "talk/base//thread.h"
 
 #include "proxyp2psession.h"
@@ -43,16 +43,22 @@
 #include "asyncrtspclientsocket.h"
 
 const int DESTORY_SELFT = 0;
+const int CLOSE_ALL_PROXY_SOCKET = 1;
 
 ProxyP2PSession::ProxyP2PSession(talk_base::StreamInterface *stream,
-                                 const std::string &remote_peer_name)
+                                 const std::string &remote_peer_name,
+                                 bool is_mix_data_mode)
+                                 :is_mix_data_mode_(is_mix_data_mode)
 {
 
   std::cout << __FUNCTION__ << "\t Create A New Session"
     << std::endl;
   //1. Create P2PConnectionImplementator object
+
   p2p_connection_implementator_ = 
-    new P2PConnectionImplementator(remote_peer_name,stream);
+    new P2PConnectionImplementator(remote_peer_name,stream,
+    is_mix_data_mode_);
+
   is_self_close               = true;
 
   p2p_system_command_factory_ = P2PSystemCommandFactory::Instance();
@@ -62,14 +68,23 @@ ProxyP2PSession::ProxyP2PSession(talk_base::StreamInterface *stream,
   current_thread_             = talk_base::Thread::Current();
   command_send_buffer_        = new talk_base::FifoBuffer(BUFFER_SIZE);
 
-  p2p_connection_implementator_->SignalStreamRead.connect(this,
-    &ProxyP2PSession::OnStreamRead);
-  p2p_connection_implementator_->SignalStreamClose.connect(this,
-    &ProxyP2PSession::OnStreamClose);
+  independent_mode_state_     = P2P_SOCKET_CLOSED;
+
   p2p_connection_implementator_->SignalStreamWrite.connect(this,
     &ProxyP2PSession::OnStreamWrite);
+
+  p2p_connection_implementator_->SignalStreamClose.connect(this,
+    &ProxyP2PSession::OnStreamClose);
+
   p2p_connection_implementator_->SignalConnectSucceed.connect(this,
     &ProxyP2PSession::OnConnectSucceed);
+
+  p2p_connection_implementator_->SignalStreamRead.connect(this,
+    &ProxyP2PSession::OnStreamRead);
+
+  p2p_connection_implementator_->SignalIndependentStreamRead.connect(
+    this,&ProxyP2PSession::OnIndependentStreamRead);
+
 }
 
 ProxyP2PSession::~ProxyP2PSession(){
@@ -83,6 +98,10 @@ ProxyP2PSession::~ProxyP2PSession(){
 
 void ProxyP2PSession::RegisterProxySocket(ProxySocketBegin *proxy_socket_begin)
 {
+  
+  SignalIndependentStreamRead.connect(proxy_socket_begin,
+    &ProxySocketBegin::OnIndependentRead);
+
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
   std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(
@@ -120,6 +139,7 @@ void ProxyP2PSession::DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begi
 //Destory All object at the Proxy p2p session
 ///////////////////////////////////////////////////////////////////////////
 void ProxyP2PSession::Destory(){
+  p2p_connection_implementator_->CloseStream();
   p2p_connection_implementator_->Destory();
   talk_base::Thread::Current()->Post(this,DESTORY_SELFT);
 }
@@ -142,12 +162,18 @@ bool ProxyP2PSession::RunSocketProccess(
 }
 
 void ProxyP2PSession::OnStreamClose(talk_base::StreamInterface *stream){
+  CloseAllProxySokcet(stream);
+  Destory();
+}
+
+void ProxyP2PSession::CloseAllProxySokcet(
+  talk_base::StreamInterface *stream)
+{
   // inform all proxy socket begin object that the peer is connected
   for(ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.begin();
     iter != proxy_socket_begin_map_.end();iter++){
       iter->second->OnP2PClose(stream);
   }
-  Destory();
 }
 
 void ProxyP2PSession::OnStreamWrite(talk_base::StreamInterface *stream){
@@ -170,8 +196,8 @@ void ProxyP2PSession::OnStreamWrite(talk_base::StreamInterface *stream){
 }
 
 void ProxyP2PSession::OnStreamRead(uint32 socket, 
-                                             SocketType socket_type,
-                                             const char *data, uint16 len)
+                                   SocketType socket_type,
+                                   const char *data, uint16 len)
 {
   if(socket == 0){
     //It must a system command
@@ -188,6 +214,33 @@ void ProxyP2PSession::OnStreamRead(uint32 socket,
   }
 }
 
+void ProxyP2PSession::OnIndependentStreamRead(
+  talk_base::StreamInterface *stream)
+{
+  if(independent_mode_state_ == P2P_SOCKET_PROXY_CONNECTED){
+    //... ... translator data
+    SignalIndependentStreamRead(stream);
+    return ;
+  }
+  std::cout << __FUNCTION__ << std::endl;
+  ///////////////////////////////////////////////////////////////////////////
+  //BUG NOTE (GuangleiHe, 12/17/2013)
+  //Maybe there has a bug.
+  //Because read the p2p system command maybe getting block.
+  ///////////////////////////////////////////////////////////////////////////
+  char data[64];
+  uint16 len = P2PRTSPCOMMAND_LENGTH;
+  size_t read = 0;
+  stream->Read(data,len,&read,NULL);
+  if(read == 0)
+    return ;
+  if(len != read){
+    LOG(LS_ERROR) << "read p2p system command getting error";
+    return;
+  }
+  ProceesSystemCommand(data,len);
+}
+
 void ProxyP2PSession::OnConnectSucceed(talk_base::StreamInterface *stream){
   // inform all proxy socket begin object that the peer is connected
   std::cout << "\t inform all proxy socket begin object that the peer is connected"
@@ -198,11 +251,13 @@ void ProxyP2PSession::OnConnectSucceed(talk_base::StreamInterface *stream){
   }
 }
 
+
 //////////////////////////////////////////////////////////////////////////
 //P2P System command management
 void ProxyP2PSession::CreateClientSocketConnection(
   uint32 socket,const talk_base::SocketAddress& addr)
 {
+  independent_mode_state_ = P2P_SOCKET_CONNECTING_PROXY_SOCKET;
 
   std::cout << __FUNCTION__ << "\tSend create RTSP client command"
     << addr.ToString() << std::endl;
@@ -223,12 +278,14 @@ void ProxyP2PSession::ReplayClientSocketCreateSucceed(
   uint32 server_socket, uint32 client_socket,
   const talk_base::SocketAddress &addr)
 {
+  independent_mode_state_ = P2P_SOCKET_PROXY_CONNECTED;
   std::cout << __FUNCTION__ << "\t Replay client socket succeed"
     << std::endl;
   LOG(LS_INFO) << __FUNCTION__;
   //socket_table_management_ = SocketTableManagement::Instance();
   //generate a reply string
-  socket_table_management_->AddNewLocalSocket(client_socket,
+  if(is_mix_data_mode_)
+    socket_table_management_->AddNewLocalSocket(client_socket,
     server_socket,TCP_SOCKET);
 
   talk_base::ByteBuffer *byte_buffer = 
@@ -239,6 +296,15 @@ void ProxyP2PSession::ReplayClientSocketCreateSucceed(
 }
 
 void ProxyP2PSession::P2PSocketClose(uint32 socket, bool is_server){
+  if(is_mix_data_mode_){
+    MixP2PSocketClose(socket,is_server);
+  }
+  else{
+    IndependentP2PSocketClose(socket,is_server);
+  }
+}
+
+void ProxyP2PSession::MixP2PSocketClose(uint32 socket, bool is_server){
   uint32 server_socket, client_socket;
   is_self_close = false;
   if(is_server){
@@ -253,6 +319,11 @@ void ProxyP2PSession::P2PSocketClose(uint32 socket, bool is_server){
     p2p_system_command_factory_->RTSPSocketClose(server_socket,client_socket,
     is_server);
   SendCommand(byte_buffer);
+}
+
+void ProxyP2PSession::IndependentP2PSocketClose(uint32 socket, bool is_server){
+  current_thread_->Post(this,CLOSE_ALL_PROXY_SOCKET);
+  std::cout << __FUNCTION__ << std::endl;
 }
 
 void ProxyP2PSession::P2PSocketCloseSucceed(uint32 socket, bool is_server){
@@ -300,8 +371,8 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
 
   if(!p2p_system_command_factory_->ParseCommand(data,len,&p2p_system_command_type,
     &server_socket,&client_socket,&client_connection_ip,&client_connection_port)){
-    LOG(LS_ERROR) << "Parse the p2p system command error";
-    return false;
+      LOG(LS_ERROR) << "Parse the p2p system command error";
+      return false;
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -324,8 +395,12 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
     LOG(LS_INFO) << "Client Socket Create Succeed";
     std::cout << __FUNCTION__ << "\tClient Socket Create Succeed"
       << std::endl;
-    socket_table_management_->AddNewLocalSocket(server_socket,
+    if(is_mix_data_mode_)
+      socket_table_management_->AddNewLocalSocket(server_socket,
       client_socket,TCP_SOCKET);
+
+    independent_mode_state_ = P2P_SOCKET_PROXY_CONNECTED;
+
     GetProxySocketBegin(server_socket)->OnP2PSocketConnectSucceed(this);
 
   }
@@ -424,7 +499,7 @@ void ProxyP2PSession::SendCommand(talk_base::ByteBuffer *byte_buffer){
     //Because write data to the FIFO buffer maybe got block. the current operator
     //just exit the program.
     ///////////////////////////////////////////////////////////////////////////
-    ASSERT(res != P2PRTSPCOMMAND_LENGTH);
+    ASSERT(res == P2PRTSPCOMMAND_LENGTH);
   }
   //delete the string
   p2p_system_command_factory_->DeleteRTSPClientCommand(byte_buffer);
@@ -435,7 +510,13 @@ void ProxyP2PSession::OnMessage(talk_base::Message *msg){
   switch(msg->message_id){
   case DESTORY_SELFT:
     {
+      delete p2p_connection_implementator_;
       p2p_connection_management_->DeleteProxyP2PSession(this);
+      break;
+    }
+  case CLOSE_ALL_PROXY_SOCKET:
+    {
+      OnStreamClose(NULL);
       break;
     }
   }

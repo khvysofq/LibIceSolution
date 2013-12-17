@@ -83,8 +83,6 @@ int P2PSourceManagement::GetRemotePeerIdByPeerName(const std::string &remote_pee
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)
   {
-    std::cout << __FUNCTION__ << "\t get peer id"
-      << std::endl;
     //std::cout << (*iter)->peer_jid_ << std::endl;
     //std::cout << remote_peer_name   << std::endl;
     if((*iter)->peer_jid_ == remote_peer_name){
@@ -179,6 +177,19 @@ void P2PSourceManagement::DeleteAllServerResource(ServerResources &server_resour
   }
 }
 
+
+void P2PSourceManagement::DeleteAllOnlinePeerResource(){
+  std::cout << __FUNCTION__ << std::endl;
+  for(PeerResources::iterator iter = remote_peer_resources_.begin();
+    iter != remote_peer_resources_.end(); iter++)
+  {
+    DeleteAllServerResource((*iter)->server_resources_);
+    delete (*iter);
+    std::cout << __FUNCTION__ << "Delete One" << std::endl;
+  }
+  remote_peer_resources_.clear();
+}
+
 //////////////////////////////////////////////////////////////////////////
 bool P2PSourceManagement::ThePeerResourceIsExisited(PeerResource *peer_resource){
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
@@ -193,15 +204,22 @@ bool P2PSourceManagement::ThePeerResourceIsExisited(PeerResource *peer_resource)
 }
 
 void P2PSourceManagement::OnOnlinePeers(const PeerInfors &peers){
-  LOG(LS_ERROR) << __FUNCTION__;
+  std::cout << __FUNCTION__ << std::endl;
   for(PeerInfors::const_iterator iter = peers.begin();
     iter != peers.end();++iter){
       PeerResource *peer_resource = new PeerResource();
 
-      ParseJosonString(peer_resource,iter->first,
-        iter->second.peer_name_,iter->second.resource_);
-      if(!ThePeerResourceIsExisited(peer_resource))
+      if(!ParseJosonString(peer_resource,iter->first,
+        iter->second.peer_name_,iter->second.resource_)){
+          delete peer_resource;
+          continue;
+      }
+
+      if(!ThePeerResourceIsExisited(peer_resource)){
         remote_peer_resources_.insert(peer_resource);
+        std::cout << __FUNCTION__ << "Add One " << peer_resource->peer_jid_ 
+          << std::endl;
+      }
       else
         delete peer_resource;
   }
@@ -209,7 +227,7 @@ void P2PSourceManagement::OnOnlinePeers(const PeerInfors &peers){
 }
 
 void P2PSourceManagement::OnAPeerLogin(int peer_id,const PeerInfor &peer){
-  LOG(LS_ERROR) << __FUNCTION__;
+  std::cout << __FUNCTION__ << std::endl;
   //1. Find the remote peer by peer id and peer name
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)
@@ -232,7 +250,7 @@ void P2PSourceManagement::OnAPeerLogin(int peer_id,const PeerInfor &peer){
 }
 
 void P2PSourceManagement::OnAPeerLogout(int peer_id,const PeerInfor &peer){
-  LOG(LS_ERROR) << __FUNCTION__;
+  std::cout << __FUNCTION__ << std::endl;
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)
   {
