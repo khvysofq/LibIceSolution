@@ -74,16 +74,7 @@ void P2PConnectionManagement::Initialize(
 
 ProxyP2PSession * P2PConnectionManagement::ConnectBySourceIde(
   const std::string &source_id, talk_base::SocketAddress *addr,bool *is_existed)
-{
-  if(peer_connection_mode_ == MIX_DATA_MODE)
-    return MixConnectBySourceIde(source_id,addr,is_existed);
-  else
-    return IdependentConnectBySourceIde(source_id,addr,is_existed);
-}
-
-ProxyP2PSession *P2PConnectionManagement::MixConnectBySourceIde(
-  const std::string &source_id,talk_base::SocketAddress *addr, bool *is_existed)
-{
+{ 
   //1. Find the peer id by resource server address
   ProxyP2PSession *proxy_p2p_session = NULL;
   std::string remote_peer_name;
@@ -116,58 +107,123 @@ ProxyP2PSession *P2PConnectionManagement::MixConnectBySourceIde(
     p2p_ice_connection_->ConnectionToRemotePeer(remote_peer_name);
 
   //Create ProxyP2PSession Object
-  proxy_p2p_session = new ProxyP2PSession(stream,remote_peer_name);
+  if(peer_connection_mode_ == MIX_DATA_MODE)
+    proxy_p2p_session = new ProxyP2PSession(stream,remote_peer_name);
+  else
+    proxy_p2p_session = new ProxyP2PSession(stream,remote_peer_name,false);
+
   //Insert this session to session map
   proxy_p2p_sessions_.insert(proxy_p2p_session);
 
-  return proxy_p2p_session;
-}
 
-ProxyP2PSession *P2PConnectionManagement::IdependentConnectBySourceIde(
-  const std::string &source_id,talk_base::SocketAddress *addr, bool *is_existed)
-{
-  *is_existed = false;
-  //1. Find the peer id by resource server address
-  ProxyP2PSession *proxy_p2p_session = NULL;
-  std::string remote_peer_name;
-  const ServerResource * res = 
-    p2p_source_management_->SreachPeerBySourceIde(source_id,&remote_peer_name);
-  if(!res){
-    return NULL;
-  }
-  if(!addr){
-    LOG(LS_ERROR) << "the socket address can't set empty";
-    return false;
-  }
-  addr->SetIP(res->server_ip_);
-  addr->SetPort(res->server_port_);
-
-  std::cout << __FUNCTION__ << "\t search peer name is" << remote_peer_name
-    << std::endl;
-
-  //connect this peer
-  talk_base::StreamInterface *stream = 
-    p2p_ice_connection_->ConnectionToRemotePeer(remote_peer_name);
-
-  //Create ProxyP2PSession Object
-  proxy_p2p_session = new ProxyP2PSession(stream,remote_peer_name,false);
-  //Insert this session to session map
-  proxy_p2p_sessions_.insert(proxy_p2p_session);
+  std::cout << "------------------------------"<< std::endl;
+  std::cout << __FUNCTION__ <<"current proxy p2p session size = " <<
+    proxy_p2p_sessions_.size()<< std::endl;
+  std::cout << "------------------------------"<< std::endl;
 
   return proxy_p2p_session;
 }
+//
+//ProxyP2PSession *P2PConnectionManagement::MixConnectBySourceIde(
+//  const std::string &source_id,talk_base::SocketAddress *addr, bool *is_existed)
+//{
+//  //1. Find the peer id by resource server address
+//  ProxyP2PSession *proxy_p2p_session = NULL;
+//  std::string remote_peer_name;
+//  const ServerResource * res = 
+//    p2p_source_management_->SreachPeerBySourceIde(source_id,&remote_peer_name);
+//  if(!res){
+//    return NULL;
+//  }
+//  if(!addr){
+//    LOG(LS_ERROR) << "the socket address can't set empty";
+//    return false;
+//  }
+//  addr->SetIP(res->server_ip_);
+//  addr->SetPort(res->server_port_);
+//
+//  std::cout << __FUNCTION__ << "\t search peer name is" << remote_peer_name
+//    << std::endl;
+//  //2. Whether the peer is connected
+//  proxy_p2p_session = WhetherThePeerIsExisted(remote_peer_name);
+//
+//  //Existed
+//  if(proxy_p2p_session){
+//    *is_existed = true;
+//    return proxy_p2p_session;
+//  }
+//  *is_existed = false;
+//
+//  //connect this peer
+//  talk_base::StreamInterface *stream = 
+//    p2p_ice_connection_->ConnectionToRemotePeer(remote_peer_name);
+//
+//  //Create ProxyP2PSession Object
+//  proxy_p2p_session = new ProxyP2PSession(stream,remote_peer_name);
+//  //Insert this session to session map
+//  proxy_p2p_sessions_.insert(proxy_p2p_session);
+//
+//  return proxy_p2p_session;
+//}
+//
+//ProxyP2PSession *P2PConnectionManagement::IdependentConnectBySourceIde(
+//  const std::string &source_id,talk_base::SocketAddress *addr, bool *is_existed)
+//{
+//  *is_existed = false;
+//  //1. Find the peer id by resource server address
+//  ProxyP2PSession *proxy_p2p_session = NULL;
+//  std::string remote_peer_name;
+//  const ServerResource * res = 
+//    p2p_source_management_->SreachPeerBySourceIde(source_id,&remote_peer_name);
+//  if(!res){
+//    return NULL;
+//  }
+//  if(!addr){
+//    LOG(LS_ERROR) << "the socket address can't set empty";
+//    return false;
+//  }
+//  addr->SetIP(res->server_ip_);
+//  addr->SetPort(res->server_port_);
+//
+//  std::cout << __FUNCTION__ << "\t search peer name is" << remote_peer_name
+//    << std::endl;
+//
+//  //connect this peer
+//  talk_base::StreamInterface *stream = 
+//    p2p_ice_connection_->ConnectionToRemotePeer(remote_peer_name);
+//
+//  //Create ProxyP2PSession Object
+//  proxy_p2p_session = new ProxyP2PSession(stream,remote_peer_name,false);
+//  //Insert this session to session map
+//  proxy_p2p_sessions_.insert(proxy_p2p_session);
+//
+//  return proxy_p2p_session;
+//}
 
 
 ProxyP2PSession *P2PConnectionManagement::WhetherThePeerIsExisted(
   const std::string remote_peer_name)
 {
+  //TEST CONNECT
+  if(peer_connection_mode_ == INDEPENDENT_MODE)
+    return NULL;
+
   for(ProxyP2PSessions::iterator iter = proxy_p2p_sessions_.begin();
     iter != proxy_p2p_sessions_.end(); iter++)
   {
     if((*iter)->IsMe(remote_peer_name)){
-      std::cout << __FUNCTION__ << "\t The session existed"
-        << std::endl;
-      return (*iter);
+      if(peer_connection_mode_ == MIX_DATA_MODE){
+        std::cout << __FUNCTION__ << "\t MIX_DATA_MODE The session existed"
+          << std::endl;
+        return (*iter);
+      }
+      else{
+        if((*iter)->CurrentConnectSize() == 0){
+          std::cout << __FUNCTION__ << "\t INDEPENDENT_MODE The session existed"
+            << std::endl;
+          return (*iter);
+        }
+      }
     }
   }
   std::cout << __FUNCTION__ << "\t The session not existed"
@@ -180,15 +236,6 @@ AbstractICEConnection *P2PConnectionManagement::GetP2PICEConnection() const{
 }
 
 bool P2PConnectionManagement::CreateProxyP2PSession(
-  const std::string &remote_jid,talk_base::StreamInterface *stream)
-{
-  if(peer_connection_mode_ == MIX_DATA_MODE)
-    return MixCreateProxyP2PSession(remote_jid,stream);
-  else
-    return IdependentCreateProxyP2PSession(remote_jid,stream);
-}
-
-bool P2PConnectionManagement::MixCreateProxyP2PSession(
   const std::string &remote_jid,talk_base::StreamInterface *stream)
 {
   std::cout << __FUNCTION__ << "\t Start Create New Session"
@@ -208,7 +255,11 @@ bool P2PConnectionManagement::MixCreateProxyP2PSession(
   //  new P2PConnectionImplementator(remote_jid,stream);
 
   //3. create proxy p2p session
-  proxy_p2p_session = new ProxyP2PSession(stream,remote_jid);
+  if(peer_connection_mode_ == MIX_DATA_MODE)
+    proxy_p2p_session = new ProxyP2PSession(stream,remote_jid);
+  else
+    proxy_p2p_session = new ProxyP2PSession(stream,remote_jid,false);
+
 
   //4. register this proxy
   ///////////////////////////////////////////////////////////////////////////
@@ -219,24 +270,65 @@ bool P2PConnectionManagement::MixCreateProxyP2PSession(
 
   //5. Then add this proxy p2p session to ProxyP2PSessions
   proxy_p2p_sessions_.insert(proxy_p2p_session);
+
+
+  std::cout << "------------------------------"<< std::endl;
+  std::cout << __FUNCTION__ <<"current proxy p2p session size = " <<
+    proxy_p2p_sessions_.size()<< std::endl;
+  std::cout << "------------------------------"<< std::endl;
+
   return true;
 }
-
-bool P2PConnectionManagement::IdependentCreateProxyP2PSession(
-  const std::string &remote_jid,talk_base::StreamInterface *stream)
-{
-  std::cout << __FUNCTION__ << "\t Start Create New Session"
-    << std::endl;
-  ///////////////////////////////////////////////////////////////////////////
-  //BUSINESS LOGIC NOTE (GuangleiHe, 12/2/2013)
-  //The ProxySocketBegin is repetition, RegisterProxySocket called 
-  //maybe repetitive
-  ///////////////////////////////////////////////////////////////////////////
-
-  //Then add this proxy p2p session to ProxyP2PSessions
-  proxy_p2p_sessions_.insert(new ProxyP2PSession(stream,remote_jid,false));
-  return true;
-}
+//
+//bool P2PConnectionManagement::MixCreateProxyP2PSession(
+//  const std::string &remote_jid,talk_base::StreamInterface *stream)
+//{
+//  std::cout << __FUNCTION__ << "\t Start Create New Session"
+//    << std::endl;
+//  //1. Check the connection is existed.
+//  ProxyP2PSession *proxy_p2p_session = WhetherThePeerIsExisted(
+//    remote_jid);
+//  if(proxy_p2p_session){
+//    //never rech here
+//    LOG(LS_ERROR) << "The peer is existed";
+//    ASSERT(0);
+//    return false;
+//  }
+//
+//  ////2. create p2p connection implementator
+//  //P2PConnectionImplementator *p2p_connection_implementator =
+//  //  new P2PConnectionImplementator(remote_jid,stream);
+//
+//  //3. create proxy p2p session
+//  proxy_p2p_session = new ProxyP2PSession(stream,remote_jid);
+//
+//  //4. register this proxy
+//  ///////////////////////////////////////////////////////////////////////////
+//  //BUSINESS LOGIC NOTE (GuangleiHe, 12/2/2013)
+//  //The ProxySocketBegin is repetition, RegisterProxySocket called 
+//  //maybe repetitive
+//  ///////////////////////////////////////////////////////////////////////////
+//
+//  //5. Then add this proxy p2p session to ProxyP2PSessions
+//  proxy_p2p_sessions_.insert(proxy_p2p_session);
+//  return true;
+//}
+//
+//bool P2PConnectionManagement::IdependentCreateProxyP2PSession(
+//  const std::string &remote_jid,talk_base::StreamInterface *stream)
+//{
+//  std::cout << __FUNCTION__ << "\t Start Create New Session"
+//    << std::endl;
+//  ///////////////////////////////////////////////////////////////////////////
+//  //BUSINESS LOGIC NOTE (GuangleiHe, 12/2/2013)
+//  //The ProxySocketBegin is repetition, RegisterProxySocket called 
+//  //maybe repetitive
+//  ///////////////////////////////////////////////////////////////////////////
+//
+//  //Then add this proxy p2p session to ProxyP2PSessions
+//  proxy_p2p_sessions_.insert(new ProxyP2PSession(stream,remote_jid,false));
+//  return true;
+//}
 
 
 void P2PConnectionManagement::DeleteProxyP2PSession(
@@ -250,8 +342,10 @@ void P2PConnectionManagement::DeleteProxyP2PSession(
     return ;
   }
   proxy_p2p_sessions_.erase(iter);
-  LOG(LS_INFO) << "Erase This Proxy P2P Session " 
-    << proxy_p2p_sessions_.size();
+  std::cout << "------------------------------"<< std::endl;
+  std::cout << __FUNCTION__ <<"current proxy p2p session size = " <<
+    proxy_p2p_sessions_.size()<< std::endl;
+  std::cout << "------------------------------"<< std::endl;
 }
 
 //bool P2PConnectionManagement::CreateP2PConnectionImplementator(

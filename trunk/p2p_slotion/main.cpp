@@ -13,8 +13,8 @@ public:
   void OnMessage(talk_base::Message* msg){
     std::cout << "please choose a peer id" << std::endl;
     std::cin >> choose;
+    //talk_base::Thread::Current()->Stop();
   }
-private:
 };
 
 int main(void)
@@ -28,7 +28,7 @@ int main(void)
   //  "C:/log.txt","wb",NULL);
   //talk_base::LogMessage::LogToStream(log_file_stream_,
   //  talk_base::LoggingSeverity::LS_INFO);
-  talk_base::LogMessage::LogToDebug(talk_base::LoggingSeverity::LS_ERROR);
+  //talk_base::LogMessage::LogToDebug(talk_base::LoggingSeverity::LS_ERROR);
 
   log_filter = P2P_ICE_DATA_INFOR | P2P_TUNNEL_DATA_INFOR;
 
@@ -62,7 +62,6 @@ int main(void)
   }
 
   main_thread->Run();
-  command_thread->Stop();
 
   p2p_user_client.Destory();
   return 0;

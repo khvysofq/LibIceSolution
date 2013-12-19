@@ -163,7 +163,7 @@ bool ProxyP2PSession::RunSocketProccess(
 
 void ProxyP2PSession::OnStreamClose(talk_base::StreamInterface *stream){
   CloseAllProxySokcet(stream);
-  Destory();
+  //Destory();
 }
 
 void ProxyP2PSession::CloseAllProxySokcet(
@@ -480,7 +480,7 @@ void ProxyP2PSession::IsAllProxySocketClosed(){
     ///////////////////////////////////////////////////////////////////////////
     //if(is_self_close)
     //  p2p_connection_implementator_->CloseStream();
-    //Destory();
+    Destory();
   }
 }
 
@@ -510,13 +510,16 @@ void ProxyP2PSession::OnMessage(talk_base::Message *msg){
   switch(msg->message_id){
   case DESTORY_SELFT:
     {
-      delete p2p_connection_implementator_;
       p2p_connection_management_->DeleteProxyP2PSession(this);
       break;
     }
   case CLOSE_ALL_PROXY_SOCKET:
     {
-      OnStreamClose(NULL);
+      // inform all proxy socket begin object that the peer is connected
+      for(ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.begin();
+        iter != proxy_socket_begin_map_.end();iter++){
+          iter->second->OnOtherSideSocketCloseSucceed(NULL);
+      }
       break;
     }
   }

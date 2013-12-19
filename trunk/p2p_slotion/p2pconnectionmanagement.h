@@ -88,17 +88,6 @@ public:
 
   ProxyP2PSession *WhetherThePeerIsExisted(const std::string remote_peer_name);
 private:
-  ProxyP2PSession *MixConnectBySourceIde(const std::string &source_id,
-    talk_base::SocketAddress *addr, bool *is_existed);
-  ProxyP2PSession *IdependentConnectBySourceIde(const std::string &source_id,
-    talk_base::SocketAddress *addr, bool *is_existed);
-
-  bool MixCreateProxyP2PSession(const std::string &remote_jid,
-    talk_base::StreamInterface *stream);
-  bool IdependentCreateProxyP2PSession(const std::string &remote_jid,
-    talk_base::StreamInterface *stream);
-
-
   P2PConnectionImplementator *IsPeerConnected(int remote_peer_id);
   void OnStatesChange(StatesChangeType states_type);
 

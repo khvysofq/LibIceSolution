@@ -126,7 +126,6 @@ void PeerConnectionIce::OnReceiveMessageFromRemotePeer(const std::string msg,
                                                        int peer_id)
 {
   //LOG_F_S(LS_INFO,P2P_ICE_DATA_INFOR) << peer_id << ">>\n\t" << msg;
-  LOG_F(LS_INFO) << msg;
   signal_thread_->Post(this,REMOTE_PEER_MESSAGE,new MessageSendData(msg));
 }
 
@@ -144,7 +143,6 @@ void PeerConnectionIce::OnOutgoingMessage(cricket::SessionManager* manager,
     =   new buzz::XmlElement(*stanza);
   new_stanza->AddAttr(buzz::QN_FROM, tunnel_session_client_->jid().Str());
 
-  LOG_F(LS_INFO) << new_stanza->Str();
   //std::cout << new_stanza->Str() << std::endl;
   //LOG_F_S(LS_INFO,P2P_ICE_DATA_INFOR) << new_stanza->Str();
 
@@ -169,6 +167,7 @@ void PeerConnectionIce::OnIncomingTunnel(cricket::TunnelSessionClient* client,
                                          buzz::Jid jid, std::string description,
                                          cricket::Session* session)
 {
+  std::cout << __FUNCTION__ << std::endl;
   talk_base::StreamInterface *stream = client->AcceptTunnel(session);
   
   p2p_connection_management_->CreateProxyP2PSession(jid.Str(),stream);

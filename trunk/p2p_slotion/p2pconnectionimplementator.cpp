@@ -67,14 +67,17 @@ void P2PConnectionImplementator::Destory(){
 }
 
 void P2PConnectionImplementator::CloseStream(){
-  if(stream_->GetState() == talk_base::SS_CLOSED){
-    return ;
-  }
-  stream_->Close();
+  std::cout << __FUNCTION__ << std::endl;
+
   SignalConnectSucceed.disconnect_all();
   SignalStreamClose.disconnect_all();
   SignalStreamRead.disconnect_all();
   SignalStreamWrite.disconnect_all();
+
+  if(stream_->GetState() == talk_base::SS_CLOSED){
+    return ;
+  }
+  stream_->Close();
 }
 
 //////////////////////////////////////////////////////////////
@@ -91,6 +94,7 @@ void P2PConnectionImplementator::OnStreamEvent(
 
   if(error != 0){
     LOG(LS_ERROR) << "The stream got a error";
+    stream->Close();
     return ;
   }
 

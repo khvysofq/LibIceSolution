@@ -105,8 +105,8 @@ void ProxySocketBegin::OnP2PRead(const char *data, uint16 len){
 void ProxySocketBegin::OnIndependentRead(talk_base::StreamInterface *stream)
 {
   LOG(LS_INFO) << "&&&" << __FUNCTION__;
-  ASSERT(p2p_socket_state_ == P2P_SOCKET_PROXY_CONNECTED);
-  ReadP2PStreamDatatoBuffer(stream,&in_buffer_);
+  if(p2p_socket_state_ == P2P_SOCKET_PROXY_CONNECTED)
+    ReadP2PStreamDatatoBuffer(stream,&in_buffer_);
   if(int_socket_state_ == INT_SOCKET_CONNECTED)
     WriteBufferDataToSocket(int_socket_.get(),&in_buffer_);
   else LOG(LS_ERROR) << __FUNCTION__;

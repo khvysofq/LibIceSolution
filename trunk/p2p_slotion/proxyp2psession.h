@@ -66,6 +66,7 @@ public:
     return p2p_connection_implementator_;
   }
   bool IsMe(const std::string remote_peer_name)const ;
+  size_t CurrentConnectSize() const {return proxy_socket_begin_map_.size();}
 
   //p2p system management
   void CreateClientSocketConnection(uint32 socket,
