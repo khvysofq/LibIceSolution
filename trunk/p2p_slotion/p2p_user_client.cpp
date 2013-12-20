@@ -51,9 +51,11 @@ static const int TEST_SEND_BUFFER   = 4096;
 static const talk_base::SocketAddress KLocalRTSPServer("127.0.0.1",554);
 
 P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
-                             talk_base::Thread *signal_thread)
+                             talk_base::Thread *signal_thread,
+                             talk_base::Thread *stream_thread)
                              :worker_thread_(worker_thread),
                              signal_thread_(signal_thread),
+                             stream_thread_(stream_thread),
                              initiator_(false)
 {
   LOG(LS_INFO) << "+++" << __FUNCTION__;
@@ -88,13 +90,13 @@ void P2PUserClient::Initiatlor(){
     local_peer_name.begin(),tolower);
 
   p2p_source_management_->AddNewServerResource("RTSP_SERVER",
-    "127.0.0.1",554,random_string);
+    "127.0.0.1",8557,random_string);
   //p2p_source_management_->AddNewServerResource("HTTP_SERVER",
   //  "127.0.0.1",80,random_string);
   p2p_source_management_->SetLocalPeerName(local_peer_name);
 
   p2p_connection_management_->Initialize(signal_thread_,
-    worker_thread_,false);
+    worker_thread_,stream_thread_,false);
   p2p_server_connection_management_->SetIceDataTunnel(
     p2p_connection_management_->GetP2PICEConnection());
 

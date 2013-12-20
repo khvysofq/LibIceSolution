@@ -54,7 +54,10 @@ class ProxyP2PSession : public sigslot::has_slots<>,
 {
 public:
   ProxyP2PSession(talk_base::StreamInterface *stream,
-    const std::string &remote_peer_name,bool is_mix_data_mode = true);
+    const std::string &remote_peer_name,
+    talk_base::Thread *signal_thread,
+    talk_base::Thread *worker_thread,
+    bool is_mix_data_mode = true);
   ~ProxyP2PSession();
   void RegisterProxySocket(ProxySocketBegin *proxy_socket_begin);
   void DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begin);
@@ -130,11 +133,13 @@ private:
   P2PConnectionImplementator   *p2p_connection_implementator_;
   P2PConnectionManagement      *p2p_connection_management_;
   P2PSystemCommandFactory      *p2p_system_command_factory_;
-  talk_base::Thread            *current_thread_;
   SocketTableManagement        *socket_table_management_;
   bool                         is_self_close;
   bool                         is_mix_data_mode_;
   bool                         independent_mode_connected_;
+
+  talk_base::Thread            *signal_thread_;
+  talk_base::Thread            *worker_thread_;
 };
 
 #endif // !PROXY_P2P_SESSION_H_

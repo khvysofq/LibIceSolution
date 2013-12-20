@@ -68,7 +68,9 @@ public:
   //after call the function. Because It instance PeerConnectionIce
   //object.
   void Initialize(talk_base::Thread *signal_thread,
-    talk_base::Thread *worker_thread,bool mix_connect_mode = true);
+    talk_base::Thread *worker_thread,
+    talk_base::Thread *stream_thread,
+    bool mix_connect_mode = true);
   AbstractICEConnection *GetP2PICEConnection() const ;
   //When you call this function, you must be sure that the peer id 
   //is correct.
@@ -105,6 +107,7 @@ private:
   AbstractICEConnection   *p2p_ice_connection_;
   talk_base::Thread       *signal_thread_;
   talk_base::Thread       *worker_thread_;
+  talk_base::Thread       *stream_thread_;
 
   //////////////////////////////////////////////////////////////////////////
 public:

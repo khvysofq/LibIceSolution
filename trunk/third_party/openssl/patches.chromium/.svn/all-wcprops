@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/231572/trunk/deps/third_party/openssl/patches.chromium
+END
+0001-channelid.patch
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/!svn/ver/231572/trunk/deps/third_party/openssl/patches.chromium/0001-channelid.patch
+END
+0003-x509_hash_name_algorithm_change.patch
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/!svn/ver/231571/trunk/deps/third_party/openssl/patches.chromium/0003-x509_hash_name_algorithm_change.patch
+END
+0005-reduce_client_hello_size.patch
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/!svn/ver/231571/trunk/deps/third_party/openssl/patches.chromium/0005-reduce_client_hello_size.patch
+END
+0002-enable-dtls1.patch
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/231571/trunk/deps/third_party/openssl/patches.chromium/0002-enable-dtls1.patch
+END
+0004-x86_64_source_excludes.patch
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/!svn/ver/231571/trunk/deps/third_party/openssl/patches.chromium/0004-x86_64_source_excludes.patch
+END

@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/231572/trunk/deps/third_party/openssl
+END
+openssl-chromium.config
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/188714/trunk/deps/third_party/openssl/openssl-chromium.config
+END
+openssl.gypi
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/203545/trunk/deps/third_party/openssl/openssl.gypi
+END
+OWNERS
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/231569/trunk/deps/third_party/openssl/OWNERS
+END
+README.chromium
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/230132/trunk/deps/third_party/openssl/README.chromium
+END
+openssl.gyp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/229995/trunk/deps/third_party/openssl/openssl.gyp
+END
+buildinf.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/65201/trunk/deps/third_party/openssl/buildinf.h
+END
+import_from_android.sh
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/231570/trunk/deps/third_party/openssl/import_from_android.sh
+END

@@ -188,8 +188,8 @@ void PeerConnectionServer::DoConnect() {
     SignalStatesChange(ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE);
   }
 }
-void PeerConnectionServer::OnSendMessageToRemotePeer(const std::string& message, 
-                                                     int peer_id)
+void PeerConnectionServer::OnSendMessageToRemotePeer(
+  const std::string& message, int peer_id)
 {
   std::string* msg = new std::string(message);
   if (msg) {

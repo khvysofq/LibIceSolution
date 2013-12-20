@@ -37,6 +37,32 @@
 #include "peer_connection_server.h"
 #include "p2psourcemanagement.h"
 
+class PeerInforUpdateMessage : public talk_base::MessageData{
+public:
+  PeerInforUpdateMessage(int peer_id, const PeerInfor &peer_infor):
+    peer_infor_(peer_infor),peer_id_(peer_id){}
+
+  int peer_id_;
+  PeerInfor peer_infor_;
+};
+
+class OnlinePeersMessage : public talk_base::MessageData{
+public:
+  OnlinePeersMessage(const PeerInfors &peer_infors):
+    peer_infors_(peer_infors){}
+
+  PeerInfors peer_infors_;
+};
+
+class RemoteMessage : public talk_base::MessageData{
+public:
+  RemoteMessage(int peer_id, const std::string msg_string)
+    :peer_id_(peer_id),msg_string_(msg_string){};
+
+  int peer_id_;
+  std::string msg_string_;
+};
+
 //////////////////////////////////////////////////////////////////////////
 //Singleton Pattern 
 P2PServerConnectionManagement 
@@ -50,32 +76,46 @@ P2PServerConnectionManagement *P2PServerConnectionManagement::Instance(){
 
 //////////////////////////////////////////////////////////////////////////
 P2PServerConnectionManagement::P2PServerConnectionManagement()
-  :p2p_server_connection_(new PeerConnectionServer()),
+  :p2p_server_connection_(NULL),
   state_(SERVER_OBJECT_INITIALIZE)
 {
+  LOG(LS_INFO) << "///" << __FUNCTION__;
   is_server_connection_ = false;
-  current_thread_ = talk_base::Thread::Current();
+  signal_thread_ = talk_base::Thread::Current();
+
+  ///////////////////////////////////////////////////////////////////////////
+  //TODO:(GuangleiHe) TIME: 12/19/2013
+  //remove this worker thread to thread management
+  ///////////////////////////////////////////////////////////////////////////
+  worker_thread_ = new talk_base::Thread();
+  worker_thread_->Start();
+  //////////////////////////////////////////////////////////////////////////
+
+  worker_thread_->Send(this,CREATE_P2P_SERVER_CONNECT);
+  ASSERT(p2p_server_connection_ != NULL);
 
   p2p_source_management_ = P2PSourceManagement::Instance();
 
   p2p_source_management_->SignalRegisterServerResources.connect(this,
     &P2PServerConnectionManagement::OnSignalRegisterServerResources);
 
-  p2p_server_connection_->SignalStatesChange.connect(this,
-    &P2PServerConnectionManagement::OnServerStatesChange);
-  p2p_server_connection_->SignalOnlinePeers.connect(p2p_source_management_,
+
+  SignalOnlinePeers.connect(p2p_source_management_,
     &P2PSourceManagement::OnOnlinePeers);
-  p2p_server_connection_->SignalAPeerLogin.connect(p2p_source_management_,
+  SignalAPeerLogin.connect(p2p_source_management_,
     &P2PSourceManagement::OnAPeerLogin);
-  p2p_server_connection_->SignalAPeerLogout.connect(p2p_source_management_,
+  SignalAPeerLogout.connect(p2p_source_management_,
     &P2PSourceManagement::OnAPeerLogout);
 
+  //ice
 }
 
 
 void P2PServerConnectionManagement::OnSignalRegisterServerResources(
   const std::string &new_resources_string)
 {
+  LOG(LS_INFO) << "///" << __FUNCTION__;
+  ASSERT(worker_thread_->IsCurrent());
   /////////////////////////////////////////////////////////
   //BUG NOTE (GuangleiHe, 11/28/2013)
   //Maybe there has a bug.
@@ -88,6 +128,8 @@ void P2PServerConnectionManagement::OnSignalRegisterServerResources(
 void P2PServerConnectionManagement::OnServerStatesChange(
   StatesChangeType state_type)
 {
+  LOG(LS_INFO) << "///" << __FUNCTION__;
+  ASSERT(worker_thread_->IsCurrent());
   switch(state_type){
     //
   case STATES_P2P_SERVER_LOGIN_SUCCEED:
@@ -131,12 +173,15 @@ void P2PServerConnectionManagement::OnServerStatesChange(
 }
 
 bool P2PServerConnectionManagement::SignOutP2PServer(){
-  return p2p_server_connection_->SignOutP2PServer();
+  LOG(LS_INFO) << "///" << __FUNCTION__;
+  worker_thread_->Post(this,SIGNOUT_P2P_SERVER);
+  return true;
 }
 
 void P2PServerConnectionManagement::SignInP2PServer(
   const talk_base::SocketAddress &server_addr)
 {
+  LOG(LS_INFO) << "///" << __FUNCTION__;
   if(server_addr.IsNil()){
     LOG(LS_ERROR) << "The p2p server address is not complete";
     return ;
@@ -147,12 +192,14 @@ void P2PServerConnectionManagement::SignInP2PServer(
   }
   ASSERT(state_ == SERVER_OBJECT_INITIALIZE);
   server_addr_ = server_addr;
-  p2p_server_connection_->set_server_address(server_addr);
-  p2p_server_connection_->SignInP2PServer();
-  state_ = SERVER_CONNECTING;
+
+
+  worker_thread_->Post(this,SIGNIN_P2P_SERVER);
 }
 
 bool P2PServerConnectionManagement::UpdatePeerInfor(const std::string &infor){
+  LOG(LS_INFO) << "///" << __FUNCTION__;
+  ASSERT(worker_thread_->IsCurrent());
   if(state_ != SERVER_CONNECTING_SUCCEED){
     LOG(LS_ERROR) << "update peer infor after you login p2p server";
     return false;
@@ -163,10 +210,154 @@ bool P2PServerConnectionManagement::UpdatePeerInfor(const std::string &infor){
 void P2PServerConnectionManagement::SetIceDataTunnel(
   AbstractICEConnection *ice_connection)
 {
+  LOG(LS_INFO) << "///" << __FUNCTION__;
   ASSERT(ice_connection != NULL);
 
-  p2p_server_connection_->SignalReceiveMessageFromRemotePeer.connect(
+  SignalReceiveMessageFromRemotePeer.connect(
     ice_connection,&AbstractICEConnection::OnReceiveMessageFromRemotePeer);
-  ice_connection->SignalSendMessageToRemote.connect(p2p_server_connection_,
-    &AbstractP2PServerConnection::OnSendMessageToRemotePeer);
+
+  ice_connection->SignalSendMessageToRemote.connect(this,
+    &P2PServerConnectionManagement::OnSendMessageToRemotePeer);
+}
+
+void P2PServerConnectionManagement::OnSendMessageToRemotePeer(
+  const std::string &msg_string,int peer_id)
+{
+  LOG(LS_INFO) << "///" << __FUNCTION__;
+  ASSERT(signal_thread_->IsCurrent());
+  worker_thread_->Post(this,SEND_MESSAGE_FROM_REMOTE_PEER,
+    new RemoteMessage(peer_id,msg_string));
+}
+
+void P2PServerConnectionManagement::OnReceiveMessageFromRemotePeer(
+  const std::string msg,int peer_id)
+{
+  LOG(LS_INFO) << "///" << __FUNCTION__;
+  ASSERT(worker_thread_->IsCurrent());
+  //LOG_F_S(LS_INFO,P2P_ICE_DATA_INFOR) << peer_id << ">>\n\t" << msg;
+  signal_thread_->Post(this,RECEIVE_MESSAGE_FROM_REMOTE_PEER,
+    new RemoteMessage(peer_id,msg));
+}
+
+void P2PServerConnectionManagement::OnOnlinePeers(const PeerInfors &peers){
+  LOG(LS_INFO) << "///" << __FUNCTION__;
+  ASSERT(worker_thread_->IsCurrent());
+  std::cout << __FUNCTION__ << std::endl;
+  signal_thread_->Post(this,ONLINE_PEERS,new OnlinePeersMessage(peers));
+}
+
+void P2PServerConnectionManagement::OnAPeerLogin(int peer_id,const PeerInfor &peer){
+  LOG(LS_INFO) << "///" << __FUNCTION__;
+  ASSERT(worker_thread_->IsCurrent());
+  std::cout << __FUNCTION__ << std::endl;
+  signal_thread_->Post(this,A_PEER_LOGIN,new PeerInforUpdateMessage(peer_id,peer));
+}
+
+void P2PServerConnectionManagement::OnAPeerLogout(int peer_id,const PeerInfor &peer){
+  LOG(LS_INFO) << "///" << __FUNCTION__;
+  ASSERT(worker_thread_->IsCurrent());
+  std::cout << __FUNCTION__ << std::endl;
+  signal_thread_->Post(this,A_PEER_LOGOUT,new PeerInforUpdateMessage(peer_id,peer));
+}
+
+
+void P2PServerConnectionManagement::OnMessage(talk_base::Message *msg){
+  LOG(LS_INFO) << "///" << __FUNCTION__;
+  switch(msg->message_id){
+  case CREATE_P2P_SERVER_CONNECT:
+    {
+      ASSERT(worker_thread_->IsCurrent());
+      p2p_server_connection_ = new PeerConnectionServer();
+
+      //workerthread_
+      p2p_server_connection_->SignalStatesChange.connect(this,
+        &P2PServerConnectionManagement::OnServerStatesChange);
+
+      p2p_server_connection_->SignalOnlinePeers.connect(this,
+        &P2PServerConnectionManagement::OnOnlinePeers);
+
+      p2p_server_connection_->SignalAPeerLogin.connect(this,
+        &P2PServerConnectionManagement::OnAPeerLogin);
+
+      p2p_server_connection_->SignalAPeerLogout.connect(this,
+        &P2PServerConnectionManagement::OnAPeerLogout);
+
+      //ice
+      p2p_server_connection_->SignalReceiveMessageFromRemotePeer.connect(
+        this,&P2PServerConnectionManagement::OnReceiveMessageFromRemotePeer);
+
+      SignalSendMessageToRemote.connect(p2p_server_connection_,
+        &AbstractP2PServerConnection::OnSendMessageToRemotePeer);
+      break;
+    }
+  case ONLINE_PEERS:
+    {
+      ASSERT(signal_thread_->IsCurrent());
+      OnlinePeersMessage* params = 
+        static_cast<OnlinePeersMessage*>(msg->pdata);
+
+      SignalOnlinePeers(params->peer_infors_);
+
+      delete params;
+      break;
+    }
+  case A_PEER_LOGIN:
+    {
+      ASSERT(signal_thread_->IsCurrent());
+      PeerInforUpdateMessage* params = 
+        static_cast<PeerInforUpdateMessage*>(msg->pdata);
+
+      SignalAPeerLogin(params->peer_id_,params->peer_infor_);
+
+      delete params;
+      break;
+    }
+  case A_PEER_LOGOUT:
+    {
+      ASSERT(signal_thread_->IsCurrent());
+      PeerInforUpdateMessage* params = 
+        static_cast<PeerInforUpdateMessage*>(msg->pdata);
+
+      SignalAPeerLogout(params->peer_id_,params->peer_infor_);
+
+      delete params;
+      break;
+    }
+  case RECEIVE_MESSAGE_FROM_REMOTE_PEER:
+    {
+      ASSERT(signal_thread_->IsCurrent());
+      RemoteMessage* params = 
+        static_cast<RemoteMessage*>(msg->pdata);
+
+      SignalReceiveMessageFromRemotePeer(params->msg_string_,params->peer_id_);
+
+      delete params;
+      break;
+    }
+  case SEND_MESSAGE_FROM_REMOTE_PEER:
+    {
+      ASSERT(worker_thread_->IsCurrent());
+      RemoteMessage* params = 
+        static_cast<RemoteMessage*>(msg->pdata);
+
+      SignalSendMessageToRemote(params->msg_string_,params->peer_id_);
+
+      delete params;
+      break;
+    }
+  case SIGNIN_P2P_SERVER:
+    {
+      ASSERT(worker_thread_->IsCurrent());
+      p2p_server_connection_->set_server_address(server_addr_);
+      p2p_server_connection_->SignInP2PServer();
+      state_ = SERVER_CONNECTING;
+      break;
+    }
+  case SIGNOUT_P2P_SERVER:
+    {
+      ASSERT(worker_thread_->IsCurrent());
+      p2p_server_connection_->SignOutP2PServer();
+      break;
+    }
+  }
 }

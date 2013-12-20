@@ -95,6 +95,7 @@ private:
   //Because the smart pointer maybe can't used as a normal parameter
   ///////////////////////////////////////////////////////////////////////////
   talk_base::scoped_ptr<talk_base::AsyncSocket> server_socket_;
+  talk_base::Thread *signal_thread_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RTSPProxyServer);
 };

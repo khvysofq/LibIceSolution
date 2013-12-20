@@ -56,7 +56,9 @@ P2PConnectionManagement::P2PConnectionManagement()
 }
 
 void P2PConnectionManagement::Initialize(
-  talk_base::Thread *signal_thread,talk_base::Thread *worker_thread,
+  talk_base::Thread *signal_thread,
+  talk_base::Thread *stream_thread,
+  talk_base::Thread *worker_thread,
   bool mix_connect_mode)
 {
   if(mix_connect_mode == true)
@@ -66,9 +68,9 @@ void P2PConnectionManagement::Initialize(
 
   signal_thread_ = signal_thread;
   worker_thread_ = worker_thread;
+  stream_thread_ = stream_thread;
 
-  p2p_ice_connection_ = new PeerConnectionIce(worker_thread_,signal_thread_);
-
+  p2p_ice_connection_ = new PeerConnectionIce(stream_thread,signal_thread_);
 }
 
 
@@ -108,9 +110,11 @@ ProxyP2PSession * P2PConnectionManagement::ConnectBySourceIde(
 
   //Create ProxyP2PSession Object
   if(peer_connection_mode_ == MIX_DATA_MODE)
-    proxy_p2p_session = new ProxyP2PSession(stream,remote_peer_name);
+    proxy_p2p_session = new ProxyP2PSession(stream,
+    remote_peer_name,signal_thread_,worker_thread_);
   else
-    proxy_p2p_session = new ProxyP2PSession(stream,remote_peer_name,false);
+    proxy_p2p_session = new ProxyP2PSession(stream,
+    remote_peer_name,signal_thread_,worker_thread_,false);
 
   //Insert this session to session map
   proxy_p2p_sessions_.insert(proxy_p2p_session);
@@ -256,9 +260,11 @@ bool P2PConnectionManagement::CreateProxyP2PSession(
 
   //3. create proxy p2p session
   if(peer_connection_mode_ == MIX_DATA_MODE)
-    proxy_p2p_session = new ProxyP2PSession(stream,remote_jid);
+    proxy_p2p_session = new ProxyP2PSession(stream,remote_jid,
+    signal_thread_,worker_thread_);
   else
-    proxy_p2p_session = new ProxyP2PSession(stream,remote_jid,false);
+    proxy_p2p_session = new ProxyP2PSession(stream,remote_jid,
+    signal_thread_,worker_thread_,false);
 
 
   //4. register this proxy

@@ -34,6 +34,7 @@
  */
 
 #include "talk/base/bytebuffer.h"
+#include "talk/base/thread.h"
 #include "asyncrtspproxysocketserver.h"
 #include "proxyserverfactory.h"
 #include "proxysocketmanagement.h"
@@ -66,6 +67,8 @@ RTSPProxyServer::RTSPProxyServer(talk_base::SocketFactory *int_factory,
   ASSERT(server_socket_.get() != NULL);
   ASSERT(int_addr.family() == AF_INET || int_addr.family() == AF_INET6);
 
+  signal_thread_ = talk_base::Thread::Current();
+
   std::cout << __FUNCTION__ << "\tListen" << int_addr.ToString() << std::endl;
   if(server_socket_->Bind(int_addr)){
     LOG(LS_ERROR) << "Can't bind port " << int_addr.port();
@@ -76,6 +79,7 @@ RTSPProxyServer::RTSPProxyServer(talk_base::SocketFactory *int_factory,
 }
 
 void RTSPProxyServer::OnAcceptEvent(talk_base::AsyncSocket* socket){
+  ASSERT(signal_thread_->IsCurrent());
   ASSERT(socket != NULL && socket == server_socket_.get());
   //Step 1. Accept this connection socket
   talk_base::AsyncSocket *accept_socket = socket->Accept(NULL);
@@ -102,6 +106,7 @@ void RTSPProxyServer::OnAcceptEvent(talk_base::AsyncSocket* socket){
 talk_base::AsyncProxyServerSocket* RTSPProxyServer::WrapSocket(
   talk_base::AsyncSocket* socket)
 {
+  ASSERT(signal_thread_->IsCurrent());
     return  new AsyncRTSPProxyServerSocket(socket);
 }
 

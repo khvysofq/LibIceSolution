@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PorxyTest", "..\PorxyTest\P
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibRegister", "..\LibRegitster\LibRegitster.vcxproj", "{0B79C66F-E542-417A-893E-6669D4E2D38B}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "pythonp2pserver", "..\pythonp2pserver\pythonp2pserver.pyproj", "{43FB3CAB-D628-4036-83C3-CC0C67A765FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -217,6 +219,18 @@ Global
 		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Release|Win32.ActiveCfg = Release|Win32
 		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Release|Win32.Build.0 = Release|Win32
 		{0B79C66F-E542-417A-893E-6669D4E2D38B}.Release|x64.ActiveCfg = Release|Win32
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Release|Win32.ActiveCfg = Release|Any CPU
+		{43FB3CAB-D628-4036-83C3-CC0C67A765FD}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

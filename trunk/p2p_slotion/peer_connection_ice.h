@@ -68,7 +68,7 @@ private:  //libjingle system function
   // implements the MessageHandler interface
   void OnMessage(talk_base::Message* msg);
 private:    //ICE part function
-  enum {REMOTE_PEER_MESSAGE};
+  enum {REMOTE_PEER_MESSAGE,CREATE_NEW_TUNNEL};
   //interior message that start college transport information
   void OnRequestSignaling();
 

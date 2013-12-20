@@ -41,6 +41,7 @@
 class P2PSourceManagement;
 
 class P2PServerConnectionManagement : public sigslot::has_slots<>
+  ,public talk_base::MessageHandler
 {
 public:
   bool SignOutP2PServer();
@@ -49,6 +50,44 @@ public:
   void SetIceDataTunnel(AbstractICEConnection *ice_connection);
 
 private:
+  //////////////////////////////////////////////////////////////////////////
+  //for ice
+  void OnSendMessageToRemotePeer(const std::string &msg_string, 
+    int peer_id);
+  void OnReceiveMessageFromRemotePeer(const std::string msg, 
+    int peer_id);
+
+  sigslot::signal2<const std::string,int> 
+    SignalReceiveMessageFromRemotePeer;
+  sigslot::signal2<const std::string&,int> 
+    SignalSendMessageToRemote;
+  //////////////////////////////////////////////////////////////////////////
+  void OnOnlinePeers(const PeerInfors &peers);
+  //OnAPeerLogin called at a new peer login p2p server
+  void OnAPeerLogin(int peer_id,const PeerInfor &peer);
+  //OnAPeerLogout called at a peer logout p2p server
+  void OnAPeerLogout(int peer_id,const PeerInfor &peer);
+
+  sigslot::signal1<const PeerInfors &>  SignalOnlinePeers;
+  sigslot::signal2<int,const PeerInfor &> SignalAPeerLogin;
+  sigslot::signal2<int,const PeerInfor &> SignalAPeerLogout;
+
+  virtual void OnMessage(talk_base::Message *msg);
+  enum{
+    CREATE_P2P_SERVER_CONNECT,
+    STATE_CHANGE,
+    ONLINE_PEERS,
+    A_PEER_LOGIN,
+    A_PEER_LOGOUT,
+
+    //ice
+    RECEIVE_MESSAGE_FROM_REMOTE_PEER,
+    SEND_MESSAGE_FROM_REMOTE_PEER,
+
+    //Other
+    SIGNIN_P2P_SERVER,
+    SIGNOUT_P2P_SERVER
+  };
   //For p2p resource management
   void OnSignalRegisterServerResources(const std::string &new_resources_string);
   
@@ -66,7 +105,8 @@ private:
   P2PSourceManagement         *p2p_source_management_;
   bool                        is_server_connection_;
   talk_base::SocketAddress    server_addr_;
-  talk_base::Thread           *current_thread_;
+  talk_base::Thread           *signal_thread_;
+  talk_base::Thread           *worker_thread_;
 
   //////////////////////////////////////////////////////////////////////////
 public:
