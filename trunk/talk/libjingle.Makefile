@@ -3,4 +3,4 @@
 export builddir_name ?= trunk/talk/out
 .PHONY: all
 all:
-	$(MAKE) -C .. libjingle libjingle_sound libjingle_media libjingle_p2p libjingle_peerconnection libjingle_peerconnection_so libjingle_peerconnection_jar
+	$(MAKE) -C .. libjingle libjingle_p2p

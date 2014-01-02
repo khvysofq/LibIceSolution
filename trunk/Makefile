@@ -38,7 +38,9 @@ abs_obj := $(abspath $(obj))
 # generated dependency rule Makefiles in one pass.
 all_deps :=
 
-
+CC 	:= arm-arago-linux-gnueabi-gcc
+CXX := arm-arago-linux-gnueabi-g++
+AR  := arm-arago-linux-gnueabi-ar
 
 CC.target ?= $(CC)
 CFLAGS.target ?= $(CFLAGS)
@@ -58,7 +60,6 @@ AR.target ?= $(AR)
 #
 # This will allow make to invoke N linker processes as specified in -jN.
 LINK ?= flock $(builddir)/linker.lock $(CXX.target)
-
 # TODO(evan): move all cross-compilation logic to gyp-time so we don't need
 # to replicate this environment fallback in make as well.
 CC.host ?= gcc

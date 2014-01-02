@@ -53,7 +53,7 @@ AsyncP2PPackageSocket::AsyncP2PPackageSocket()
 //for AsyncSocket
 talk_base::AsyncSocket* AsyncP2PPackageSocket::Accept(
   talk_base::SocketAddress* paddr){
-    LOG(LS_INFO) << "p2p socket have no accept function";
+    //LOG(LS_INFO) << "p2p socket have no accept function";
     return NULL;
 }
 

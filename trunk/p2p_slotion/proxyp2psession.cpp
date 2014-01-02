@@ -42,8 +42,15 @@
 #include "p2pconnectionmanagement.h"
 #include "asyncrtspclientsocket.h"
 
-const int DESTORY_SELFT = 0;
-const int CLOSE_ALL_PROXY_SOCKET = 1;
+const int DESTORY_SELFT           = 0;
+const int CLOSE_ALL_PROXY_SOCKET  = 1;
+const int SEND_BUFFER_DATA        = 2;
+
+struct SendBufferMessage :public talk_base::MessageData{
+  SendBufferMessage(talk_base::ByteBuffer *byter_buffer)
+    :byter_buffer_(byter_buffer){}
+  talk_base::ByteBuffer *byter_buffer_;
+};
 
 ProxyP2PSession::ProxyP2PSession(talk_base::StreamInterface *stream,
                                  const std::string &remote_peer_name,
@@ -55,7 +62,7 @@ ProxyP2PSession::ProxyP2PSession(talk_base::StreamInterface *stream,
                                  signal_thread_(signal_thread)
 {
   ASSERT(signal_thread_->IsCurrent());
-  std::cout << __FUNCTION__ << "\t Create A New Session"
+  LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC) << "\t Create A New Session"
     << std::endl;
   //1. Create P2PConnectionImplementator object
 
@@ -91,6 +98,8 @@ ProxyP2PSession::ProxyP2PSession(talk_base::StreamInterface *stream,
 }
 
 ProxyP2PSession::~ProxyP2PSession(){
+  LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC)
+    << "Destroy Proxy P2p Session";
   ASSERT(signal_thread_->IsCurrent());
   command_send_buffer_->Close();
   delete command_send_buffer_;
@@ -103,12 +112,12 @@ ProxyP2PSession::~ProxyP2PSession(){
 void ProxyP2PSession::RegisterProxySocket(ProxySocketBegin *proxy_socket_begin)
 {
   ASSERT(signal_thread_->IsCurrent());
-  
+
   SignalIndependentStreamRead.connect(proxy_socket_begin,
     &ProxySocketBegin::OnIndependentRead);
 
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
-  std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) 
+    << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
   ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(
     proxy_socket_begin->GetSocketNumber());
   if(iter != proxy_socket_begin_map_.end()){
@@ -118,13 +127,16 @@ void ProxyP2PSession::RegisterProxySocket(ProxySocketBegin *proxy_socket_begin)
   }
   proxy_socket_begin_map_.insert(ProxySocketBeginMap::value_type(
     proxy_socket_begin->GetSocketNumber(),proxy_socket_begin));
-  std::cout << __FUNCTION__ << "\t Register proxy socket " 
-    << proxy_socket_begin_map_.size() << std::endl;
-  std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t Register proxy socket " 
+    << proxy_socket_begin_map_.size();
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) 
+    << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 }
 
 void ProxyP2PSession::DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begin){
-  std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) 
+    << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
   ASSERT(signal_thread_->IsCurrent());
   uint32 socket_number = proxy_socket_begin->GetSocketNumber();
   ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(socket_number);
@@ -135,8 +147,10 @@ void ProxyP2PSession::DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begi
   } else{
     LOG_F(LS_ERROR) << "Delete Proxy Socket Begin error";
   }
-  std::cout << "Current connect is " << proxy_socket_begin_map_.size() << std::endl;
-  std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC|BASIC_INFOR) << "Current connect is " 
+    << proxy_socket_begin_map_.size();
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) 
+    << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
   IsAllProxySocketClosed();
 }
 
@@ -146,7 +160,6 @@ void ProxyP2PSession::DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begi
 ///////////////////////////////////////////////////////////////////////////
 void ProxyP2PSession::Destory(){
   ASSERT(signal_thread_->IsCurrent());
-  p2p_connection_implementator_->CloseStream();
   p2p_connection_implementator_->Destory();
   talk_base::Thread::Current()->Post(this,DESTORY_SELFT);
 }
@@ -160,7 +173,6 @@ bool ProxyP2PSession::RunSocketProccess(
   uint32 socket, SocketType socket_type,const char *data, uint16 len)
 {  
   ASSERT(signal_thread_->IsCurrent());
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
   ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(socket);
   if(iter == proxy_socket_begin_map_.end()){
     LOG(LS_ERROR) << "Can't Find the object in the ProxySocketManagement " << socket;
@@ -230,13 +242,15 @@ void ProxyP2PSession::OnStreamRead(uint32 socket,
 void ProxyP2PSession::OnIndependentStreamRead(
   talk_base::StreamInterface *stream)
 {
+
+  LOG_P2P(P2P_PROXY_SOCKET_DATA)
+    << "independent reading data";
   ASSERT(signal_thread_->IsCurrent());
   if(independent_mode_state_ == P2P_SOCKET_PROXY_CONNECTED){
     //... ... translator data
     SignalIndependentStreamRead(stream);
     return ;
   }
-  std::cout << __FUNCTION__ << std::endl;
   ///////////////////////////////////////////////////////////////////////////
   //BUG NOTE (GuangleiHe, 12/17/2013)
   //Maybe there has a bug.
@@ -258,8 +272,8 @@ void ProxyP2PSession::OnIndependentStreamRead(
 void ProxyP2PSession::OnConnectSucceed(talk_base::StreamInterface *stream){
   ASSERT(signal_thread_->IsCurrent());
   // inform all proxy socket begin object that the peer is connected
-  std::cout << "\t inform all proxy socket begin object that the peer is connected"
-    << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC)
+    << "inform all proxy socket begin object that the peer is connected";
   for(ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.begin();
     iter != proxy_socket_begin_map_.end();iter++){
       iter->second->OnP2PPeerConnectSucceed(this);
@@ -275,8 +289,8 @@ void ProxyP2PSession::CreateClientSocketConnection(
   ASSERT(signal_thread_->IsCurrent());
   independent_mode_state_ = P2P_SOCKET_CONNECTING_PROXY_SOCKET;
 
-  std::cout << __FUNCTION__ << "\tSend create RTSP client command"
-    << addr.ToString() << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\tSend create RTSP client command"
+    << addr.ToString();
   //Generate system command that create RTSP client
   talk_base::ByteBuffer *byte_buffer =
     p2p_system_command_factory_->CreateRTSPClientSocket(socket,addr);
@@ -296,9 +310,7 @@ void ProxyP2PSession::ReplayClientSocketCreateSucceed(
 {
   ASSERT(signal_thread_->IsCurrent());
   independent_mode_state_ = P2P_SOCKET_PROXY_CONNECTED;
-  std::cout << __FUNCTION__ << "\t Replay client socket succeed"
-    << std::endl;
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t Replay client socket succeed";
   //socket_table_management_ = SocketTableManagement::Instance();
   //generate a reply string
   if(is_mix_data_mode_)
@@ -341,15 +353,14 @@ void ProxyP2PSession::MixP2PSocketClose(uint32 socket, bool is_server){
 }
 
 void ProxyP2PSession::IndependentP2PSocketClose(uint32 socket, 
-                                                bool is_server){
+                                                bool is_server)
+{
   ASSERT(signal_thread_->IsCurrent());
   signal_thread_->Post(this,CLOSE_ALL_PROXY_SOCKET);
-  std::cout << __FUNCTION__ << std::endl;
 }
 
 void ProxyP2PSession::P2PSocketCloseSucceed(uint32 socket, bool is_server){
   ASSERT(signal_thread_->IsCurrent());
-  std::cout << __FUNCTION__ << std::endl;
   uint32 server_socket, client_socket;
   if(is_server){
     server_socket = socket;
@@ -369,7 +380,6 @@ void ProxyP2PSession::P2PSocketConnectFailure(uint32 server_socket,
                                               uint32 client_socket)
 {
   ASSERT(signal_thread_->IsCurrent());
-  std::cout << __FUNCTION__ << std::endl;
 
   talk_base::ByteBuffer *byte_buffer  =
     p2p_system_command_factory_->RTSPSocketConnectFailure(
@@ -401,8 +411,7 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
 
   //////////////////////////////////////////////////////////////////////////
   if(p2p_system_command_type == P2P_SYSTEM_CREATE_RTSP_CLIENT){
-    LOG(LS_INFO) << "Create New Client Socket";
-    std::cout << __FUNCTION__ << "\t Start Create New Client Socket" << std::endl;
+    LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "Create New Client Socket";
     //Step 1. Create AsyncSocket object.
     talk_base::AsyncSocket *int_socket 
       = worker_thread_->socketserver()->CreateAsyncSocket(SOCK_STREAM);
@@ -416,9 +425,7 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
       server_socket,server_addr);
   }
   else if(p2p_system_command_type == P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED){
-    LOG(LS_INFO) << "Client Socket Create Succeed";
-    std::cout << __FUNCTION__ << "\tClient Socket Create Succeed"
-      << std::endl;
+    LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "Client Socket Create Succeed";
     if(is_mix_data_mode_)
       socket_table_management_->AddNewLocalSocket(server_socket,
       client_socket,TCP_SOCKET);
@@ -429,14 +436,12 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
 
   }
   else if(p2p_system_command_type == P2P_SYSTEM_SERVER_SOCKET_CLOSE){
-    std::cout << __FUNCTION__ << "\t close server socket \n"
-      << std::endl;
+    LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "close server socket ";
     is_self_close = false;
     CloseP2PSocket(client_socket);
   }
   else if(p2p_system_command_type == P2P_SYSTEM_CLIENT_SOCKET_CLOSE){
-    std::cout << __FUNCTION__ << "\t close client socket \n"
-      << std::endl;
+    LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t close client socket";
     is_self_close = false;
     CloseP2PSocket(server_socket);
   }
@@ -456,7 +461,6 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
 
 void ProxyP2PSession::CloseP2PSocket(uint32 socket){
   ASSERT(signal_thread_->IsCurrent());
-  std::cout << __FUNCTION__ << std::endl;
   ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(socket);
   if(iter == proxy_socket_begin_map_.end()){
     LOG(LS_ERROR) << "The Close Socket is not a member of proxy socket begin map";
@@ -464,13 +468,12 @@ void ProxyP2PSession::CloseP2PSocket(uint32 socket){
     ASSERT(0);
     return ;
   }
-  std::cout << __FUNCTION__ << "\t close succeed" << std::endl;;
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t close succeed";
   proxy_socket_begin_map_[socket]->OnP2PClose(NULL);
 }
 
 void ProxyP2PSession::CloseP2PSocketSucceed(uint32 socket){
   ASSERT(signal_thread_->IsCurrent());
-  std::cout << __FUNCTION__ << std::endl;
   ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(socket);
   if(iter == proxy_socket_begin_map_.end()){
     LOG(LS_ERROR) << "The Close Socket is not a member of proxy socket begin map";
@@ -478,13 +481,12 @@ void ProxyP2PSession::CloseP2PSocketSucceed(uint32 socket){
     ASSERT(0);
     return ;
   }
-  std::cout << __FUNCTION__ << "\t Other side socket close succeed";
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC)<< "Other side socket close succeed";
   proxy_socket_begin_map_[socket]->OnOtherSideSocketCloseSucceed(NULL);
 }
 
 void ProxyP2PSession::ConnectProxySocketFailure(uint32 socket){
   ASSERT(signal_thread_->IsCurrent());
-  std::cout << __FUNCTION__ << std::endl;
   ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(socket);
   if(iter == proxy_socket_begin_map_.end()){
     LOG(LS_ERROR) << "The Close Socket is not a member of proxy socket begin map";
@@ -497,9 +499,9 @@ void ProxyP2PSession::ConnectProxySocketFailure(uint32 socket){
 
 void ProxyP2PSession::IsAllProxySocketClosed(){
   ASSERT(signal_thread_->IsCurrent());
-  std::cout << __FUNCTION__ << std::endl;
   if(proxy_socket_begin_map_.size() == 0){
-    std::cout << __FUNCTION__ << "proxy_socket_begin_map_.size() == 0" << std::endl;
+    LOG_P2P(P2P_PROXY_SOCKET_LOGIC | BASIC_INFOR) 
+      << "proxy_socket_begin_map_.size() == 0";
     ///////////////////////////////////////////////////////////////////////////
     //BUSINESS LOGIC NOTE (GuangleiHe, 12/5/2013)
     //Because to close a stream (a ICE p2p connection), the ice protect has it 
@@ -514,26 +516,9 @@ void ProxyP2PSession::IsAllProxySocketClosed(){
 
 void ProxyP2PSession::SendCommand(talk_base::ByteBuffer *byte_buffer){
   ASSERT(signal_thread_->IsCurrent());
-  //send this string to remote peer
-  size_t written;
-  p2p_connection_implementator_->Send(0,TCP_SOCKET, byte_buffer->Data(),
-    P2PRTSPCOMMAND_LENGTH,&written);
-  if(written != P2PRTSPCOMMAND_LENGTH){
-    size_t res;
-    command_send_buffer_->WriteAll(byte_buffer->Data(),byte_buffer->Length(),
-      &res,NULL);
-    ///////////////////////////////////////////////////////////////////////////
-    //BUG NOTE (GuangleiHe, 12/5/2013)
-    //Maybe there has a bug.
-    //Because write data to the FIFO buffer maybe got block. the current operator
-    //just exit the program.
-    ///////////////////////////////////////////////////////////////////////////
-    ASSERT(res == P2PRTSPCOMMAND_LENGTH);
-  }
-  //delete the string
-  p2p_system_command_factory_->DeleteRTSPClientCommand(byte_buffer);
+  signal_thread_->Post(this,SEND_BUFFER_DATA,
+    new SendBufferMessage(byte_buffer));
 }
-
 
 void ProxyP2PSession::OnMessage(talk_base::Message *msg){
   ASSERT(signal_thread_->IsCurrent());
@@ -550,6 +535,35 @@ void ProxyP2PSession::OnMessage(talk_base::Message *msg){
         iter != proxy_socket_begin_map_.end();iter++){
           iter->second->OnOtherSideSocketCloseSucceed(NULL);
       }
+      break;
+    }
+  case SEND_BUFFER_DATA:
+    {        
+      SendBufferMessage* params = 
+        static_cast<SendBufferMessage*>(msg->pdata);
+
+      //send this string to remote peer
+      size_t written;
+      p2p_connection_implementator_->Send(0,TCP_SOCKET, 
+        params->byter_buffer_->Data(),
+        P2PRTSPCOMMAND_LENGTH,&written);
+      if(written != P2PRTSPCOMMAND_LENGTH){
+        size_t res;
+        command_send_buffer_->WriteAll(params->byter_buffer_->Data(),
+          params->byter_buffer_->Length(),
+          &res,NULL);
+        ///////////////////////////////////////////////////////////////////////////
+        //BUG NOTE (GuangleiHe, 12/5/2013)
+        //Maybe there has a bug.
+        //Because write data to the FIFO buffer maybe got block. the current operator
+        //just exit the program.
+        ///////////////////////////////////////////////////////////////////////////
+        ASSERT(res == P2PRTSPCOMMAND_LENGTH);
+      }
+      //delete the string
+      p2p_system_command_factory_->DeleteRTSPClientCommand(
+        params->byter_buffer_);
+      delete params;
       break;
     }
   }

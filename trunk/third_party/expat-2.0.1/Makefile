@@ -24,7 +24,7 @@ srcdir = .
 top_srcdir = .
 
 
-prefix = /usr
+prefix = /usr/local
 exec_prefix = ${prefix}
 
 bindir = ${exec_prefix}/bin
@@ -100,8 +100,8 @@ mkdir-init:
 		(mkdir $$d 2> /dev/null || test 1) ; \
 	done
 
-CC = gcc
-CXX = g++
+CC = arm-arago-linux-gnueabi-gcc
+CXX = arm-arago-linux-gnueabi-g++
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 
 INCLUDES = -I$(srcdir)/lib -I.
@@ -137,11 +137,11 @@ lib/xmltok.lo: lib/xmltok.c lib/xmltok_impl.c lib/xmltok_ns.c \
 	$(top_builddir)/expat_config.h lib/expat_external.h lib/internal.h
 
 
-XMLWF_OBJS = xmlwf/xmlwf.o xmlwf/xmlfile.o xmlwf/codepage.o xmlwf/unixfilemap.o
+XMLWF_OBJS = xmlwf/xmlwf.o xmlwf/xmlfile.o xmlwf/codepage.o xmlwf/readfilemap.o
 xmlwf/xmlwf.o: xmlwf/xmlwf.c
 xmlwf/xmlfile.o: xmlwf/xmlfile.c
 xmlwf/codepage.o: xmlwf/codepage.c
-xmlwf/unixfilemap.o: xmlwf/unixfilemap.c
+xmlwf/readfilemap.o: xmlwf/readfilemap.c
 xmlwf/xmlwf: $(XMLWF_OBJS) $(LIBRARY)
 	$(LINK_EXE) $(XMLWF_OBJS) $(LIBRARY)
 

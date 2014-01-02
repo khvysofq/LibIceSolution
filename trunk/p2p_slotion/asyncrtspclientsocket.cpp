@@ -49,10 +49,8 @@ RTSPClientSocket::RTSPClientSocket(ProxyP2PSession *proxy_p2p_session,
                                    :ProxySocketBegin(int_socket),
                                    server_socket_number_(server_socket_number)
 {
-  LOG(LS_INFO) << __FUNCTION__ << server_addr.ToString();
-
-  std::cout << __FUNCTION__ << "\t Connect to " << server_addr.ToString() 
-    << std::endl;
+  LOG_P2P(CREATE_DESTROY_INFOR|P2P_RTSP_LOCAL_CLIENT) 
+    << "Connect to " << server_addr.ToString();
   SetProxyP2PSession(proxy_p2p_session);
 
   is_server_ = false;
@@ -68,9 +66,7 @@ RTSPClientSocket::RTSPClientSocket(ProxyP2PSession *proxy_p2p_session,
 void RTSPClientSocket::OnInternalConnect(
   talk_base::AsyncSocket* socket)
 {
-  std::cout << __FUNCTION__ << "\t connect server succeed "
-    << std::endl;
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG_P2P(P2P_RTSP_LOCAL_CLIENT)  << "connect server succeed ";
   ASSERT(int_socket_state_ == INT_SCOKET_START);
 
   //The Client connect was accept
@@ -89,11 +85,3 @@ void RTSPClientSocket::InternalSocketError(talk_base::AsyncSocket *socket,int er
   p2p_socket_state_ = P2P_SOCKET_CLOSED;
   Destory();
 }
-//
-//void RTSPClientSocket::OnInternalClose(talk_base::AsyncSocket* socket, int err){
-//  LOG(LS_INFO) << "&&&" << __FUNCTION__;
-//  std::cout << __FUNCTION__ << "\t int socket closed"
-//    << std::endl;
-//  proxy_p2p_session_->P2PClientSocketClose(server_socket_number_,
-//    (uint32)int_socket_.get());
-//}

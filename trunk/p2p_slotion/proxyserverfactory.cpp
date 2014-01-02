@@ -43,7 +43,7 @@ RTSPProxyServer *ProxyServerFactory::CreateRTSPProxyServer(
   talk_base::SocketFactory *int_factory,
   const talk_base::SocketAddress &local_rtsp_addr)
 {
-  std::cout << __FUNCTION__ << "\tCreate RTSPProxyServer" << std::endl;;
+  LOG_P2P(BASIC_INFOR|P2P_RTSP_LOCAL_SERVER) << "Create RTSPProxyServer";
   return new RTSPProxyServer(int_factory,local_rtsp_addr);
 }
 
@@ -53,8 +53,7 @@ RTSPClientSocket* ProxyServerFactory::CreateRTSPClientSocket(
   uint32 server_socket_number,
   const talk_base::SocketAddress &server_rtsp_addr)
 {
-  LOG(LS_INFO) << __FUNCTION__;
-  std::cout << __FUNCTION__ << "\t Create New Client Socket" << std::endl;
+  LOG_P2P(BASIC_INFOR|P2P_RTSP_LOCAL_CLIENT) << "Create New Client Socket";
   return new RTSPClientSocket(proxy_p2p_session,int_socket,
     server_socket_number,server_rtsp_addr);
 }

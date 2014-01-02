@@ -53,8 +53,8 @@ ProxySocketBegin::ProxySocketBegin(talk_base::AsyncSocket *int_socket)
   out_buffer_(KBufferSize),
   in_buffer_(KBufferSize)
 {
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
-  std::cout <<__FUNCTION__ << std::endl;
+  LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC) 
+    << "Create Proxy Socket Begin Object";
   if(int_socket_ == NULL){
     talk_base::Thread *thread = talk_base::Thread::Current();
     talk_base::AsyncSocket *int_socket_ 
@@ -72,13 +72,15 @@ ProxySocketBegin::ProxySocketBegin(talk_base::AsyncSocket *int_socket)
   int_socket_->SignalCloseEvent.connect(this, &ProxySocketBegin::OnInternalClose);
 }
 ProxySocketBegin::~ProxySocketBegin(){
+  LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC) 
+    << "Destroy Proxy Socket Begin Object";
   out_buffer_.Close();
   in_buffer_.Close();
 }
 
 void ProxySocketBegin::Destory(){
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
-  std::cout <<__FUNCTION__ << std::endl;
+  LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC) 
+    << "Destroy Proxy Socket Begin Object";
 
   ASSERT(p2p_socket_state_ == P2P_SOCKET_CLOSED);
   ASSERT(int_socket_state_ == INT_SOCKET_CLOSED);
@@ -87,13 +89,11 @@ void ProxySocketBegin::Destory(){
 }
 
 bool ProxySocketBegin::IsMe(intptr_t socket){
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
-  std::cout << __FUNCTION__ << std::endl;
   return ((intptr_t)int_socket_.get()) == socket;
 }
 
 void ProxySocketBegin::OnP2PRead(const char *data, uint16 len){
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Read P2P Data";
 
   ASSERT(p2p_socket_state_ == P2P_SOCKET_PROXY_CONNECTED);
   ReadP2PDataToBuffer(data,len,&in_buffer_);
@@ -104,7 +104,7 @@ void ProxySocketBegin::OnP2PRead(const char *data, uint16 len){
 
 void ProxySocketBegin::OnIndependentRead(talk_base::StreamInterface *stream)
 {
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Read Independent P2P Data";
   if(p2p_socket_state_ == P2P_SOCKET_PROXY_CONNECTED)
     ReadP2PStreamDatatoBuffer(stream,&in_buffer_);
   if(int_socket_state_ == INT_SOCKET_CONNECTED)
@@ -113,14 +113,14 @@ void ProxySocketBegin::OnIndependentRead(talk_base::StreamInterface *stream)
 }
 
 void ProxySocketBegin::OnP2PWrite(talk_base::StreamInterface *stream){
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "P2P Socket Can write";
   if(p2p_socket_state_ == P2P_SOCKET_PROXY_CONNECTED)
     WriteBufferDataToP2P(&out_buffer_);
   else LOG(LS_ERROR) << __FUNCTION__;
 }
 
 void ProxySocketBegin::OnP2PClose(talk_base::StreamInterface *stream){
-  std::cout << __FUNCTION__ << "\t p2p socket closed"
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "p2p socket closed"
     << std::endl;
 
   p2p_socket_state_ = P2P_SOCKET_CLOSING;
@@ -133,7 +133,8 @@ void ProxySocketBegin::OnP2PClose(talk_base::StreamInterface *stream){
 void ProxySocketBegin::OnOtherSideSocketCloseSucceed(
   talk_base::StreamInterface *stream)
 {
-  std::cout << __FUNCTION__ << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_DATA|P2P_PROXY_SOCKET_LOGIC) 
+    << "Other side socket close succeed";
   p2p_socket_state_ = P2P_SOCKET_CLOSED;
   Destory();
 }
@@ -141,8 +142,7 @@ void ProxySocketBegin::OnOtherSideSocketCloseSucceed(
 void ProxySocketBegin::OnProxySocketConnectFailure(
   talk_base::StreamInterface *stream)
 {
-  std::cout << __FUNCTION__ << std::endl;
-
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "P2P Socket connect failure";
   ASSERT(p2p_socket_state_ == P2P_SOCKET_CONNECTING_PROXY_SOCKET);
   ASSERT(int_socket_state_ == INT_SOCKET_CONNECTED);
 
@@ -154,8 +154,8 @@ void ProxySocketBegin::OnProxySocketConnectFailure(
 
 
 void ProxySocketBegin::SendCloseSocketSucceed(){
-  std::cout << __FUNCTION__ << std::endl;
-
+  LOG_P2P(P2P_PROXY_SOCKET_DATA|P2P_PROXY_SOCKET_LOGIC) 
+    << "Send Close Socket Succeed";
   proxy_p2p_session_->P2PSocketCloseSucceed((intptr_t)int_socket_.get(),
     is_server_);
   p2p_socket_state_ = P2P_SOCKET_CLOSING;
@@ -163,7 +163,7 @@ void ProxySocketBegin::SendCloseSocketSucceed(){
 
 //ProxySocketBegin protected function
 void ProxySocketBegin::OnInternalRead(talk_base::AsyncSocket* socket){
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Internal socket read";
   
   if(int_socket_state_ == INT_SOCKET_CONNECTED)
     ReadSocketDataToBuffer(int_socket_.get(),&out_buffer_);
@@ -175,7 +175,7 @@ void ProxySocketBegin::OnInternalRead(talk_base::AsyncSocket* socket){
 }
 
 void ProxySocketBegin::OnInternalWrite(talk_base::AsyncSocket *socket){
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Internal socket write";
 
   if(int_socket_state_ == INT_SOCKET_CONNECTED)
     WriteBufferDataToSocket(int_socket_.get(),&in_buffer_);
@@ -183,10 +183,8 @@ void ProxySocketBegin::OnInternalWrite(talk_base::AsyncSocket *socket){
 }
 
 void ProxySocketBegin::OnInternalClose(talk_base::AsyncSocket* socket, int err){
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
-  std::cout << __FUNCTION__ << std::endl;
-  std::cout << __FUNCTION__ << "close the internal socket " << err 
-    << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_DATA|P2P_PROXY_SOCKET_LOGIC) 
+    << "close the internal socket " << err ;
 
   int_socket_->Close();
   int_socket_state_ = INT_SOCKET_CLOSED;
@@ -207,7 +205,7 @@ void ProxySocketBegin::InternalSocketError(talk_base::AsyncSocket* socket, int e
 
 void ProxySocketBegin::CloseP2PSocket(){
   //ASSERT(is_server_);
-  std::cout <<__FUNCTION__ << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "P2P Socket close";
   proxy_p2p_session_->P2PSocketClose((intptr_t)int_socket_.get(),is_server_);
 }
 
@@ -215,7 +213,6 @@ void ProxySocketBegin::CloseP2PSocket(){
 void ProxySocketBegin::ReadSocketDataToBuffer(talk_base::AsyncSocket *socket, 
                                               talk_base::FifoBuffer *buffer)
 {
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
   // Only read if the buffer is empty.
   ASSERT(socket != NULL);
   size_t size;
@@ -230,7 +227,6 @@ void ProxySocketBegin::ReadSocketDataToBuffer(talk_base::AsyncSocket *socket,
 void ProxySocketBegin::ReadP2PDataToBuffer(const char *data, uint16 len,
                                            talk_base::FifoBuffer *buffer)
 {
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
   ASSERT(data != NULL);
   buffer->Write(data,len,NULL,NULL);
 }
@@ -250,7 +246,6 @@ void ProxySocketBegin::ReadP2PStreamDatatoBuffer(
 void ProxySocketBegin::WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
                                                talk_base::FifoBuffer *buffer)
 {
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
   ASSERT(socket != NULL);
   size_t size;
   int written;
@@ -263,7 +258,6 @@ void ProxySocketBegin::WriteBufferDataToSocket(talk_base::AsyncSocket *socket,
 }
 
 void ProxySocketBegin::WriteBufferDataToP2P(talk_base::FifoBuffer *buffer){
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
   ASSERT(buffer != NULL);
   size_t size;
   size_t written = 0;
@@ -275,13 +269,12 @@ void ProxySocketBegin::WriteBufferDataToP2P(talk_base::FifoBuffer *buffer){
 
 bool ProxySocketBegin::StartConnectBySourceIde(const std::string &source){
   //remote_peer_addr_ = addr;
-  std::cout <<__FUNCTION__ << std::endl;
   ASSERT(p2p_socket_state_ == P2P_SOCKET_START 
     && int_socket_state_ == INT_SOCKET_CONNECTED);
 
   p2p_socket_state_ = P2P_SOCKET_CONNECTING_PEER;
 
-  std::cout << __FUNCTION__ << "\t Start Connect By Source"
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "\t Start Connect By Source"
     << std::endl;
 
   bool is_existed;
@@ -291,7 +284,8 @@ bool ProxySocketBegin::StartConnectBySourceIde(const std::string &source){
 
   //If the Proxy p2p session created
   if(proxy_p2p_session){
-    std::cout << __FUNCTION__ << "inform peer connect succeed" << std::endl;
+    
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "inform peer connect succeed";
     SetProxyP2PSession(proxy_p2p_session);
     if(is_existed)
       OnP2PPeerConnectSucceed(proxy_p2p_session_);
@@ -308,7 +302,7 @@ bool ProxySocketBegin::StartConnectBySourceIde(const std::string &source){
 void ProxySocketBegin::OnP2PPeerConnectSucceed(ProxyP2PSession 
                                                *proxy_p2p_session)
 {
-  std::cout << __FUNCTION__ << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "P2P Peer Connect Succeed";
     
   ///////////////////////////////////////////////////////////////////////////
   //BUSINESS LOGIC NOTE (GuangleiHe, 12/9/2013)
@@ -332,7 +326,7 @@ void ProxySocketBegin::OnP2PPeerConnectSucceed(ProxyP2PSession
 }
 
 void ProxySocketBegin::OnP2PSocketConnectSucceed(ProxyP2PSession *proxy_p2p_session){
-  std::cout <<__FUNCTION__ << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "P2P socket Connect Succeed";
   ASSERT(p2p_socket_state_ == P2P_SOCKET_CONNECTING_PROXY_SOCKET);
   p2p_socket_state_ = P2P_SOCKET_PROXY_CONNECTED;
   OnP2PWrite(NULL);
@@ -351,18 +345,19 @@ void ProxySocketBegin::OnMessage(talk_base::Message *msg){
   switch(msg->message_id){
   case DESTORY_MYSELFT:
     {
-      std::cout << __FUNCTION__ << "DESTORY MYSELEFT" << std::endl;
+      
+      LOG_P2P(P2P_PROXY_SOCKET_LOGIC|BASIC_INFOR) << "DESTORY MYSELEFT";
       if(proxy_p2p_session_)
         proxy_p2p_session_->DeleteProxySocketBegin(this);
       else{
-        std::cout << "delete this" << std::endl;
+        LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "delete this";
         delete this;
       }
       break;
     }
   case SEND_CLOSE_SUCCEED:
     {
-      std::cout << __FUNCTION__ << "SEND_CLOSE_SUCCEED" << std::endl;
+      LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "SEND_CLOSE_SUCCEED";
       SendCloseSocketSucceed();
       p2p_socket_state_ = P2P_SOCKET_CLOSED;
       Destory();

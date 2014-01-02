@@ -83,8 +83,6 @@ int P2PSourceManagement::GetRemotePeerIdByPeerName(const std::string &remote_pee
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)
   {
-    //std::cout << (*iter)->peer_jid_ << std::endl;
-    //std::cout << remote_peer_name   << std::endl;
     if((*iter)->peer_jid_ == remote_peer_name){
       return (*iter)->peer_id_;
     }
@@ -173,19 +171,18 @@ void P2PSourceManagement::DeleteAllServerResource(ServerResources &server_resour
     iter != server_resource.end(); iter++)
   {
     delete *iter;
-    //server_resource.erase(iter);
   }
 }
 
 
 void P2PSourceManagement::DeleteAllOnlinePeerResource(){
-  std::cout << __FUNCTION__ << std::endl;
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)
   {
     DeleteAllServerResource((*iter)->server_resources_);
     delete (*iter);
-    std::cout << __FUNCTION__ << "Delete One" << std::endl;
+    LOG_P2P(CREATE_DESTROY_INFOR|P2P_SERVER_LOGIC_INFOR) 
+      << "Delete One r2mote peer information";
   }
   remote_peer_resources_.clear();
 }
@@ -204,7 +201,6 @@ bool P2PSourceManagement::ThePeerResourceIsExisited(PeerResource *peer_resource)
 }
 
 void P2PSourceManagement::OnOnlinePeers(const PeerInfors &peers){
-  std::cout << __FUNCTION__ << std::endl;
   for(PeerInfors::const_iterator iter = peers.begin();
     iter != peers.end();++iter){
       PeerResource *peer_resource = new PeerResource();
@@ -217,8 +213,8 @@ void P2PSourceManagement::OnOnlinePeers(const PeerInfors &peers){
 
       if(!ThePeerResourceIsExisited(peer_resource)){
         remote_peer_resources_.insert(peer_resource);
-        std::cout << __FUNCTION__ << "Add One " << peer_resource->peer_jid_ 
-          << std::endl;
+        LOG_P2P(CREATE_DESTROY_INFOR|P2P_SERVER_LOGIC_INFOR) 
+          << "Add One " << peer_resource->peer_jid_;
       }
       else
         delete peer_resource;
@@ -227,7 +223,6 @@ void P2PSourceManagement::OnOnlinePeers(const PeerInfors &peers){
 }
 
 void P2PSourceManagement::OnAPeerLogin(int peer_id,const PeerInfor &peer){
-  std::cout << __FUNCTION__ << std::endl;
   //1. Find the remote peer by peer id and peer name
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)
@@ -250,7 +245,6 @@ void P2PSourceManagement::OnAPeerLogin(int peer_id,const PeerInfor &peer){
 }
 
 void P2PSourceManagement::OnAPeerLogout(int peer_id,const PeerInfor &peer){
-  std::cout << __FUNCTION__ << std::endl;
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++)
   {
@@ -335,24 +329,28 @@ void P2PSourceManagement::ShowAllServerResourceInfor(
   for(ServerResources::const_iterator iter = server_resources.begin();
     iter != server_resources.end(); iter++)
   {
-    std::cout <<"\t" << SERVER_NAME << "\t" << (*iter)->server_name_<< std::endl;
-    std::cout <<"\t" << SERVER_IP << "\t" << (*iter)->server_ip_<< std::endl;
-    std::cout <<"\t" << SERVER_PORT << "\t" << (*iter)->server_port_<< std::endl;
-    std::cout <<"\t" << SOURCE_IDE << "\t" << (*iter)->server_ide_<< std::endl;
+    LOG_P2P(BASIC_INFOR) << SERVER_NAME << "\t" 
+      << (*iter)->server_name_;
+    LOG_P2P(BASIC_INFOR) << SERVER_IP << "\t" 
+      << (*iter)->server_ip_;
+    LOG_P2P(BASIC_INFOR) << SERVER_PORT << "\t" 
+      << (*iter)->server_port_;
+    LOG_P2P(BASIC_INFOR) << SOURCE_IDE << "\t" 
+      << (*iter)->server_ide_;
   }
 }
 
 void P2PSourceManagement::ShowAllInfors(){
-  std::cout << "----------------------------------" << std::endl;
+  LOG_P2P(BASIC_INFOR) << "----------------------------------";
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++){
-      std::cout << "PEER_ID\t" << (*iter)->peer_id_ << std::endl;
-      std::cout << "PEER_JID\t" << (*iter)->peer_jid_<< std::endl;
-      std::cout << ".........................." << std::endl;
+      LOG_P2P(BASIC_INFOR) << "PEER_ID\t" << (*iter)->peer_id_;
+      LOG_P2P(BASIC_INFOR) << "PEER_JID\t" << (*iter)->peer_jid_;
+      LOG_P2P(BASIC_INFOR) << "..........................";
       ShowAllServerResourceInfor((*iter)->server_resources_);
-      std::cout << "..........................\n" << std::endl;
+      LOG_P2P(BASIC_INFOR) << "..........................";
   }
-  std::cout << "----------------------------------" << std::endl;
+  LOG_P2P(BASIC_INFOR) << "----------------------------------\n";
 }
 
 

@@ -52,7 +52,6 @@ CFLAGS_Debug := \
 	-Wno-missing-field-initializers \
 	-fvisibility=hidden \
 	-pipe \
-	-fPIC \
 	-Wno-format \
 	-Wno-unused-result \
 	-O0 \
@@ -123,9 +122,7 @@ CFLAGS_Release := \
 	-Wno-missing-field-initializers \
 	-fvisibility=hidden \
 	-pipe \
-	-fPIC \
 	-Wno-format \
-	-Wno-unused-result \
 	-O2 \
 	-fno-ident \
 	-fdata-sections \
@@ -180,7 +177,6 @@ LDFLAGS_Debug := \
 	-Wl,-z,relro \
 	-pthread \
 	-Wl,-z,noexecstack \
-	-fPIC \
 	-B$(builddir)/../../third_party/gold \
 	-Wl,--threads \
 	-Wl,--thread-count=4 \
@@ -191,7 +187,6 @@ LDFLAGS_Release := \
 	-Wl,-z,relro \
 	-pthread \
 	-Wl,-z,noexecstack \
-	-fPIC \
 	-B$(builddir)/../../third_party/gold \
 	-Wl,--threads \
 	-Wl,--thread-count=4 \

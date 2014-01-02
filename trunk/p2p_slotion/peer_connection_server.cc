@@ -71,16 +71,18 @@ PeerConnectionServer::PeerConnectionServer()
   state_(NOT_CONNECTED),
   my_id_(-1)
 {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(CREATE_DESTROY_INFOR | P2P_SERVER_LOGIC_INFOR)
+    << "Create a p2p server object";
   p2P_source_management_ = P2PSourceManagement::Instance();
 }
 
 PeerConnectionServer::~PeerConnectionServer() {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(CREATE_DESTROY_INFOR | P2P_SERVER_LOGIC_INFOR)
+    << "Destroy p2p server object";
 }
 
 void PeerConnectionServer::InitSocketSignals() {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Initiator p2p server socket";
   ASSERT(control_socket_.get() != NULL);
   ASSERT(hanging_get_.get() != NULL);                                                   
   control_socket_->SignalCloseEvent.connect(this,
@@ -98,24 +100,21 @@ void PeerConnectionServer::InitSocketSignals() {
 }
 
 int PeerConnectionServer::id() const {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   return my_id_;
 }
 
 bool PeerConnectionServer::is_connected() const {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   return my_id_ != -1;
 }
 
 const PeerInfors& PeerConnectionServer::peers() const {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   return online_peers_;
 }
 
 
 void PeerConnectionServer::SignInP2PServer() 
 {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Signing p2p server";
 
   //check nothing
   if (state_ != NOT_CONNECTED) {
@@ -131,16 +130,13 @@ void PeerConnectionServer::SignInP2PServer()
 
   //DNS server
   if (server_address_.IsUnresolved()) {
+    LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "resolved the p2p server socket address";
     state_ = RESOLVING;
     resolver_ = (void *)( new talk_base::AsyncResolver());
     ((talk_base::AsyncResolver*)(resolver_))->SignalWorkDone.connect(this,
       &PeerConnectionServer::OnResolveResult);
 
-    //This call is past call with my WIN32 application
-    //((talk_base::AsyncResolver*)(resolver_))->set_address(server_address_);
-    //((talk_base::AsyncResolver*)(resolver_))->Start();
-
-    //This call is the new call for newlast libjingle labirary
+    //This call is the new call for newest libjingle library
     ((talk_base::AsyncResolver*)(resolver_))->Start(server_address_);
   } else {
     DoConnect();
@@ -148,11 +144,11 @@ void PeerConnectionServer::SignInP2PServer()
 }
 
 void PeerConnectionServer::OnResolveResult(talk_base::SignalThread *t) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "get the really server ip address";
   //this call is past libjingle call
   //if (((talk_base::AsyncResolver*)(resolver_))->error() != 0) {
 
-  //this call is newlast call 
+  //this call is newest call 
   if (((talk_base::AsyncResolver*)(resolver_))->GetError() != 0) {  
     SignalStatesChange(ERROR_P2P_SERVER_LOGIN_SERVER_FAILURE);
     ((talk_base::AsyncResolver*)(resolver_))->Destroy(false);
@@ -165,7 +161,7 @@ void PeerConnectionServer::OnResolveResult(talk_base::SignalThread *t) {
 }
 
 void PeerConnectionServer::DoConnect() {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__ << "\tLogin to "
+  LOG_P2P(BASIC_INFOR|P2P_SERVER_LOGIC_INFOR) << "\tLogin to "
     <<server_address_.ToString();
   control_socket_.reset(CreateClientSocket(server_address_.ipaddr().family()));
   hanging_get_.reset(CreateClientSocket(server_address_.ipaddr().family()));
@@ -176,11 +172,14 @@ void PeerConnectionServer::DoConnect() {
     LOG(LS_ERROR) << "Local peer name is not set";
     return ;
   }
+
   char buffer[1024];
   sprintfn(buffer, sizeof(buffer),
     "GET /sign_in?%s HTTP/1.0\r\n\r\n", local_peer_name_.c_str());
   onconnect_data_ = buffer;
-
+  
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) 
+    << "Generate signing data :" << onconnect_data_;
   bool ret = ConnectControlSocket();
   if (ret)
     state_ = SIGNING_IN;
@@ -203,7 +202,8 @@ void PeerConnectionServer::OnSendMessageToRemotePeer(
 }
 
 bool PeerConnectionServer::SendToPeer(int peer_id, const std::string& message) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_DATA_INFOR) << "Send data to other peer "
+    << "Peer ID is " << peer_id << "message is " << message;
   if (state_ != CONNECTED)
     return false;
 
@@ -224,18 +224,16 @@ bool PeerConnectionServer::SendToPeer(int peer_id, const std::string& message) {
 }
 
 bool PeerConnectionServer::SendHangUp(int peer_id) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   return SendToPeer(peer_id, kByeMessage);
 }
 
 bool PeerConnectionServer::IsSendingMessage() {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   return state_ == CONNECTED &&
     control_socket_->GetState() != talk_base::Socket::CS_CLOSED;
 }
 
 bool PeerConnectionServer::SignOutP2PServer() {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Log out to p2p server";
   if (state_ == NOT_CONNECTED || state_ == SIGNING_OUT)
     return true;
 
@@ -243,6 +241,7 @@ bool PeerConnectionServer::SignOutP2PServer() {
     hanging_get_->Close();
 
   if (control_socket_->GetState() == talk_base::Socket::CS_CLOSED) {
+    LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Setting the state_ is SIGNING_OUT";
     state_ = SIGNING_OUT;
 
     if (my_id_ != -1) {
@@ -256,13 +255,15 @@ bool PeerConnectionServer::SignOutP2PServer() {
       return true;
     }
   } else {
+    LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Setting the state_ is SIGNING_OUT_WAITING";
     state_ = SIGNING_OUT_WAITING;
   }
   return true;
 }
 
 void PeerConnectionServer::Close() {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) 
+    << "Close all socket connect, setting the state_ is NOT_CONNECTED";
   control_socket_->Close();
   hanging_get_->Close();
   onconnect_data_.clear();
@@ -274,11 +275,11 @@ void PeerConnectionServer::Close() {
   state_ = NOT_CONNECTED;
 }
 bool PeerConnectionServer::ConnectControlSocket() {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__ ;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Connect p2p server by control_socket";
   ASSERT(control_socket_->GetState() == talk_base::Socket::CS_CLOSED);
   int err = control_socket_->Connect(server_address_);
   if (err == SOCKET_ERROR) {
-    LOG(LS_ERROR) << "@@@" << __FUNCTION__ << "\tSOCKET_ERROR";
+    LOG(LS_ERROR) << "\tSOCKET_ERROR";
     Close();
     return false;
   }
@@ -286,7 +287,8 @@ bool PeerConnectionServer::ConnectControlSocket() {
 }
 
 void PeerConnectionServer::OnConnect(talk_base::AsyncSocket* socket) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__ ;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << 
+    "Control_socket connect succeed, then send the signing data" ;
   ASSERT(!onconnect_data_.empty());
   size_t sent = socket->Send(onconnect_data_.c_str(), 
     onconnect_data_.length());
@@ -296,13 +298,13 @@ void PeerConnectionServer::OnConnect(talk_base::AsyncSocket* socket) {
 }
 
 void PeerConnectionServer::OnHangingGetConnect(talk_base::AsyncSocket* socket) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Hanging_socket connect server succeed";
   char buffer[1024];
   sprintfn(buffer, sizeof(buffer),
     "GET /wait?peer_id=%i HTTP/1.0\r\n\r\n", my_id_);
   int len = strlen(buffer);
   int sent = socket->Send(buffer, len);
-  //SignalStatesChange(STATES_P2P_SERVER_SEND_WAIT_SUCCEED);
+  
   ASSERT(sent == len);
   UNUSED2(sent, len);
 }
@@ -310,11 +312,11 @@ void PeerConnectionServer::OnHangingGetConnect(talk_base::AsyncSocket* socket) {
 void PeerConnectionServer::OnMessageFromPeer(int peer_id,
                                              const std::string& message) 
 {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   if (message.length() == (sizeof(kByeMessage) - 1) &&
     message.compare(kByeMessage) == 0) {
       SignalStatesChange(STATES_P2P_REMOTE_PEER_DISCONNECTED);
   } else {
+    LOG_P2P(P2P_SERVER_DATA_INFOR) << "Get the remote peer message";
     SignalReceiveMessageFromRemotePeer(message,peer_id);
   }
 }
@@ -324,7 +326,6 @@ bool PeerConnectionServer::GetHeaderValue(const std::string& data,
                                           const char* header_pattern,
                                           size_t* value) 
 {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   ASSERT(value != NULL);
   size_t found = data.find(header_pattern);
   if (found != std::string::npos && found < eoh) {
@@ -338,7 +339,6 @@ bool PeerConnectionServer::GetHeaderValue(const std::string& data, size_t eoh,
                                           const char* header_pattern,
                                           std::string* value) 
 {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   ASSERT(value != NULL);
   size_t found = data.find(header_pattern);
   if (found != std::string::npos && found < eoh) {
@@ -356,7 +356,7 @@ bool PeerConnectionServer::ReadIntoBuffer(talk_base::AsyncSocket* socket,
                                           std::string* data,
                                           size_t* content_length) 
 {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "check whether the data is complete";
   char buffer[0xffff];
   do {
     int bytes = socket->Recv(buffer, sizeof(buffer));
@@ -368,7 +368,6 @@ bool PeerConnectionServer::ReadIntoBuffer(talk_base::AsyncSocket* socket,
   bool ret = false;
   size_t i = data->find("\r\n\r\n");
   if (i != std::string::npos) {
-    LOG(INFO) << "\tHeaders received";
     if (GetHeaderValue(*data, i, "\r\nContent-Length: ", content_length)) {
       size_t total_response_size = (i + 4) + *content_length;
       if (data->length() >= total_response_size) {
@@ -393,7 +392,7 @@ bool PeerConnectionServer::ReadIntoBuffer(talk_base::AsyncSocket* socket,
 }
 // The callback function are calling by control_socket_
 void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Reading control_socket data from server";
   size_t content_length = 0;
   if (ReadIntoBuffer(socket, &control_data_, &content_length)) {
     size_t peer_id = 0, eoh = 0;
@@ -423,7 +422,8 @@ void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
                 online_peers_[id].peer_name_ = name;
                 online_peers_[id].resource_ = resource;
                 has_member = true;
-                LOG(LS_INFO)<<"Current Connection Peer\t"<<id<<"\t"<<name;
+                LOG_P2P(P2P_SERVER_LOGIC_INFOR)
+                  << "Current Connection Peer\t"<<id<<"\t"<<name;
             }
             pos = eol + 1;
           }
@@ -431,7 +431,6 @@ void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
             SignalOnlinePeers(online_peers_);
         }
         ASSERT(is_connected());
-        SignalStatesChange(STATES_P2P_SERVER_LOGIN_SUCCEED);
       } else if (state_ == SIGNING_OUT) {
         Close();
         SignalStatesChange(STATES_P2P_PEER_SIGNING_OUT);
@@ -444,14 +443,18 @@ void PeerConnectionServer::OnRead(talk_base::AsyncSocket* socket) {
 
     if (state_ == SIGNING_IN) {
       ASSERT(hanging_get_->GetState() == talk_base::Socket::CS_CLOSED);
+      LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "setting the state_ is CONNECTED "
+        << "use the hanging_socket to connect the server";
       state_ = CONNECTED;
       hanging_get_->Connect(server_address_);
+      SignalStatesChange(STATES_P2P_SERVER_LOGIN_SUCCEED);
     }
   }
 }
 
 void PeerConnectionServer::OnHangingGetRead(talk_base::AsyncSocket* socket) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Reading hanging_socket data from server";
+
   size_t content_length = 0;
   if (ReadIntoBuffer(socket, &notification_data_, &content_length)) {
     size_t peer_id = 0, eoh = 0;
@@ -500,7 +503,8 @@ bool PeerConnectionServer::ParseEntry(const std::string& entry,
                                       std::string *resource,
                                       bool* connected) 
 {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Parse member data";
   ASSERT(name != NULL);
   ASSERT(id != NULL);
   ASSERT(connected != NULL);
@@ -524,7 +528,8 @@ bool PeerConnectionServer::ParseEntry(const std::string& entry,
 }
 
 int PeerConnectionServer::GetResponseStatus(const std::string& response) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR)
+    << "get the response status by parse response";
   int status = -1;
   size_t pos = response.find(' ');
   if (pos != std::string::npos)
@@ -537,7 +542,7 @@ bool PeerConnectionServer::ParseServerResponse(const std::string& response,
                                                size_t* peer_id,
                                                size_t* eoh) 
 {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Parsing this response";
   int status = GetResponseStatus(response.c_str());
   if (status != 200) {
     LOG(LS_ERROR) << "Received error from server";
@@ -561,12 +566,14 @@ bool PeerConnectionServer::ParseServerResponse(const std::string& response,
 }
 void PeerConnectionServer::ReturnInit(){
   my_id_ = -1;
+  
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "setting the state_ is NOT_CONNECTED";
   state_ = NOT_CONNECTED;
   online_peers_.clear();
 }
 
 void PeerConnectionServer::OnClose(talk_base::AsyncSocket* socket, int err) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Close the socket connect";
   socket->Close();
 
 #ifdef WIN32
@@ -590,12 +597,15 @@ void PeerConnectionServer::OnClose(talk_base::AsyncSocket* socket, int err) {
 #endif
     if (socket == hanging_get_.get()) {
       if (state_ == CONNECTED) {
-        LOG(LS_INFO) <<"@@@"<<__FUNCTION__ << " state_ == CONNECTED ";
+        LOG_P2P(P2P_SERVER_LOGIC_INFOR) 
+          << "Hanging_socket close";
         hanging_get_->Close();
         hanging_get_->Connect(server_address_);
       }
     } 
-    else if (socket == control_socket_.get()){
+    else {
+      LOG_P2P(P2P_SERVER_LOGIC_INFOR) 
+        << "control_socket close";
     }
   } 
   else {
@@ -611,10 +621,8 @@ void PeerConnectionServer::OnClose(talk_base::AsyncSocket* socket, int err) {
 }
 
 bool PeerConnectionServer::UpdataPeerInfor(const std::string &infor){
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
-
-  std::cout << infor << std::endl;
-
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "put Update peer information to pending message";
+  LOG_P2P(BASIC_INFOR|P2P_SERVER_LOGIC_INFOR) << infor;
   std::string* msg = new std::string(infor);
   if (msg) {
     // For convenience, we always run the message through the queue.
@@ -628,7 +636,8 @@ bool PeerConnectionServer::UpdataPeerInfor(const std::string &infor){
 }
 
 bool PeerConnectionServer::SendUpdateMessage(std::string infor){
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_DATA_INFOR|P2P_SERVER_LOGIC_INFOR) 
+    << "Send update information by control_socket";
   if (state_ != CONNECTED)
     return false;
 
@@ -648,7 +657,8 @@ bool PeerConnectionServer::SendUpdateMessage(std::string infor){
 }
 
 bool PeerConnectionServer::SendMessageToP2PServer(){
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
+  LOG_P2P(P2P_SERVER_LOGIC_INFOR|P2P_SERVER_DATA_INFOR) 
+    << "getting message and try to send";
 
   if (!pending_messages_.empty() && !IsSendingMessage()) {
 
@@ -671,13 +681,12 @@ bool PeerConnectionServer::SendMessageToP2PServer(){
     delete send_msg;
   } 
   else {
-    std::cout << "\tCann't Send Message ..." << std::endl;
+    LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Can't Send Message ...";
   }
   return true;
 }
 
 void PeerConnectionServer::OnMessage(talk_base::Message* msg) {
-  LOG(LS_INFO) <<"@@@"<<__FUNCTION__;
   switch(msg->message_id){
   case SEND_MESSAGE:
     {

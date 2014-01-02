@@ -33,6 +33,7 @@
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "talk/base/thread.h"
 
 #include "mediator_pattern.h"
 #include "p2pconnectionimplementator.h"
@@ -43,13 +44,23 @@ P2PConnectionImplementator::P2PConnectionImplementator(
   bool is_mix_data_mode):remote_jid_(remote_jid),stream_(stream),
   is_mix_data_mode_(is_mix_data_mode)
 {
-  //LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) 
-  //  << "\t Create A New P2PConnectionImplementator";
-  //Initialize basic parts
-  send_data_buffer_      = new SendDataBuffer();
-  temp_read_buffer_      = new char[BUFFER_SIZE];
-  data_multiplex_machine_ = new DataMultiplexMachine(this);
+  LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC)
+    << "Create P2P Connection Implementation";
+
+  state_ = STREAM_CLOSE;
   is_connect_ = false;
+  current_thread_ = talk_base::Thread::Current();
+
+  if(is_mix_data_mode_){
+    send_data_buffer_       = new SendDataBuffer();
+    temp_read_buffer_       = new char[BUFFER_SIZE];
+    data_multiplex_machine_ = new DataMultiplexMachine(this);
+  }
+  else{
+    send_data_buffer_       = NULL;
+    temp_read_buffer_       = NULL;
+    data_multiplex_machine_ = NULL;
+  }
 
   //Configuration the stream events interface
   stream_->SignalEvent.connect(this,
@@ -57,17 +68,24 @@ P2PConnectionImplementator::P2PConnectionImplementator(
 }
 
 P2PConnectionImplementator::~P2PConnectionImplementator(){
-  delete send_data_buffer_;
-  delete temp_read_buffer_;
-  delete data_multiplex_machine_;
+  LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC)
+    << "delete P2P Connection Implementation";
 }
 
 void P2PConnectionImplementator::Destory(){
-  send_data_buffer_->Destory();
+  LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC)
+    << "Destroy P2P Connection Implementation";
+  //At first close the stream
+  if(state_ != STREAM_CLOSE 
+    && stream_->GetState() != talk_base::StreamState::SS_CLOSED){
+      state_ = STREAM_CLOSE;
+      stream_->Close();
+  }
+  OnStreamClosed(stream_);
 }
 
 void P2PConnectionImplementator::CloseStream(){
-  std::cout << __FUNCTION__ << std::endl;
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "Close the stream";
 
   SignalConnectSucceed.disconnect_all();
   SignalStreamClose.disconnect_all();
@@ -78,6 +96,7 @@ void P2PConnectionImplementator::CloseStream(){
     return ;
   }
   stream_->Close();
+  Destory();
 }
 
 //////////////////////////////////////////////////////////////
@@ -92,53 +111,58 @@ void P2PConnectionImplementator::OnStreamEvent(
 {
   ASSERT(stream_ == stream);
 
-  if(error != 0){
-    LOG(LS_ERROR) << "The stream got a error";
-    stream->Close();
-    return ;
+  if(state_ == STREAM_CLOSE && error == 0 
+    && !(events & talk_base::SE_CLOSE)){
+      state_ = STREAM_SUCCEED;
+      current_thread_->Post(this,SIGNAL_CONNECTSUCCEED);
   }
 
   if (events & talk_base::SE_READ) {
-    LOG_F(LS_INFO) << "Stream SE_READ";
+    LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Stream SE_READ";
     //Call send data to up layer
-    OnReadStreamData(stream_);
+    current_thread_->Post(this,SIGNAL_READ);
   }
 
   if (events & talk_base::SE_WRITE) {
-    LOG_F(LS_INFO) << "Stream SE_WRITE";
+    LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Stream SE_WRITE";
 
     if(is_mix_data_mode_){
       send_data_buffer_->SetNormalState();
+      if(send_data_buffer_->SendDataUsedStream(stream_)){
+        current_thread_->Post(this,SIGNAL_WRITE);
+      }
     }
-
-    if(!is_connect_){
-      is_connect_ = true;
-      SignalConnectSucceed(stream);
-    } 
     else{
-      if(is_mix_data_mode_){
-        if(send_data_buffer_->SendDataUsedStream(stream_)){
-          SignalStreamWrite(stream_);
-        }
-      }
-      else{
-        SignalStreamWrite(stream_);
-      }
+      current_thread_->Post(this,SIGNAL_WRITE);
     }
   }
 
   if (events & talk_base::SE_CLOSE) {
-    LOG_F(LS_INFO) << "Stream SE_CLOSE";
-    //LOG_F_S(LS_INFO,P2P_TUNNEL_DATA_INFOR) << "The stream closed";
+    LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Stream SE_CLOSE";
+    state_ = STREAM_CLOSE;
     stream_->Close();
-    SignalStreamClose(stream);
+    current_thread_->Post(this,SIGNAL_CLOSE);
   }
+}
+
+void P2PConnectionImplementator::OnStreamClosed(talk_base::StreamInterface* stream){
+  //delete other
+  stream_->SignalEvent.disconnect_all();
+  if(is_mix_data_mode_){
+    delete send_data_buffer_;
+    delete temp_read_buffer_;
+    delete data_multiplex_machine_;
+  }
+  //1. send a signal to other
+  SignalStreamClose(stream);
 }
 
 void P2PConnectionImplementator::Send(uint32 socket,SocketType socket_type,
                                       const char *data,uint16 len,
                                       size_t *written)
 {
+  if(state_ == STREAM_CLOSE)
+    return ;
   if(is_mix_data_mode_)
     MixSend(socket,socket_type,data,len,written);
   else
@@ -150,11 +174,9 @@ void P2PConnectionImplementator::MixSend(uint32 socket,SocketType socket_type,
                                          size_t *written)
 {
   size_t remain_buffer_length = send_data_buffer_->GetBufferRemainLength();
-
-  if(remain_buffer_length == 0 ||
-    send_data_buffer_->IsBlockState()){
-      *written = 0;
-      return ;
+  if(remain_buffer_length == 0 || send_data_buffer_->IsBlockState()){
+    *written = 0;
+    return ;
   }
   else{
     if(remain_buffer_length >= len)
@@ -173,11 +195,11 @@ void P2PConnectionImplementator::IndependentSend(uint32 socket,SocketType socket
   talk_base::StreamResult res = stream_->Write(data,len,written,NULL);
 }
 
-
-
 void P2PConnectionImplementator::OnReceiveMultiplexData(const char *data, 
                                                         uint16 len)
 {
+  if(state_ == STREAM_CLOSE)
+    return ;
   if(len == 0){
     send_data_buffer_->SaveData(data,NETWORKHEADER_LENGTH);
     return ;
@@ -189,6 +211,8 @@ void P2PConnectionImplementator::OnReceiveMultiplexData(const char *data,
 void P2PConnectionImplementator::OnReadStreamData(
   talk_base::StreamInterface *stream)
 {
+  if(state_ == STREAM_CLOSE)
+    return ;
   if(is_mix_data_mode_)
     MixReadStreamData(stream);
   else
@@ -216,4 +240,30 @@ void P2PConnectionImplementator::IndependentReadStreamData(
   talk_base::StreamInterface *stream)
 {
   SignalIndependentStreamRead(stream);
+}
+
+void P2PConnectionImplementator::OnMessage(talk_base::Message *msg){
+  
+  switch(msg->message_id){
+  case SIGNAL_READ:
+    {
+      OnReadStreamData(stream_);
+      break;
+    }
+  case SIGNAL_WRITE:
+    {
+      SignalStreamWrite(stream_);
+      break;
+    }
+  case SIGNAL_CLOSE:
+    {
+      OnStreamClosed(stream_);
+      break;
+    }
+  case SIGNAL_CONNECTSUCCEED:
+    {
+      SignalConnectSucceed(stream_);
+      break;
+    }
+  }
 }

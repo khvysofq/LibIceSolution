@@ -6,6 +6,7 @@
 
 #include "defaults.h"
 
+
 int choose = 0;
 
 class Worker :public talk_base::MessageHandler{
@@ -16,6 +17,8 @@ public:
     //talk_base::Thread::Current()->Stop();
   }
 };
+
+
 
 int main(void)
 {
@@ -28,9 +31,8 @@ int main(void)
   //  "C:/log.txt","wb",NULL);
   //talk_base::LogMessage::LogToStream(log_file_stream_,
   //  talk_base::LoggingSeverity::LS_INFO);
-  talk_base::LogMessage::LogToDebug(talk_base::LS_ERROR);
+  //talk_base::LogMessage::LogToDebug(talk_base::LS_ERROR);
 
-  log_filter = P2P_ICE_DATA_INFOR | P2P_TUNNEL_DATA_INFOR;
 
   talk_base::Thread *main_thread 
     = talk_base::Thread::Current();
@@ -45,6 +47,7 @@ int main(void)
   //talk_base::Thread *stream_thread = new talk_base::Thread();
   //stream_thread->Start();
 
+  
   P2PUserClient p2p_user_client(main_thread,main_thread,main_thread);
   p2p_user_client.Initiatlor();
   p2p_user_client.StartRun();
@@ -58,13 +61,9 @@ int main(void)
     } else{
       break;
     }
-
     main_thread->ProcessMessages(1000);
-    
   }
 
   main_thread->Run();
-
-  p2p_user_client.Destory();
   return 0;
 }

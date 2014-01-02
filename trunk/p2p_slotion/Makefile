@@ -6,28 +6,86 @@ TARGET = p2p_sloution
 INCLUDE += -I $(LIBJINGLE_INCLUDE_DIR)/trunk/
 INCLUDE += -I $(LIBJINGLE_INCLUDE_DIR)/trunk/third_party/jsoncpp/source/include/
 
-CFLAGS += -DPOSIX
-CFLAGS += -D_DEBUG
-CFLAGS += -DJSONCPP_RELATIVE_PATH
-CFLAGS += -DFEATURE_ENABLE_SSL
-CFLAGS += -DEXPAT_RELATIVE_PATH
+#CFLAGS += -DPOSIX
+#CFLAGS += -D_DEBUG
+#CFLAGS += -DJSONCPP_RELATIVE_PATH
+#CFLAGS += -DFEATURE_ENABLE_SSL
+#CFLAGS += -DEXPAT_RELATIVE_PATH
+
+CFLAGS = \
+	'-DEXPAT_RELATIVE_PATH' \
+	'-DFEATURE_ENABLE_VOICEMAIL' \
+	'-DGTEST_RELATIVE_PATH' \
+	'-DJSONCPP_RELATIVE_PATH' \
+	'-DLOGGING=1' \
+	'-DSRTP_RELATIVE_PATH' \
+	'-DFEATURE_ENABLE_SSL' \
+	'-DFEATURE_ENABLE_PSTN' \
+	'-DHAVE_SRTP' \
+	'-D_FILE_OFFSET_BITS=64' \
+	'-DCHROMIUM_BUILD' \
+	'-DUSE_DEFAULT_RENDER_THEME=1' \
+	'-DUSE_LIBJPEG_TURBO=1' \
+	'-DUSE_NSS=1' \
+	'-DENABLE_ONE_CLICK_SIGNIN' \
+	'-DGTK_DISABLE_SINGLE_INCLUDES=1' \
+	'-DUSE_XI2_MT=2' \
+	'-DENABLE_REMOTING=1' \
+	'-DENABLE_PEPPER_CDMS' \
+	'-DENABLE_CONFIGURATION_POLICY' \
+	'-DENABLE_INPUT_SPEECH' \
+	'-DENABLE_NOTIFICATIONS' \
+	'-DENABLE_EGLIMAGE=1' \
+	'-DENABLE_TASK_MANAGER=1' \
+	'-DENABLE_EXTENSIONS=1' \
+	'-DENABLE_PLUGIN_INSTALLATION=1' \
+	'-DENABLE_PLUGINS=1' \
+	'-DENABLE_SESSION_SERVICE=1' \
+	'-DENABLE_THEMES=1' \
+	'-DENABLE_BACKGROUND=1' \
+	'-DENABLE_AUTOMATION=1' \
+	'-DENABLE_GOOGLE_NOW=1' \
+	'-DCLD_VERSION=2' \
+	'-DENABLE_FULL_PRINTING=1' \
+	'-DENABLE_PRINTING=1' \
+	'-DENABLE_SPELLCHECK=1' \
+	'-DENABLE_CAPTIVE_PORTAL_DETECTION=1' \
+	'-DENABLE_MANAGED_USERS=1' \
+	'-DENABLE_MDNS=1' \
+	'-DLIBPEERCONNECTION_LIB=1' \
+	'-DLINUX' \
+	'-DHASH_NAMESPACE=__gnu_cxx' \
+	'-DPOSIX' \
+	'-DDISABLE_DYNAMIC_CAST' \
+	'-DHAVE_NSS_SSL_H=1' \
+	'-D_REENTRANT' \
+	'-DNDEBUG' \
+	'-DNVALGRIND' \
+	'-DDYNAMIC_ANNOTATIONS_ENABLED=0'
+
 
 LIBS += $(LIBJINGLE_LIB_DIR)/talk/libjingle_p2p.a
 LIBS += $(LIBJINGLE_LIB_DIR)/talk/libjingle.a
 LIBS += $(LIBJINGLE_LIB_DIR)/third_party/jsoncpp/libjsoncpp.a
 LIBS += $(LIBJINGLE_LIB_DIR)/third_party/libsrtp/libsrtp.a
-LIBS += $(LIBJINGLE_LIB_DIR)/third_party/openssl/libopenssl.a
-#LIBS += $(LIBJINGLE_LIB_DIR)/third_party/expat/expat.stamp
-LIBS += /usr/lib/x86_64-linux-gnu/libexpat.a
+LIBS += $(LIBJINGLE_INCLUDE_DIR)/trunk/third_party/openssl/out/Default/obj.target/libopenssl.a
+LIBS += $(LIBJINGLE_LIB_DIR)/third_party/expat/libexpat.a
+#LIBS += /usr/lib/x86_64-linux-gnu/libexpat.a
 LIBS += -lpthread -lrt -lcrypto
 
 SRC=$(wildcard ./*.cc ./*.cpp)
 
 $(TARGET):$(SRC)
-	g++ $(INCLUDE) -O3 -o $@  $^ $(LIBS) $(CFLAGS) -fno-rtti \
-	-fno-threadsafe-statics \
-	-fvisibility-inlines-hidden \
-	-Wno-deprecated
-
+	arm-arago-linux-gnueabi-g++ $(INCLUDE) -O3 -o $@  $^ $(LIBS) $(CFLAGS) -fstack-protector \
+	-fno-rtti \
+	-fno-exceptions \
+	-Wno-unused-parameter \
+	-Wno-missing-field-initializers \
+	-pipe \
+	-Wno-format \
+	-O3 \
+	-fno-ident \
+	-fdata-sections \
+	-ffunction-sections
 clean:
 	@rm -rf $(OBJS) $(TARGET)

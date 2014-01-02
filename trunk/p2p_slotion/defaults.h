@@ -33,35 +33,53 @@
 #include "talk/base/stream.h"
 #include "talk/base/logging.h"
 
+
+
+//////////////////////////////////////////////////////////////////////////
+//The last character is '\0', don't remove it, it is a end character.
+//////////////////////////////////////////////////////////////////////////
 static const char RANDOM_BASE64[64] = {
   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
   'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
   'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '0'
+  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '\0'
 };
-
 //////////////////////////////////////////////////////////////////////////
 //Define logging
 
+
 typedef uint32 LOG_FILTER;
 
-const int ALWAYS_INFOR          = (0X1);
+const uint32 BASIC_INFOR             = (0X1);
 //operation for object create and destroy
-const int OFOI                  = ((0X1<<1));
-const int SERVER_DATA_INFOR     = ((0X1<<2));
-const int P2P_ICE_DATA_INFOR    = ((0X1<<3));
-const int P2P_TUNNEL_DATA_INFOR = ((0X1<<4));
-const int PROXY_SOCKET_INFOR    = ((0X1<<5));
+const uint32 CREATE_DESTROY_INFOR    = ((0X1<<1));
 
-extern LOG_FILTER log_filter;
-#define LOG_F_S(sev,level) (log_filter & level)?LOG_F(sev):LOG(LS_SENSITIVE)
+const uint32 P2P_SERVER_DATA_INFOR   = ((0X1<<2));
+const uint32 P2P_SERVER_LOGIC_INFOR  = ((0X1<<3));
 
+const uint32 P2P_ICE_DATA_INFOR      = ((0X1<<4));
+const uint32 P2P_ICE_LOGIC_INFOR     = ((0X1<<5));
 
+const uint32 P2P_BASIC_PART_LOGIC    = ((0X1<<6));
+
+const uint32 P2P_SERVER_MANAGER_LOGIC= ((0X1<<7));
+
+const uint32 P2P_RTSP_LOCAL_SERVER   = ((0X1<<8));
+const uint32 P2P_RTSP_LOCAL_CLIENT   = ((0X1<<9));
+
+const uint32 P2P_PROXY_SOCKET_LOGIC  = ((0X1<<10));
+const uint32 P2P_PROXY_SOCKET_DATA   = ((0X1<<11));
+
+const uint32 P2P_CONNECT_LOGIC       = ((0X1<<12));
+
+const uint32 CURRENT_INFO_LEVEL = BASIC_INFOR|P2P_PROXY_SOCKET_LOGIC;
+
+#define LOG_P2P(X) (!((X)&CURRENT_INFO_LEVEL))?(void)0:LOG_F(LS_INFO)
 
 //////////////////////////////////////////////////////////
 const int kDefaultServerPort = 8888;
-const talk_base::SocketAddress  KStunAddr("stun.endigovoip.com",3478);
+const talk_base::SocketAddress  KStunAddr("42.121.127.71",3478);
 
 const size_t DEAFULT_BUFFER_LENGTH = 64 * 1024;
 
@@ -143,5 +161,11 @@ enum StatesChangeType
 //some help function
 std::string StreamResultToString(const talk_base::StreamResult res);
 
+////////////////////////////////////////////////////////////////////
+//
+const char P2P_SERVER_CONFIGURE[]    = "P2P_SERVER_CONFIGURE";
+const char SERVER_CONFIGURE[]        = "SERVER_CONFIGURE";
+
+////////////////////////////////////////////////////////////////////
 
 #endif  // PEERCONNECTION_SAMPLES_CLIENT_DEFAULTS_H_

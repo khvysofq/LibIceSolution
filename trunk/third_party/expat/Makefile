@@ -38,6 +38,9 @@ abs_obj := $(abspath $(obj))
 # generated dependency rule Makefiles in one pass.
 all_deps :=
 
+CC 	:= arm-arago-linux-gnueabi-gcc
+CXX := arm-arago-linux-gnueabi-g++
+AR  := arm-arago-linux-gnueabi-ar
 
 
 CC.target ?= $(CC)

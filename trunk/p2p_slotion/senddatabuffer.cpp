@@ -40,13 +40,13 @@
 #include "defaults.h"
 
 SendDataBuffer::SendDataBuffer(){
-  buffer_length_ = DEAFULT_BUFFER_LENGTH;
+  buffer_length_ = DEAFULT_BUFFER_LENGTH + REMAIN_MIX_SIZE;
   fifo_buffer_   = new talk_base::FifoBuffer(buffer_length_);
   state_ = BLOCK_STATE;
 }
 
 SendDataBuffer::SendDataBuffer(size_t buffer_length)
-  :buffer_length_(buffer_length){
+  :buffer_length_(buffer_length + REMAIN_MIX_SIZE){
   fifo_buffer_  = new talk_base::FifoBuffer(buffer_length_);
 }
 
@@ -60,7 +60,6 @@ void SendDataBuffer::Destory(){
 }
 
 bool SendDataBuffer::SaveData(const char *data, size_t len){
-  LOG(LS_INFO) << __FUNCTION__;
   ASSERT(len != 0 && data != NULL);
 
   if(state_ == BLOCK_STATE){
@@ -90,12 +89,13 @@ size_t SendDataBuffer::GetBufferRemainLength(){
     return 0;
   size_t res = 0;
   fifo_buffer_->GetWriteRemaining(&res);
-  return res;
+  if(res < REMAIN_MIX_SIZE)
+    return 0;
+  return res - REMAIN_MIX_SIZE;
 }
 
 
 bool SendDataBuffer::SendDataUsedStream(talk_base::StreamInterface *stream){
-  LOG(LS_INFO) << __FUNCTION__;
   ASSERT(stream != NULL);
 
   if(state_ == BLOCK_STATE)

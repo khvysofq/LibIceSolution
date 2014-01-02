@@ -47,7 +47,7 @@ class AbstractVirtualNetwork;
 class SendDataBuffer;
 
 class P2PConnectionImplementator 
-  : public sigslot::has_slots<>
+  : public sigslot::has_slots<>,public talk_base::MessageHandler
 {
 public:
   explicit P2PConnectionImplementator(const std::string &remote_jid,
@@ -71,6 +71,7 @@ public:
 private:
   void OnStreamEvent(talk_base::StreamInterface* stream,
     int events,int error);
+  void OnStreamClosed(talk_base::StreamInterface* stream);
   //application layer
   
   void OnReadStreamData(talk_base::StreamInterface *stream);
@@ -81,7 +82,20 @@ private:
 
   void MixSend(uint32,SocketType,const char*,uint16,size_t *);
   void IndependentSend(uint32,SocketType,const char*,uint16,size_t *);
+
+  virtual void OnMessage(talk_base::Message *msg);
 private:
+  enum{
+    SIGNAL_READ,
+    SIGNAL_WRITE,
+    SIGNAL_CLOSE,
+    SIGNAL_CONNECTSUCCEED,
+  };
+  enum{
+    STREAM_SUCCEED,
+    STREAM_BLOCK,
+    STREAM_CLOSE
+  }state_;
   static const int BUFFER_SIZE = 64 * 1024;
   std::string                remote_jid_;
   talk_base::StreamInterface *stream_;
@@ -91,6 +105,7 @@ private:
 
   char                       *temp_read_buffer_;
   SendDataBuffer             *send_data_buffer_;
+  talk_base::Thread          *current_thread_;
 };
 
 #endif // !P2P_CONNECTION_IMPLEMENTATOR_H_

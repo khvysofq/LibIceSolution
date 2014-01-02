@@ -49,7 +49,6 @@ AsyncRTSPProxyServerSocket::AsyncRTSPProxyServerSocket(
 }
 
 void AsyncRTSPProxyServerSocket::ProcessInput(char* data, size_t* len) {
-  //LOG(LS_INFO) << __FUNCTION__ << "\t" << len;
 }
 
 void AsyncRTSPProxyServerSocket::SendConnectResult(
@@ -68,8 +67,9 @@ RTSPProxyServer::RTSPProxyServer(talk_base::SocketFactory *int_factory,
   ASSERT(int_addr.family() == AF_INET || int_addr.family() == AF_INET6);
 
   signal_thread_ = talk_base::Thread::Current();
-
-  std::cout << __FUNCTION__ << "\tListen" << int_addr.ToString() << std::endl;
+  
+  LOG_P2P(BASIC_INFOR|P2P_RTSP_LOCAL_SERVER)
+    << "Listen" << int_addr.ToString();
   if(server_socket_->Bind(int_addr)){
     LOG(LS_ERROR) << "Can't bind port " << int_addr.port();
     return;
@@ -91,9 +91,8 @@ void RTSPProxyServer::OnAcceptEvent(talk_base::AsyncSocket* socket){
   talk_base::AsyncProxyServerSocket* async_proxy_server_socket =
     WrapSocket(accept_socket);
 
-  std::cout << __FUNCTION__ << "\tAccept a socket " 
-    << (intptr_t)async_proxy_server_socket <<" socket  " << (intptr_t)socket
-    << std::endl;
+  LOG_P2P(BASIC_INFOR|P2P_RTSP_LOCAL_SERVER) << "\tAccept a socket " 
+    << (intptr_t)async_proxy_server_socket <<" socket  " << (intptr_t)socket;
   //Step 3. create RTSPServerSocketStart object
   RTSPServerSocketStart *rtsp_server_socket_start
     = new RTSPServerSocketStart(async_proxy_server_socket);
@@ -116,8 +115,8 @@ RTSPServerSocketStart::RTSPServerSocketStart(
                        :ProxySocketBegin(int_socket),
                        rtsp_socket_(int_socket)
 {
-  std::cout << __FUNCTION__ << "\tCreate RTSPServerSocketStart Object " 
-    << std::endl;
+  LOG_P2P(BASIC_INFOR|P2P_RTSP_LOCAL_SERVER) 
+    << "\tCreate RTSPServerSocketStart Object ";
   is_server_        = true;
   int_socket_state_ = INT_SOCKET_CONNECTED;
   p2p_socket_state_ = P2P_SOCKET_START;
@@ -135,7 +134,7 @@ void RTSPServerSocketStart::OnConnectRequest(talk_base::AsyncProxyServerSocket* 
 void RTSPServerSocketStart::ReadSocketDataToBuffer(talk_base::AsyncSocket *socket, 
                                               talk_base::FifoBuffer *buffer)
 {
-  LOG(LS_INFO) << "&&&" << __FUNCTION__;
+  LOG_P2P(P2P_RTSP_LOCAL_SERVER) << "Reading local socket data";
   // Only read if the buffer is empty.
   ASSERT(socket != NULL);
   size_t size;
@@ -154,6 +153,7 @@ void RTSPServerSocketStart::ReadSocketDataToBuffer(talk_base::AsyncSocket *socke
 
 
 void RTSPServerSocketStart::ParseRTSPGetSourceName(char *data, size_t *len){
+  LOG_P2P(P2P_RTSP_LOCAL_SERVER) << "parsing RTSP source";
   size_t header_len = RTSP_HEADER_LENGTH;
   size_t backlash_pos = 0;
   size_t break_char_pos = 0;
@@ -178,7 +178,8 @@ void RTSPServerSocketStart::ParseRTSPGetSourceName(char *data, size_t *len){
   strncpy(source_ide,data + backlash_pos, serouce_ide_len);
 
   //
-  ConnectTheSource(source_ide);
+  if(p2p_socket_state_ == P2P_SOCKET_START)
+    ConnectTheSource(source_ide);
 
   serouce_ide_len += 1;
   //3. delete the server ip in the data
@@ -190,9 +191,7 @@ void RTSPServerSocketStart::ParseRTSPGetSourceName(char *data, size_t *len){
 }
 
 bool RTSPServerSocketStart::ConnectTheSource(const std::string &source_ide){
-  std::cout << __FUNCTION__ << "\t Requesting source is " << source_ide
-    << std::endl;
-  //std::cout << addr.ToString() << std::endl;
+  LOG_P2P(P2P_RTSP_LOCAL_SERVER) << "\t Requesting source is " << source_ide;
   return StartConnectBySourceIde(source_ide);
 }
 

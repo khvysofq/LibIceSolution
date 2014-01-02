@@ -165,11 +165,9 @@ CFLAGS_Release := \
 	-Wno-missing-field-initializers \
 	-fvisibility=hidden \
 	-pipe \
-	-fPIC \
 	-I/usr/include/nss \
 	-I/usr/include/nspr \
 	-Wno-format \
-	#-Wno-unused-result \
 	-O2 \
 	-fno-ident \
 	-fdata-sections \
@@ -316,7 +314,6 @@ OBJS := \
 	$(obj).target/$(TARGET)/talk/base/dbus.o \
 	$(obj).target/$(TARGET)/talk/base/libdbusglibsymboltable.o \
 	$(obj).target/$(TARGET)/talk/base/linuxfdwalk.o \
-	$(obj).target/$(TARGET)/talk/base/linuxwindowpicker.o \
 	$(obj).target/$(TARGET)/talk/base/latebindingsymboltable.o \
 	$(obj).target/$(TARGET)/talk/base/posix.o \
 	$(obj).target/$(TARGET)/talk/base/unixfilesystem.o \
@@ -377,7 +374,6 @@ LDFLAGS_Release := \
 	-Wl,-z,relro \
 	-pthread \
 	-Wl,-z,noexecstack \
-	-fPIC \
 	-B$(builddir)/../../third_party/gold \
 	-Wl,--threads \
 	-Wl,--thread-count=4 \

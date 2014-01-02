@@ -92,8 +92,7 @@ ProxyP2PSession * P2PConnectionManagement::ConnectBySourceIde(
   addr->SetIP(res->server_ip_);
   addr->SetPort(res->server_port_);
 
-  std::cout << __FUNCTION__ << "\t search peer name is" << remote_peer_name
-    << std::endl;
+  LOG_P2P(P2P_CONNECT_LOGIC) << "\t search peer name is" << remote_peer_name;
   //2. Whether the peer is connected
   proxy_p2p_session = WhetherThePeerIsExisted(remote_peer_name);
 
@@ -120,10 +119,10 @@ ProxyP2PSession * P2PConnectionManagement::ConnectBySourceIde(
   proxy_p2p_sessions_.insert(proxy_p2p_session);
 
 
-  std::cout << "------------------------------"<< std::endl;
-  std::cout << __FUNCTION__ <<"current proxy p2p session size = " <<
-    proxy_p2p_sessions_.size()<< std::endl;
-  std::cout << "------------------------------"<< std::endl;
+  LOG_P2P(P2P_CONNECT_LOGIC) << "------------------------------";
+  LOG_P2P(P2P_CONNECT_LOGIC) <<"current proxy p2p session size = "
+    << proxy_p2p_sessions_.size();
+  LOG_P2P(P2P_CONNECT_LOGIC) << "------------------------------";
 
   return proxy_p2p_session;
 }
@@ -217,21 +216,19 @@ ProxyP2PSession *P2PConnectionManagement::WhetherThePeerIsExisted(
   {
     if((*iter)->IsMe(remote_peer_name)){
       if(peer_connection_mode_ == MIX_DATA_MODE){
-        std::cout << __FUNCTION__ << "\t MIX_DATA_MODE The session existed"
-          << std::endl;
+        LOG_P2P(P2P_CONNECT_LOGIC) << "MIX_DATA_MODE The session existed";
         return (*iter);
       }
       else{
         if((*iter)->CurrentConnectSize() == 0){
-          std::cout << __FUNCTION__ << "\t INDEPENDENT_MODE The session existed"
-            << std::endl;
+          LOG_P2P(P2P_CONNECT_LOGIC) 
+            << "INDEPENDENT_MODE The session existed";
           return (*iter);
         }
       }
     }
   }
-  std::cout << __FUNCTION__ << "\t The session not existed"
-    << std::endl;
+  LOG_P2P(P2P_CONNECT_LOGIC) << "The session not existed";
   return NULL;
 }
 
@@ -242,8 +239,7 @@ AbstractICEConnection *P2PConnectionManagement::GetP2PICEConnection() const{
 bool P2PConnectionManagement::CreateProxyP2PSession(
   const std::string &remote_jid,talk_base::StreamInterface *stream)
 {
-  std::cout << __FUNCTION__ << "\t Start Create New Session"
-    << std::endl;
+  LOG_P2P(P2P_CONNECT_LOGIC) << "\t Start Create New Session";
   //1. Check the connection is existed.
   ProxyP2PSession *proxy_p2p_session = WhetherThePeerIsExisted(
     remote_jid);
@@ -278,10 +274,10 @@ bool P2PConnectionManagement::CreateProxyP2PSession(
   proxy_p2p_sessions_.insert(proxy_p2p_session);
 
 
-  std::cout << "------------------------------"<< std::endl;
-  std::cout << __FUNCTION__ <<"current proxy p2p session size = " <<
-    proxy_p2p_sessions_.size()<< std::endl;
-  std::cout << "------------------------------"<< std::endl;
+  LOG_P2P(P2P_CONNECT_LOGIC) << "------------------------------";
+  LOG_P2P(P2P_CONNECT_LOGIC) << __FUNCTION__ <<"current proxy p2p session size = " 
+    << proxy_p2p_sessions_.size();
+  LOG_P2P(P2P_CONNECT_LOGIC) << "------------------------------";
 
   return true;
 }
@@ -347,11 +343,12 @@ void P2PConnectionManagement::DeleteProxyP2PSession(
     LOG(LS_ERROR) << "Can't Find this session";
     return ;
   }
+  delete proxy_p2p_session;
   proxy_p2p_sessions_.erase(iter);
-  std::cout << "------------------------------"<< std::endl;
-  std::cout << __FUNCTION__ <<"current proxy p2p session size = " <<
-    proxy_p2p_sessions_.size()<< std::endl;
-  std::cout << "------------------------------"<< std::endl;
+  LOG_P2P(P2P_CONNECT_LOGIC) << "------------------------------";
+  LOG_P2P(P2P_CONNECT_LOGIC) <<"current proxy p2p session size = " 
+    << proxy_p2p_sessions_.size();
+  LOG_P2P(P2P_CONNECT_LOGIC) << "------------------------------";
 }
 
 //bool P2PConnectionManagement::CreateP2PConnectionImplementator(
@@ -382,26 +379,6 @@ P2PConnectionImplementator *P2PConnectionManagement::IsPeerConnected(
   const std::string remote_peer_name = 
     p2p_source_management_->GetRemotePeerNameByPeerId(remote_peer_id);
   return NULL;
-}
-
-void P2PConnectionManagement::OnStatesChange(StatesChangeType states_type){
-  switch(states_type){
-  case STATES_ICE_START_PEER_CONNECTION:
-    {
-      std::cout << "\tSTATES_ICE_START_PEER_CONNECTION" << std::endl;
-      break;
-    }
-  case STATES_ICE_TUNNEL_SEND_DATA:
-    {
-      std::cout << "\tSTATES_ICE_TUNNEL_SEND_DATA" << std::endl;
-      break;
-    }
-  case STATES_ICE_TUNNEL_CLOSED:
-    {
-      std::cout << "\tSTATES_ICE_TUNNEL_CLOSED" << std::endl;
-      break;
-    }
-  }
 }
 
 

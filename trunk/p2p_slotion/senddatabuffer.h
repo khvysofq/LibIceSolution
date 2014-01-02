@@ -59,6 +59,7 @@ public:
   bool IsBlockState() const;
 private:
   
+  const static uint32 REMAIN_MIX_SIZE = 128;
   //The state of this class.
   enum {
     NORMAL_STATE,

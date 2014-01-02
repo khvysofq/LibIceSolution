@@ -47,8 +47,8 @@ class P2PSourceManagement;
 class P2PServerConnectionManagement;
 
 //const talk_base::SocketAddress ServerAddr("192.168.1.225",8888);
-const talk_base::SocketAddress ServerAddr("192.168.1.116",8888);
-//const talk_base::SocketAddress ServerAddr("42.121.127.71",8888);
+//const talk_base::SocketAddress ServerAddr("192.168.1.116",8888);
+const talk_base::SocketAddress ServerAddr("42.121.127.71",8888);
 const int RECEIVE_BUFFER_LENGTH   = 1024 * 16;
 
 class P2PUserClient :public sigslot::has_slots<>,
@@ -61,7 +61,6 @@ public:
   //user interface
   void Initiatlor();
   void StartRun();
-  void Destory();
   void ConnectionToPeer(int peer_id);
 
   
@@ -70,14 +69,15 @@ public:
 
   bool                        is_peer_connect_;
 private:
-
-  void SendRandomData();
+  const talk_base::SocketAddress ReadingConfigureFile(const std::string &config_file,
+    const std::string &random_string);
 
   talk_base::Thread           *worker_thread_;
   talk_base::Thread           *signal_thread_;
   talk_base::Thread           *stream_thread_;
   bool                        initiator_;
   char                        *receive_buffer_;
+  talk_base::SocketAddress    p2p_server_addr_;
 
   P2PSourceManagement             *p2p_source_management_;
   P2PServerConnectionManagement   *p2p_server_connection_management_;

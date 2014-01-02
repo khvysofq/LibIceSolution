@@ -91,7 +91,6 @@ public:
   ProxyP2PSession *WhetherThePeerIsExisted(const std::string remote_peer_name);
 private:
   P2PConnectionImplementator *IsPeerConnected(int remote_peer_id);
-  void OnStatesChange(StatesChangeType states_type);
 
   enum {
     MIX_DATA_MODE,

@@ -33,6 +33,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <fstream>
+
 #include "talk/base/json.h"
 #include "talk/base/helpers.h"
 
@@ -48,6 +50,7 @@
 
 
 static const int TEST_SEND_BUFFER   = 4096;
+//static const talk_base::SocketAddress KLocalRTSPServer("127.0.0.1",554);
 static const talk_base::SocketAddress KLocalRTSPServer("127.0.0.1",554);
 
 P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
@@ -58,7 +61,9 @@ P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
                              stream_thread_(stream_thread),
                              initiator_(false)
 {
-  LOG(LS_INFO) << "+++" << __FUNCTION__;
+  LOG_P2P(P2P_BASIC_PART_LOGIC|CREATE_DESTROY_INFOR) 
+    << "Create P2PUserClient";
+
   receive_buffer_ = new char[RECEIVE_BUFFER_LENGTH];
   p2p_source_management_ = P2PSourceManagement::Instance();
   p2p_server_connection_management_ = P2PServerConnectionManagement::Instance();
@@ -68,19 +73,18 @@ P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
 }
 
 P2PUserClient::~P2PUserClient(){
-  LOG(LS_INFO) << "+++" << __FUNCTION__;
-
+  LOG_P2P(P2P_BASIC_PART_LOGIC|CREATE_DESTROY_INFOR) 
+    << "Destroy P2PUserClient";
 }
 
 void P2PUserClient::Initiatlor(){
-  LOG(LS_INFO) << "+++" << __FUNCTION__;
+  LOG_P2P(P2P_BASIC_PART_LOGIC) << "Initiator basic part of p2p solution";
 
+  //Create a random string with local peer name
+  //and generate local_peer_jid
   std::string local_peer_name = GetCurrentComputerUserName();
-
-  ////Create a random string with local peer name
   std::string random_string;
   talk_base::CreateRandomString(4,RANDOM_BASE64,&random_string);
-
   local_peer_name += random_string;
   local_peer_name += JID_DEFAULT_DOMAIN;
 
@@ -88,41 +92,90 @@ void P2PUserClient::Initiatlor(){
   //because the ICE protect just needs lower character 
   std::transform(local_peer_name.begin(),local_peer_name.end(),
     local_peer_name.begin(),tolower);
+  
+  p2p_server_addr_ = ReadingConfigureFile("configure.file",random_string);
 
-  p2p_source_management_->AddNewServerResource("RTSP_SERVER",
-    "127.0.0.1",8557,random_string);
-  //p2p_source_management_->AddNewServerResource("HTTP_SERVER",
-  //  "127.0.0.1",80,random_string);
   p2p_source_management_->SetLocalPeerName(local_peer_name);
-
   p2p_connection_management_->Initialize(signal_thread_,
     worker_thread_,stream_thread_,false);
+
   p2p_server_connection_management_->SetIceDataTunnel(
     p2p_connection_management_->GetP2PICEConnection());
 
 }
 
 void P2PUserClient::StartRun(){
-  LOG(LS_INFO) << "+++" << __FUNCTION__;
-  p2p_server_connection_management_->SignInP2PServer(ServerAddr);
+  LOG_P2P(P2P_BASIC_PART_LOGIC) << "Start run the p2p solution";
+  p2p_server_connection_management_->SignInP2PServer(p2p_server_addr_);
 }
 
 void P2PUserClient::ConnectionToPeer(int peer_id){
-  LOG(LS_INFO) << "+++" << __FUNCTION__;
-  std::cout << "Listen " << KLocalRTSPServer.ToString() << std::endl;
+  LOG_P2P(P2P_BASIC_PART_LOGIC) << "listen a local port " 
+    << KLocalRTSPServer.ToString();
   ProxyServerFactory::CreateRTSPProxyServer(signal_thread_->socketserver(),
     KLocalRTSPServer);
-  //p2p_connection_management_->Connect(peer_id);
 }
 
-void P2PUserClient::Destory(){
-  LOG(LS_INFO) << "+++" << __FUNCTION__;
-}
+const talk_base::SocketAddress P2PUserClient::ReadingConfigureFile(
+  const std::string &config_file,const std::string &random_string)
+{
+  LOG_P2P(P2P_BASIC_PART_LOGIC) << "Reading Configure file";
+  talk_base::SocketAddress server_addr;
 
-void P2PUserClient::SendRandomData(){
-  LOG(LS_INFO) << "+++" << __FUNCTION__;
+  std::ifstream read_handle(config_file);
+  if(!read_handle.is_open()){
+    LOG(LS_ERROR) << "Can't open the configure file.";
+    std::system("pause");
+    std::exit(0);
+  }
+
+  //The first line must be P2P_SERVER_CONFIGURE
+
+  std::string p2p_server_configure;
+  read_handle >> p2p_server_configure;
+  if(!p2p_server_configure.empty() && (p2p_server_configure != P2P_SERVER_CONFIGURE)){
+    LOG(LS_ERROR) << "The first line of the configure file must be a p2p server address";
+    std::system("pause");
+    std::exit(0);
+  } 
+  else{
+    std::string server_ip;
+    uint16 server_port;
+    read_handle >> server_ip;
+    read_handle >> server_port;
+    server_addr.SetIP(server_ip);
+    server_addr.SetPort(server_port);
+  }
+
+  while(true){
+    std::string server_configure;
+    read_handle >> server_configure;
+    if(server_configure.empty()){
+      break;
+    }
+    if(server_configure != SERVER_CONFIGURE){
+      LOG(LS_ERROR) << "reading the server configure getting error";
+      std::system("pause");
+      std::exit(0);
+    }
+
+    std::string server_name;
+    std::string server_ip;
+    uint16 server_port;
+
+    read_handle >> server_name;
+    read_handle >> server_ip;
+    read_handle >> server_port;
+    if(server_name.empty() || server_ip.empty()){
+      LOG(LS_ERROR) << "reading the server configure getting error";
+      std::system("pause");
+      std::exit(0);
+    }
+    p2p_source_management_->AddNewServerResource(server_name,
+      server_ip,server_port,random_string);
+  }
+  return server_addr;
 }
 
 void P2PUserClient::OnMessage(talk_base::Message* msg){
-  LOG(LS_INFO) << "+++" << __FUNCTION__;
 }
