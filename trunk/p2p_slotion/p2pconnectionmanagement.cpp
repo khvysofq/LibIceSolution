@@ -57,7 +57,6 @@ P2PConnectionManagement::P2PConnectionManagement()
 
 void P2PConnectionManagement::Initialize(
   talk_base::Thread *signal_thread,
-  talk_base::Thread *stream_thread,
   talk_base::Thread *worker_thread,
   bool mix_connect_mode)
 {
@@ -68,20 +67,21 @@ void P2PConnectionManagement::Initialize(
 
   signal_thread_ = signal_thread;
   worker_thread_ = worker_thread;
-  stream_thread_ = stream_thread;
 
-  p2p_ice_connection_ = new PeerConnectionIce(stream_thread,signal_thread_);
+  p2p_ice_connection_ = new PeerConnectionIce(signal_thread_,worker_thread_);
 }
 
 
 ProxyP2PSession * P2PConnectionManagement::ConnectBySourceIde(
-  const std::string &source_id, talk_base::SocketAddress *addr,bool *is_existed)
+  const std::string &source_id, talk_base::SocketAddress *addr,
+  const std::string &server_type,bool *is_existed)
 { 
   //1. Find the peer id by resource server address
   ProxyP2PSession *proxy_p2p_session = NULL;
   std::string remote_peer_name;
   const ServerResource * res = 
-    p2p_source_management_->SreachPeerBySourceIde(source_id,&remote_peer_name);
+    p2p_source_management_->SreachPeerBySourceIde(source_id,server_type,
+    &remote_peer_name);
   if(!res){
     return NULL;
   }
@@ -98,6 +98,7 @@ ProxyP2PSession * P2PConnectionManagement::ConnectBySourceIde(
 
   //Existed
   if(proxy_p2p_session){
+    LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "The peer connection is existed";
     *is_existed = true;
     return proxy_p2p_session;
   }
@@ -119,10 +120,10 @@ ProxyP2PSession * P2PConnectionManagement::ConnectBySourceIde(
   proxy_p2p_sessions_.insert(proxy_p2p_session);
 
 
-  LOG_P2P(P2P_CONNECT_LOGIC) << "------------------------------";
-  LOG_P2P(P2P_CONNECT_LOGIC) <<"current proxy p2p session size = "
+  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "------------------------------";
+  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) <<"current proxy p2p session size = "
     << proxy_p2p_sessions_.size();
-  LOG_P2P(P2P_CONNECT_LOGIC) << "------------------------------";
+  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "------------------------------";
 
   return proxy_p2p_session;
 }

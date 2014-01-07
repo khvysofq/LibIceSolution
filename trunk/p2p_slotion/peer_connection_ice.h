@@ -39,7 +39,7 @@
 #include "talk/base/thread.h"
 #include "talk/p2p/base/sessionmanager.h"
 #include "talk/p2p/client/httpportallocator.h"
-#include "talk/session/tunnel/tunnelsessionclient.h"
+#include "tunnelsessionclient.h"
 
 #include "mediator_pattern.h"
 
@@ -54,8 +54,8 @@ class PeerConnectionIce
   public talk_base::MessageHandler
 {
 public:     //user interface
-  PeerConnectionIce(talk_base::Thread *worker_thread,
-    talk_base::Thread *signal_thread);
+  PeerConnectionIce(talk_base::Thread *signal_thread,
+    talk_base::Thread *worker_thread);
   ~PeerConnectionIce();
   virtual talk_base::StreamInterface *ConnectionToRemotePeer(
     const std::string remote_peer_name);

@@ -52,16 +52,15 @@
 static const int TEST_SEND_BUFFER   = 4096;
 //static const talk_base::SocketAddress KLocalRTSPServer("127.0.0.1",554);
 static const talk_base::SocketAddress KLocalRTSPServer("127.0.0.1",554);
+static const talk_base::SocketAddress KLocalHTTPServer("127.0.0.1",80);
 
-P2PUserClient::P2PUserClient(talk_base::Thread *worker_thread,
-                             talk_base::Thread *signal_thread,
-                             talk_base::Thread *stream_thread)
-                             :worker_thread_(worker_thread),
-                             signal_thread_(signal_thread),
-                             stream_thread_(stream_thread),
+P2PUserClient::P2PUserClient(talk_base::Thread *signal_thread,
+                             talk_base::Thread *worker_thread)
+                             :signal_thread_(signal_thread),
+                             worker_thread_(worker_thread),
                              initiator_(false)
 {
-  LOG_P2P(P2P_BASIC_PART_LOGIC|CREATE_DESTROY_INFOR) 
+  LOG_P2P(P2P_BASIC_PART_LOGIC|CREATE_DESTROY_INFOR )
     << "Create P2PUserClient";
 
   receive_buffer_ = new char[RECEIVE_BUFFER_LENGTH];
@@ -97,7 +96,7 @@ void P2PUserClient::Initiatlor(){
 
   p2p_source_management_->SetLocalPeerName(local_peer_name);
   p2p_connection_management_->Initialize(signal_thread_,
-    worker_thread_,stream_thread_,false);
+    signal_thread_,true);
 
   p2p_server_connection_management_->SetIceDataTunnel(
     p2p_connection_management_->GetP2PICEConnection());
@@ -112,8 +111,12 @@ void P2PUserClient::StartRun(){
 void P2PUserClient::ConnectionToPeer(int peer_id){
   LOG_P2P(P2P_BASIC_PART_LOGIC) << "listen a local port " 
     << KLocalRTSPServer.ToString();
+  
   ProxyServerFactory::CreateRTSPProxyServer(signal_thread_->socketserver(),
     KLocalRTSPServer);
+
+  ProxyServerFactory::CreateHTTPProxyServer(signal_thread_->socketserver(),
+    KLocalHTTPServer);
 }
 
 const talk_base::SocketAddress P2PUserClient::ReadingConfigureFile(
@@ -122,7 +125,8 @@ const talk_base::SocketAddress P2PUserClient::ReadingConfigureFile(
   LOG_P2P(P2P_BASIC_PART_LOGIC) << "Reading Configure file";
   talk_base::SocketAddress server_addr;
 
-  std::ifstream read_handle(config_file);
+  std::ifstream read_handle(config_file.c_str());
+  //read_handle.open(
   if(!read_handle.is_open()){
     LOG(LS_ERROR) << "Can't open the configure file.";
     std::system("pause");

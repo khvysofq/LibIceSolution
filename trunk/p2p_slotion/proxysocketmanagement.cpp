@@ -95,7 +95,8 @@ bool ProxySocketBegin::IsMe(intptr_t socket){
 void ProxySocketBegin::OnP2PRead(const char *data, uint16 len){
   LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Read P2P Data";
 
-  ASSERT(p2p_socket_state_ == P2P_SOCKET_PROXY_CONNECTED);
+  if(p2p_socket_state_ != P2P_SOCKET_PROXY_CONNECTED)
+    return ;
   ReadP2PDataToBuffer(data,len,&in_buffer_);
   if(int_socket_state_ == INT_SOCKET_CONNECTED)
     WriteBufferDataToSocket(int_socket_.get(),&in_buffer_);
@@ -267,7 +268,9 @@ void ProxySocketBegin::WriteBufferDataToP2P(talk_base::FifoBuffer *buffer){
   buffer->ConsumeReadData(written);
 }
 
-bool ProxySocketBegin::StartConnectBySourceIde(const std::string &source){
+bool ProxySocketBegin::StartConnectBySourceIde(
+  const std::string &source,const std::string &server_type)
+{
   //remote_peer_addr_ = addr;
   ASSERT(p2p_socket_state_ == P2P_SOCKET_START 
     && int_socket_state_ == INT_SOCKET_CONNECTED);
@@ -280,7 +283,7 @@ bool ProxySocketBegin::StartConnectBySourceIde(const std::string &source){
   bool is_existed;
   ProxyP2PSession *proxy_p2p_session = 
     p2p_connection_management_->ConnectBySourceIde(source,&remote_peer_addr_,
-    &is_existed);
+    server_type,&is_existed);
 
   //If the Proxy p2p session created
   if(proxy_p2p_session){
@@ -342,10 +345,10 @@ void ProxySocketBegin::SetProxyP2PSession(ProxyP2PSession *proxy_p2p_session){
 }
 
 void ProxySocketBegin::OnMessage(talk_base::Message *msg){
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC|BASIC_INFOR) << "1";
   switch(msg->message_id){
   case DESTORY_MYSELFT:
     {
-      
       LOG_P2P(P2P_PROXY_SOCKET_LOGIC|BASIC_INFOR) << "DESTORY MYSELEFT";
       if(proxy_p2p_session_)
         proxy_p2p_session_->DeleteProxySocketBegin(this);

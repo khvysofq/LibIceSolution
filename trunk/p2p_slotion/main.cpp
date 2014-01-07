@@ -31,7 +31,7 @@ int main(void)
   //  "C:/log.txt","wb",NULL);
   //talk_base::LogMessage::LogToStream(log_file_stream_,
   //  talk_base::LoggingSeverity::LS_INFO);
-  //talk_base::LogMessage::LogToDebug(talk_base::LS_ERROR);
+  talk_base::LogMessage::LogToDebug(talk_base::LS_INFO);
 
 
   talk_base::Thread *main_thread 
@@ -48,7 +48,7 @@ int main(void)
   //stream_thread->Start();
 
   
-  P2PUserClient p2p_user_client(main_thread,main_thread,main_thread);
+  P2PUserClient p2p_user_client(main_thread,main_thread);
   p2p_user_client.Initiatlor();
   p2p_user_client.StartRun();
 

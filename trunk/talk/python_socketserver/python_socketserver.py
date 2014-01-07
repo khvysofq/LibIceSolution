@@ -11,8 +11,8 @@ def random_str(randomlength=8):
         str+=chars[random.randint(0, length)]
     return str
 
-HOST = '192.168.1.214'    # The remote host
-PORT = 554              # The same port as used by the server
+HOST = '127.0.0.1'    # The remote host
+PORT = 9632              # The same port as used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 

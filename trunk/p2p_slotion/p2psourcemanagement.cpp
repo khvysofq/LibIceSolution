@@ -370,12 +370,14 @@ const std::string P2PSourceManagement::SreachPeerByServerResource(
 }
 
 const ServerResource *P2PSourceManagement::SreachPeerBySourceIde(
-  const std::string &source_ide,std::string *remote_peer_name)
+  const std::string &source_ide,const std::string &server_type,
+  std::string *remote_peer_name)
 {
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++){
       const ServerResource* res = 
-        SreachServerResourceByIde((*iter)->server_resources_,source_ide);
+        SreachServerResourceByIde((*iter)->server_resources_,server_type,
+        source_ide);
       if(res){
         *remote_peer_name = (*iter)->peer_jid_;
         return res;
@@ -400,12 +402,14 @@ bool P2PSourceManagement::SreachServerResourceByAddr(
 }
 
 const ServerResource * P2PSourceManagement::SreachServerResourceByIde(
-  const ServerResources &server_resources, const std::string &source_ide)
+  const ServerResources &server_resources, const std::string &server_type,
+  const std::string &source_ide)
 {
   for(ServerResources::const_iterator iter = server_resources.begin();
     iter != server_resources.end(); iter++)
   {
-    if((*iter)->server_ide_ == source_ide){
+    if((*iter)->server_name_ == server_type
+      &&(*iter)->server_ide_ == source_ide){
       return (*iter);
     }
   }

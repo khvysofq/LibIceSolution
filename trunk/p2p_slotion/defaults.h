@@ -51,6 +51,8 @@ static const char RANDOM_BASE64[64] = {
 
 typedef uint32 LOG_FILTER;
 
+const uint32 DISPALY_ALL             = (0XFFFFFFFF);
+
 const uint32 BASIC_INFOR             = (0X1);
 //operation for object create and destroy
 const uint32 CREATE_DESTROY_INFOR    = ((0X1<<1));
@@ -73,7 +75,8 @@ const uint32 P2P_PROXY_SOCKET_DATA   = ((0X1<<11));
 
 const uint32 P2P_CONNECT_LOGIC       = ((0X1<<12));
 
-const uint32 CURRENT_INFO_LEVEL = BASIC_INFOR|P2P_PROXY_SOCKET_LOGIC;
+const uint32 CURRENT_INFO_LEVEL = BASIC_INFOR|P2P_CONNECT_LOGIC
+  |P2P_PROXY_SOCKET_DATA;
 
 #define LOG_P2P(X) (!((X)&CURRENT_INFO_LEVEL))?(void)0:LOG_F(LS_INFO)
 
@@ -82,6 +85,7 @@ const int kDefaultServerPort = 8888;
 const talk_base::SocketAddress  KStunAddr("42.121.127.71",3478);
 
 const size_t DEAFULT_BUFFER_LENGTH = 64 * 1024;
+const int KBufferSize = 1024 * 4;
 
 struct PeerInfor{
   PeerInfor(){};
@@ -165,6 +169,9 @@ std::string StreamResultToString(const talk_base::StreamResult res);
 //
 const char P2P_SERVER_CONFIGURE[]    = "P2P_SERVER_CONFIGURE";
 const char SERVER_CONFIGURE[]        = "SERVER_CONFIGURE";
+
+const char RTSP_SERVER[]             = "RTSP_SERVER";
+const char HTTP_SERVER[]             = "HTTP_SERVER";
 
 ////////////////////////////////////////////////////////////////////
 

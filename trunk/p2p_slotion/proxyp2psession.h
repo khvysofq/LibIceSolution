@@ -63,6 +63,9 @@ public:
   void DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begin);
 
   ProxySocketBegin* GetProxySocketBegin(uint32 local_socket){
+    ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(local_socket);
+    if(iter == proxy_socket_begin_map_.end() || iter->second == NULL)
+      return NULL;
     return proxy_socket_begin_map_[local_socket];
   };
   P2PConnectionImplementator *GetP2PConnectionImplementator() const{
@@ -125,7 +128,7 @@ private:
     P2P_SOCKET_CLOSED
   }independent_mode_state_;
 
-  static const size_t BUFFER_SIZE = 1024;
+  static const size_t BUFFER_SIZE = KBufferSize;
   typedef std::map<uint32, ProxySocketBegin*> ProxySocketBeginMap;
   ProxySocketBeginMap          proxy_socket_begin_map_;
   talk_base::FifoBuffer        *command_send_buffer_;

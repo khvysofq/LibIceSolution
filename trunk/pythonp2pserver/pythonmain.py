@@ -1,34 +1,12 @@
-#This is the main file of the p2p server socket
+import sys
+import locale
+import http.server
+import socketserver
 
-class BaseClass:
-  def TestCall(self, msg):
-    print "This is BaseClass TestCall function and it self is ",self
-    print "BaseClass->msg:",msg
+addr = len(sys.argv) < 2 and "localhost" or sys.argv[1]
+port = len(sys.argv) < 3 and 80 or locale.atoi(sys.argv[2])
 
-class DriClass(BaseClass):
-  def CallTest(self, msg):
-    print "This is DriClass, it self is ", self
-    print "CallTest->msg",msg
-    TestCall(self, msg)
-
-  def TestCall(self,msg):
-    print "This is Drive TestCall function and it self is ",self
-    print "Drive->msg:",msg
-
-class ThreadClass:
-  def TestCall(self, msg):
-    print "This is ThreadClass TestCall function and it self is ",self
-    print "ThreadClass->msg:",msg
-
-class ThreadDriClass(ThreadClass,DriClass): pass
-
-if __name__ == '__main__':
-  t = ThreadDriClass()
-  t1 = ThreadClass()
-  t2 = DriClass()
-
-  t.TestCall("Hello t")
-  t1.TestCall("Hello t1")
-  t2.TestCall("Hello t2")
-
-
+handler = http.server.SimpleHTTPRequestHandler
+httpd = socketserver.TCPServer((addr, port), handler)
+print ("HTTP server is at: http://%s:%d/" % (addr, port))
+httpd.serve_forever()

@@ -39,11 +39,13 @@
 #include "talk/base/stream.h"
 #include "talk/base/asyncpacketsocket.h"
 
+#include "defaults.h"
+
 class SendDataBuffer 
 {
 public:
   SendDataBuffer();
-  SendDataBuffer(size_t buffer_length);
+  SendDataBuffer(size_t buffer_length = KBufferSize);
   ~SendDataBuffer();
   
   void Destory();

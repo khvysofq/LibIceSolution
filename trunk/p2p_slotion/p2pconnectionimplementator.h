@@ -54,7 +54,6 @@ public:
     talk_base::StreamInterface *stream,bool is_mix_data_mode = true);
   ~P2PConnectionImplementator();
   void Destory();
-  void CloseStream();
   bool IsMe(const std::string &remote_jid) const {
     return remote_jid_ == remote_jid;
   };
@@ -65,8 +64,11 @@ public:
   virtual void OnReceiveMultiplexData(const char *data, uint16 len); 
   sigslot::signal4<uint32 ,SocketType,const char *, uint16> SignalStreamRead;
   sigslot::signal1<talk_base::StreamInterface *> SignalIndependentStreamRead;
+
   sigslot::signal1<talk_base::StreamInterface *> SignalStreamWrite;
+
   sigslot::signal1<talk_base::StreamInterface *> SignalStreamClose;
+
   sigslot::signal1<talk_base::StreamInterface *> SignalConnectSucceed;
 private:
   void OnStreamEvent(talk_base::StreamInterface* stream,
@@ -96,11 +98,10 @@ private:
     STREAM_BLOCK,
     STREAM_CLOSE
   }state_;
-  static const int BUFFER_SIZE = 64 * 1024;
+  static const int BUFFER_SIZE = KBufferSize;
   std::string                remote_jid_;
   talk_base::StreamInterface *stream_;
   DataMultiplexMachine       *data_multiplex_machine_;
-  bool                       is_connect_;
   bool                       is_mix_data_mode_;
 
   char                       *temp_read_buffer_;

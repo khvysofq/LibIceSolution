@@ -90,6 +90,7 @@
     <ClInclude Include="asynctcpsocketnormal.h" />
     <ClInclude Include="datamultiplexmachine.h" />
     <ClInclude Include="defaults.h" />
+    <ClInclude Include="httpproxysocket.h" />
     <ClInclude Include="mediator_pattern.h" />
     <ClInclude Include="networkbytebuffer.h" />
     <ClInclude Include="p2pconnectionimplementator.h" />
@@ -105,8 +106,10 @@
     <ClInclude Include="proxyp2psession.h" />
     <ClInclude Include="proxyserverfactory.h" />
     <ClInclude Include="proxysocketmanagement.h" />
+    <ClInclude Include="pseudotcpchannel.h" />
     <ClInclude Include="senddatabuffer.h" />
     <ClInclude Include="sockettablemanagement.h" />
+    <ClInclude Include="tunnelsessionclient.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="asyncp2ppackagesocket.cpp" />
@@ -115,6 +118,7 @@
     <ClCompile Include="asynctcpsocketnormal.cpp" />
     <ClCompile Include="datamultiplexmachine.cpp" />
     <ClCompile Include="defaults.cc" />
+    <ClCompile Include="httpproxysocket.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mediator_pattern.cpp" />
     <ClCompile Include="networkbytebuffer.cpp" />
@@ -131,8 +135,10 @@
     <ClCompile Include="proxyp2psession.cpp" />
     <ClCompile Include="proxyserverfactory.cpp" />
     <ClCompile Include="proxysocketmanagement.cpp" />
+    <ClCompile Include="pseudotcpchannel.cc" />
     <ClCompile Include="senddatabuffer.cpp" />
     <ClCompile Include="sockettablemanagement.cpp" />
+    <ClCompile Include="tunnelsessionclient.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

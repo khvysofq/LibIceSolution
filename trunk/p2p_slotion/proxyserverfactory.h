@@ -42,6 +42,7 @@
 #include "talk/base/sigslot.h"
 #include "talk/base/socketaddress.h"
 
+#include "httpproxysocket.h"
 #include "asyncrtspproxysocketserver.h"
 #include "proxysocketmanagement.h"
 #include "mediator_pattern.h"
@@ -69,6 +70,10 @@ public:
     talk_base::AsyncSocket *int_socket,
     uint32 server_socket_number,
     const talk_base::SocketAddress &server_rtsp_addr);
+
+  static HTTPProxyServer *CreateHTTPProxyServer(
+    talk_base::SocketFactory *int_factory,
+    const talk_base::SocketAddress &local_http_addr);
 
 private:
   DISALLOW_EVIL_CONSTRUCTORS(ProxyServerFactory);

@@ -50,7 +50,7 @@ DataMultiplexMachine::DataMultiplexMachine(
 
   //Receive network header
   receive_network_header_ = new NetworkHeader();
-  receive_low_buffer_  = new char[RECEIVE_BUFFER_LEN];;
+  receive_low_buffer_  = new char[KBufferSize];;
   receive_current_len_ = 0;
   reading_states_ = READING_HEADER_IDE_1;
 
@@ -111,7 +111,8 @@ void DataMultiplexMachine::UnpackData(char *data, uint16 len){
   //no time to do this.
   ///////////////////////////////////////////////////////////////////////////
   NetworkByteBuffer network_byte_buffer(data,len);
-
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "net worker byte buffer length is "
+    << network_byte_buffer.Length();
   ///////////////////////////////////////////////////////////////////////////
   //ALGORITHM NOTE (GuangleiHe, 11/26/2013)
   //Below code is parse a network header. It parse data one byte by
@@ -234,6 +235,9 @@ void DataMultiplexMachine::UnpackData(char *data, uint16 len){
       receive_network_header_->data_len_ |= one_byte;
       LOG(LS_VERBOSE) << "\t got P2P_NETWORKER_DATA_LENGTH";
       reading_states_ = READING_DATA;
+      LOG_P2P(P2P_PROXY_SOCKET_DATA) << "\tdata length is " 
+        << receive_network_header_->data_len_
+        << "\n\tCurrent data length is " << len;
     }
 
     //6. reading the last data, it's relay data from remote peer.

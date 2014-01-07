@@ -76,7 +76,7 @@ bool SocketTableManagement::DeleteASocket(uint32 local_socket){
   //First, find local socket at local socket map
   iter = local_socket_map_.find(local_socket);
   if(iter == local_socket_map_.end()){
-    LOG(LS_ERROR) << "We are not found this socket in socket map";
+    //LOG(LS_ERROR) << "We are not found this socket in socket map";
     return false;
   }
 

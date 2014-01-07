@@ -1,27 +1,44 @@
 #include <iostream>
 #include "talk/base/socketaddress.h"
 #include "talk/base/logging.h"
+#include "talk/base/thread.h"
 
+const talk_base::SocketAddress KLocalAddr("127.0.0.1",9632);
 
-const uint32 BASIC_MESSAGE      = 1 << 0;
-const uint32 IMPORTANT_MESSAGE  = 1 << 1;
-const uint32 TEST_MESSAGE       = 1 << 2;
+class SocketThreadTest : public sigslot::has_slots<>
+{
+public:
+  SocketThreadTest(talk_base::Thread *signal_thread)
+    :signal_thread_(signal_thread)
+  {
+    socket_ = signal_thread_->socketserver()->CreateAsyncSocket(SOCK_STREAM);
+    std::cout << "Bind local port " << KLocalAddr.port() << std::endl;
+    if(socket_->Bind(KLocalAddr)){
+      LOG(LS_ERROR) << "Can't bind port " << KLocalAddr.port();
+      return;
+    }
+    std::cout << "Listen this local port" << std::endl;;
+    socket_->Listen(5);
+    socket_->SignalReadEvent.connect(this, &SocketThreadTest::OnAcceptEvent);
+  }
 
-const uint32 CURRENT_MESSAGE    = IMPORTANT_MESSAGE;
+private:
+  void OnAcceptEvent(talk_base::AsyncSocket *socket){
+    //new socket at here.
+    ASSERT(socket_ == socket);
+    socket->Accept(NULL);
+    std::cout << "new socket at here" << std::endl;
+  }
 
-#define LOG_MY(X) (!((X)&CURRENT_MESSAGE))?(void)0:LOG_F(LS_INFO)
+  talk_base::Thread       *signal_thread_;
+  talk_base::AsyncSocket  *socket_;
+};
 
 int main(void){
+  talk_base::Thread *signal_thread = talk_base::Thread::Current();
+  SocketThreadTest socket_thread_test(signal_thread);
 
-  LOG_MY(IMPORTANT_MESSAGE) << "Hello world 1";
-
-  LOG_MY(BASIC_MESSAGE) << "Hello world 2";
-
-  LOG_MY(TEST_MESSAGE) << "Hello world 3";
-
-  LOG_MY(TEST_MESSAGE | BASIC_MESSAGE) << "Hello world 4";
-
-  LOG_MY(TEST_MESSAGE | IMPORTANT_MESSAGE) << "Hello world 5";
+  signal_thread->Run();
   return 0;
 }
 

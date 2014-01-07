@@ -179,7 +179,7 @@ void RTSPServerSocketStart::ParseRTSPGetSourceName(char *data, size_t *len){
 
   //
   if(p2p_socket_state_ == P2P_SOCKET_START)
-    ConnectTheSource(source_ide);
+    StartConnectBySourceIde(source_ide,RTSP_SERVER);
 
   serouce_ide_len += 1;
   //3. delete the server ip in the data
@@ -189,9 +189,3 @@ void RTSPServerSocketStart::ParseRTSPGetSourceName(char *data, size_t *len){
   }
   *len -= serouce_ide_len;
 }
-
-bool RTSPServerSocketStart::ConnectTheSource(const std::string &source_ide){
-  LOG_P2P(P2P_RTSP_LOCAL_SERVER) << "\t Requesting source is " << source_ide;
-  return StartConnectBySourceIde(source_ide);
-}
-

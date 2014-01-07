@@ -69,7 +69,6 @@ public:
   //object.
   void Initialize(talk_base::Thread *signal_thread,
     talk_base::Thread *worker_thread,
-    talk_base::Thread *stream_thread,
     bool mix_connect_mode = true);
   AbstractICEConnection *GetP2PICEConnection() const ;
   //When you call this function, you must be sure that the peer id 
@@ -77,7 +76,8 @@ public:
   //virtual bool Connect(ProxySocketBegin *proxy_socket_begin,
   //  const talk_base::SocketAddress& addr, ProxyP2PSession **proxy_p2p_session);
   virtual ProxyP2PSession *ConnectBySourceIde(const std::string &source_id,
-    talk_base::SocketAddress *addr, bool *is_existed);
+    talk_base::SocketAddress *addr, const std::string &server_type,
+    bool *is_existed);
 
 
   //There
@@ -106,7 +106,6 @@ private:
   AbstractICEConnection   *p2p_ice_connection_;
   talk_base::Thread       *signal_thread_;
   talk_base::Thread       *worker_thread_;
-  talk_base::Thread       *stream_thread_;
 
   //////////////////////////////////////////////////////////////////////////
 public:

@@ -84,6 +84,15 @@
     <ClInclude Include="proxyindependentsession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pseudotcpchannel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tunnelsessionclient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="httpproxysocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -156,6 +165,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="proxyindependentsession.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pseudotcpchannel.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tunnelsessionclient.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="httpproxysocket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

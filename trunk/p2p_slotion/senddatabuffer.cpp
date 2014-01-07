@@ -37,17 +37,11 @@
 #include "senddatabuffer.h"
 
 #include "talk/base/basictypes.h"
-#include "defaults.h"
-
-SendDataBuffer::SendDataBuffer(){
-  buffer_length_ = DEAFULT_BUFFER_LENGTH + REMAIN_MIX_SIZE;
-  fifo_buffer_   = new talk_base::FifoBuffer(buffer_length_);
-  state_ = BLOCK_STATE;
-}
 
 SendDataBuffer::SendDataBuffer(size_t buffer_length)
   :buffer_length_(buffer_length + REMAIN_MIX_SIZE){
   fifo_buffer_  = new talk_base::FifoBuffer(buffer_length_);
+  state_ = BLOCK_STATE;
 }
 
 SendDataBuffer::~SendDataBuffer(){
@@ -89,9 +83,9 @@ size_t SendDataBuffer::GetBufferRemainLength(){
     return 0;
   size_t res = 0;
   fifo_buffer_->GetWriteRemaining(&res);
-  if(res < REMAIN_MIX_SIZE)
-    return 0;
-  return res - REMAIN_MIX_SIZE;
+  //if(res - REMAIN_MIX_SIZE <= 0)
+  //  return 0;
+  return res;
 }
 
 

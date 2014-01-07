@@ -45,6 +45,7 @@
 const int DESTORY_SELFT           = 0;
 const int CLOSE_ALL_PROXY_SOCKET  = 1;
 const int SEND_BUFFER_DATA        = 2;
+const int RELEASE_ALL             = 3;
 
 struct SendBufferMessage :public talk_base::MessageData{
   SendBufferMessage(talk_base::ByteBuffer *byter_buffer)
@@ -103,7 +104,7 @@ ProxyP2PSession::~ProxyP2PSession(){
   ASSERT(signal_thread_->IsCurrent());
   command_send_buffer_->Close();
   delete command_send_buffer_;
-  delete p2p_connection_implementator_;
+  ASSERT(p2p_connection_implementator_ == NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -160,8 +161,10 @@ void ProxyP2PSession::DeleteProxySocketBegin(ProxySocketBegin *proxy_socket_begi
 ///////////////////////////////////////////////////////////////////////////
 void ProxyP2PSession::Destory(){
   ASSERT(signal_thread_->IsCurrent());
-  p2p_connection_implementator_->Destory();
-  talk_base::Thread::Current()->Post(this,DESTORY_SELFT);
+  if(p2p_connection_implementator_ != NULL)
+    p2p_connection_implementator_->Destory();
+  else
+    talk_base::Thread::Current()->Post(this,DESTORY_SELFT);
 }
 
 bool ProxyP2PSession::IsMe(const std::string remote_peer_name) const {
@@ -173,6 +176,7 @@ bool ProxyP2PSession::RunSocketProccess(
   uint32 socket, SocketType socket_type,const char *data, uint16 len)
 {  
   ASSERT(signal_thread_->IsCurrent());
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "socket proccess";
   ProxySocketBeginMap::iterator iter = proxy_socket_begin_map_.find(socket);
   if(iter == proxy_socket_begin_map_.end()){
     LOG(LS_ERROR) << "Can't Find the object in the ProxySocketManagement " << socket;
@@ -185,6 +189,7 @@ bool ProxyP2PSession::RunSocketProccess(
 void ProxyP2PSession::OnStreamClose(talk_base::StreamInterface *stream){
   ASSERT(signal_thread_->IsCurrent());
   CloseAllProxySokcet(stream);
+  talk_base::Thread::Current()->Post(this,DESTORY_SELFT);
   //Destory();
 }
 
@@ -224,6 +229,8 @@ void ProxyP2PSession::OnStreamRead(uint32 socket,
                                    const char *data, uint16 len)
 {
   ASSERT(signal_thread_->IsCurrent());
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Read stream data socket is " << socket
+    << "length is " << len;
   if(socket == 0){
     //It must a system command
     if(len != P2PRTSPCOMMAND_LENGTH){
@@ -390,7 +397,8 @@ void ProxyP2PSession::P2PSocketConnectFailure(uint32 server_socket,
 
 bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
   ASSERT(signal_thread_->IsCurrent());
-
+  
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "process System command";
   ///////////////////////////////////////////////////////////////////////////
   //BUSINESS LOGIC NOTE (GuangleiHe, 11/28/2013)
   //There didn't used P2PRTSPCommand to parse the data.
@@ -431,8 +439,13 @@ bool ProxyP2PSession::ProceesSystemCommand(const char *data, uint16 len){
       client_socket,TCP_SOCKET);
 
     independent_mode_state_ = P2P_SOCKET_PROXY_CONNECTED;
-
-    GetProxySocketBegin(server_socket)->OnP2PSocketConnectSucceed(this);
+    //////////////////////////////////////////////////////////////////////////
+    //there is normal business logic, some times proxsocketbegin closed.
+    //so the second of socket begin map getting NULL pointer. 
+    //////////////////////////////////////////////////////////////////////////
+    ProxySocketBegin *res = GetProxySocketBegin(server_socket);
+    if(res != NULL)
+      res->OnP2PSocketConnectSucceed(this);
 
   }
   else if(p2p_system_command_type == P2P_SYSTEM_SERVER_SOCKET_CLOSE){
@@ -510,7 +523,8 @@ void ProxyP2PSession::IsAllProxySocketClosed(){
     ///////////////////////////////////////////////////////////////////////////
     //if(is_self_close)
     //  p2p_connection_implementator_->CloseStream();
-    Destory();
+    // Destory();
+    //signal_thread_->PostDelayed(1000 * 60,this,RELEASE_ALL);
   }
 }
 
@@ -525,7 +539,17 @@ void ProxyP2PSession::OnMessage(talk_base::Message *msg){
   switch(msg->message_id){
   case DESTORY_SELFT:
     {
-      p2p_connection_management_->DeleteProxyP2PSession(this);
+      if(p2p_connection_implementator_ != NULL){
+        LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC)
+          << "delete p2p connection implementation";
+        delete p2p_connection_implementator_;
+        p2p_connection_implementator_ = NULL;
+      }
+      if(proxy_socket_begin_map_.size() == 0){
+        LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC)
+          << "delete proxy p2p session";
+        p2p_connection_management_->DeleteProxyP2PSession(this);
+      }
       break;
     }
   case CLOSE_ALL_PROXY_SOCKET:
@@ -544,6 +568,18 @@ void ProxyP2PSession::OnMessage(talk_base::Message *msg){
 
       //send this string to remote peer
       size_t written;
+      ///////////////////////////////////////////////////////////////////
+      //when p2p connection implementation is NULL, is can't send message
+      //it is normal but it very important 
+      ///////////////////////////////////////////////////////////////////
+      if(p2p_connection_implementator_ == NULL){
+      //delete the string
+      p2p_system_command_factory_->DeleteRTSPClientCommand(
+        params->byter_buffer_);
+        delete params;
+        return ;
+      }
+
       p2p_connection_implementator_->Send(0,TCP_SOCKET, 
         params->byter_buffer_->Data(),
         P2PRTSPCOMMAND_LENGTH,&written);
@@ -560,10 +596,12 @@ void ProxyP2PSession::OnMessage(talk_base::Message *msg){
         ///////////////////////////////////////////////////////////////////////////
         ASSERT(res == P2PRTSPCOMMAND_LENGTH);
       }
-      //delete the string
-      p2p_system_command_factory_->DeleteRTSPClientCommand(
-        params->byter_buffer_);
-      delete params;
+      break;
+    }
+  case RELEASE_ALL:
+    {
+      if(proxy_socket_begin_map_.size() == 0)
+        Destory();
       break;
     }
   }

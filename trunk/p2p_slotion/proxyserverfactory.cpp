@@ -57,3 +57,11 @@ RTSPClientSocket* ProxyServerFactory::CreateRTSPClientSocket(
   return new RTSPClientSocket(proxy_p2p_session,int_socket,
     server_socket_number,server_rtsp_addr);
 }
+
+HTTPProxyServer *ProxyServerFactory::CreateHTTPProxyServer(
+    talk_base::SocketFactory *int_factory,
+    const talk_base::SocketAddress &local_http_addr)
+{
+  LOG_P2P(BASIC_INFOR|P2P_RTSP_LOCAL_SERVER) << "Create HTTP Proxy Server";
+  return new HTTPProxyServer(int_factory,local_http_addr);
+}

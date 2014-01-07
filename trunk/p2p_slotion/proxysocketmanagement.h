@@ -59,7 +59,8 @@ public:
   intptr_t GetSocketNumber() const{return (intptr_t)(int_socket_.get());}
 
   //virtual bool StartConnect(const talk_base::SocketAddress& addr);
-  virtual bool StartConnectBySourceIde(const std::string &source);
+  virtual bool StartConnectBySourceIde(const std::string &source,
+    const std::string &server_type);
   virtual void OnP2PPeerConnectSucceed(ProxyP2PSession *proxy_p2p_session);
   virtual void OnP2PSocketConnectSucceed(ProxyP2PSession *proxy_p2p_session);
   
@@ -120,7 +121,6 @@ protected:
     INT_SOCKET_CLOSED
   }int_socket_state_;
 
-  static const int KBufferSize = 1024 * 64;
   talk_base::scoped_ptr<talk_base::AsyncSocket> int_socket_;
   talk_base::FifoBuffer out_buffer_;
   talk_base::FifoBuffer in_buffer_;

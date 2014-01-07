@@ -62,24 +62,12 @@ talk_base::ByteBuffer * P2PSystemCommandFactory::CreateRTSPClientSocket(
   talk_base::ByteBuffer *byte_buffer = new talk_base::ByteBuffer();
 
   byte_buffer->WriteUInt32(P2P_SYSTEM_COMMAND_IDE);
-  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t p2p_system_command_ide_ " 
-    << P2P_SYSTEM_COMMAND_IDE;
   byte_buffer->WriteUInt32(P2P_SYSTEM_CREATE_RTSP_CLIENT);
-  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t p2p_system_command_type_ " 
-    << P2P_SYSTEM_CREATE_RTSP_CLIENT;
   byte_buffer->WriteUInt32(socket);
-  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t server_socket_" << socket;
   byte_buffer->WriteUInt32(socket);
-  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t client_socket_ " << socket;
   byte_buffer->WriteUInt32(addr.ip());
-  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t client_connection_ip_ " 
-    << addr.ip();
   byte_buffer->WriteUInt16(addr.port());
-  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t client_connection_port_ " 
-    << addr.port();
   byte_buffer->WriteUInt16(P2P_SYSTEM_COMMAND_PADDING_BYTE);
-  LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "\t padding_byte_ " 
-    << P2P_SYSTEM_COMMAND_PADDING_BYTE;
 
   //Maybe there is a bug.
   return byte_buffer;
@@ -101,7 +89,6 @@ talk_base::ByteBuffer *P2PSystemCommandFactory::ReplyRTSPClientSocketSucceed(
 
   //Maybe there is a bug.
   return byte_buffer;
-
 }
 
 talk_base::ByteBuffer *P2PSystemCommandFactory::RTSPServerSocketClose(

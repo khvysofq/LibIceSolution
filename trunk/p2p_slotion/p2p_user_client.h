@@ -55,8 +55,8 @@ class P2PUserClient :public sigslot::has_slots<>,
   public talk_base::MessageHandler
 {
 public:
-  P2PUserClient(talk_base::Thread *worker_thread,
-    talk_base::Thread *signal_thread,talk_base::Thread *stream_thread);
+  P2PUserClient(talk_base::Thread *signal_thread,
+    talk_base::Thread *worker_thread);
   ~P2PUserClient();
   //user interface
   void Initiatlor();
@@ -74,7 +74,6 @@ private:
 
   talk_base::Thread           *worker_thread_;
   talk_base::Thread           *signal_thread_;
-  talk_base::Thread           *stream_thread_;
   bool                        initiator_;
   char                        *receive_buffer_;
   talk_base::SocketAddress    p2p_server_addr_;

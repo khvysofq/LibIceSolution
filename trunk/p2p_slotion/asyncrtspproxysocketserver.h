@@ -43,7 +43,6 @@
 #include "talk/base/sigslot.h"
 #include "talk/base/scoped_ptr.h"
 
-#include "mediator_pattern.h"
 #include "sockettablemanagement.h"
 #include "p2psystemcommand.h"
 #include "proxysocketmanagement.h"
@@ -117,8 +116,6 @@ private:
   //void ParseRTSP(char *data, size_t *len);
   void ParseRTSPGetSourceName(char *data, size_t *len);
 
-  //bool ConnectTheAddr(const std::string &server_ip);
-  bool ConnectTheSource(const std::string &source_ide);
 private:
   talk_base::AsyncProxyServerSocket *rtsp_socket_;
   bool                              is_connect_;

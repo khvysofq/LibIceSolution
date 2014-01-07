@@ -90,12 +90,13 @@ public:
   const std::string SreachPeerByServerResource(
     const talk_base::SocketAddress &addr);
   const ServerResource *SreachPeerBySourceIde(const std::string &source_ide,
-    std::string *remote_peer_name);
+    const std::string &server_type,std::string *remote_peer_name);
 
   bool SreachServerResourceByAddr(const ServerResources &server_resources, 
     const talk_base::SocketAddress& addr);
   const ServerResource *SreachServerResourceByIde(
-    const ServerResources &server_resources, const std::string &source_ide);
+    const ServerResources &server_resources, const std::string &server_type,
+    const std::string &source_ide);
 
 
   //This is remote peer resource update function.

@@ -76,9 +76,8 @@ private:
 //////////////////////////////////////////////////////////////////////////
 //implement for peer connection ice
 //////////////////////////////////////////////////////////////////////////
-PeerConnectionIce::PeerConnectionIce(talk_base::Thread *worker_thread,
-                                     talk_base::Thread *signal_thread)
-
+PeerConnectionIce::PeerConnectionIce(talk_base::Thread *signal_thread,
+                                     talk_base::Thread *worker_thread)
                                      :worker_thread_(worker_thread),
                                      signal_thread_(signal_thread),
                                      tunnel_session_client_(NULL)
@@ -138,7 +137,7 @@ talk_base::StreamInterface *PeerConnectionIce::ConnectionToRemotePeer(
   LOG_P2P(P2P_ICE_LOGIC_INFOR)
     << "Connection to remote peer " << remote_peer_name;
   CreateNewTunnelData *new_tunnel_data = new CreateNewTunnelData(remote_peer_name);
-  worker_thread_->Send(this,CREATE_NEW_TUNNEL,new_tunnel_data);
+  signal_thread_->Send(this,CREATE_NEW_TUNNEL,new_tunnel_data);
   talk_base::StreamInterface *stream = new_tunnel_data->GetStream();
   ASSERT(stream != NULL);
   delete new_tunnel_data;
@@ -152,7 +151,7 @@ void PeerConnectionIce::OnReceiveMessageFromRemotePeer(const std::string msg,
     << "\tThe peer id is " << peer_id
     << "\tThe data is " << msg;
   ASSERT(signal_thread_->IsCurrent());
-  worker_thread_->Post(this,REMOTE_PEER_MESSAGE,new MessageSendData(msg));
+  signal_thread_->Post(this,REMOTE_PEER_MESSAGE,new MessageSendData(msg));
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -206,7 +205,7 @@ void PeerConnectionIce::OnMessage(talk_base::Message* msg){
   {
   case REMOTE_PEER_MESSAGE:
     {
-      ASSERT(worker_thread_->IsCurrent());
+      ASSERT(signal_thread_->IsCurrent());
 
       MessageSendData* params = 
         static_cast<MessageSendData*>(msg->pdata);
@@ -230,7 +229,7 @@ void PeerConnectionIce::OnMessage(talk_base::Message* msg){
     }
   case CREATE_NEW_TUNNEL:
     {
-      ASSERT(worker_thread_->IsCurrent());
+      ASSERT(signal_thread_->IsCurrent());
       CreateNewTunnelData* params = 
         static_cast<CreateNewTunnelData*>(msg->pdata);
 
