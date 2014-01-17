@@ -84,57 +84,49 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="asyncp2ppackagesocket.h" />
-    <ClInclude Include="asyncrtspclientsocket.h" />
-    <ClInclude Include="asyncrtspproxysocketserver.h" />
-    <ClInclude Include="asynctcpsocketnormal.h" />
+    <ClInclude Include="p2pproxyserver.h" />
+    <ClInclude Include="p2pproxysession.h" />
+    <ClInclude Include="p2pproxysocket.h" />
     <ClInclude Include="datamultiplexmachine.h" />
     <ClInclude Include="defaults.h" />
-    <ClInclude Include="httpproxysocket.h" />
     <ClInclude Include="mediator_pattern.h" />
     <ClInclude Include="networkbytebuffer.h" />
     <ClInclude Include="p2pconnectionimplementator.h" />
     <ClInclude Include="p2pconnectionmanagement.h" />
-    <ClInclude Include="p2pindependentconnectmanagement.h" />
+    <ClInclude Include="p2pproxybinding.h" />
+    <ClInclude Include="p2pproxyserversocket.h" />
     <ClInclude Include="p2pserverconnectionmanagement.h" />
     <ClInclude Include="p2psourcemanagement.h" />
-    <ClInclude Include="p2psystemcommand.h" />
     <ClInclude Include="p2p_user_client.h" />
     <ClInclude Include="peer_connection_server.h" />
     <ClInclude Include="peer_connection_ice.h" />
     <ClInclude Include="proxyindependentsession.h" />
-    <ClInclude Include="proxyp2psession.h" />
     <ClInclude Include="proxyserverfactory.h" />
-    <ClInclude Include="proxysocketmanagement.h" />
     <ClInclude Include="pseudotcpchannel.h" />
     <ClInclude Include="senddatabuffer.h" />
     <ClInclude Include="sockettablemanagement.h" />
     <ClInclude Include="tunnelsessionclient.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="asyncp2ppackagesocket.cpp" />
-    <ClCompile Include="asyncrtspclientsocket.cpp" />
-    <ClCompile Include="asyncrtspproxysocketserver.cpp" />
-    <ClCompile Include="asynctcpsocketnormal.cpp" />
+    <ClCompile Include="p2pproxyserver.cpp" />
+    <ClCompile Include="p2pproxysession.cpp" />
+    <ClCompile Include="p2pproxysocket.cpp" />
     <ClCompile Include="datamultiplexmachine.cpp" />
     <ClCompile Include="defaults.cc" />
-    <ClCompile Include="httpproxysocket.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mediator_pattern.cpp" />
     <ClCompile Include="networkbytebuffer.cpp" />
     <ClCompile Include="p2pconnectionimplementator.cpp" />
     <ClCompile Include="p2pconnectionmanagement.cpp" />
-    <ClCompile Include="p2pindependentconnectmanagement.cpp" />
+    <ClCompile Include="p2pproxybinding.cpp" />
+    <ClCompile Include="p2pproxyserversocket.cpp" />
     <ClCompile Include="p2pserverconnectionmanagement.cpp" />
     <ClCompile Include="p2psourcemanagement.cpp" />
-    <ClCompile Include="p2psystemcommand.cpp" />
     <ClCompile Include="p2p_user_client.cpp" />
     <ClCompile Include="peer_connection_server.cc" />
     <ClCompile Include="peer_connection_ice.cpp" />
     <ClCompile Include="proxyindependentsession.cpp" />
-    <ClCompile Include="proxyp2psession.cpp" />
     <ClCompile Include="proxyserverfactory.cpp" />
-    <ClCompile Include="proxysocketmanagement.cpp" />
     <ClCompile Include="pseudotcpchannel.cc" />
     <ClCompile Include="senddatabuffer.cpp" />
     <ClCompile Include="sockettablemanagement.cpp" />

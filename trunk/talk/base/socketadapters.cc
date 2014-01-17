@@ -66,11 +66,11 @@ BufferedReadAdapter::~BufferedReadAdapter() {
 }
 
 int BufferedReadAdapter::Send(const void *pv, size_t cb) {
-  if (buffering_) {
-    // TODO: Spoof error better; Signal Writeable
-    socket_->SetError(EWOULDBLOCK);
-    return -1;
-  }
+  //if (buffering_) {
+  //  // TODO: Spoof error better; Signal Writeable
+  //  socket_->SetError(EWOULDBLOCK);
+  //  return -1;
+  //}
   return AsyncSocketAdapter::Send(pv, cb);
 }
 
@@ -96,7 +96,7 @@ int BufferedReadAdapter::Recv(void *pv, size_t cb) {
   // FIX: If cb == 0, we won't generate another read event
 
   int res = AsyncSocketAdapter::Recv(pv, cb);
-  if (res < 0)
+  if (res < 0 && read == 0)
     return res;
 
   return res + static_cast<int>(read);

@@ -33,39 +33,50 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ASYNC_P2P_PACKAGE_SOCKET_H_
-#define ASYNC_P2P_PACKAGE_SOCKET_H_
+#ifndef P2P_PROXY_SOCKET_H_
+#define P2P_PROXY_SOCKET_H_
 
 #include "talk/base/asyncsocket.h"
+#include "p2pproxysession.h"
 
 typedef uint16 SocketType;
 class P2PConnectionManagement;
 
-class AsyncP2PPackageSocket 
+class P2PProxySocket 
   : public talk_base::AsyncSocket,
   public sigslot::has_slots<>
 {
  public:
-   AsyncP2PPackageSocket();
+   P2PProxySocket();
+   P2PProxySocket(P2PProxySession *p2p_proxy_session,
+     uint32 other_side_socket);
+  uint32 GetSocketNumber() const {return ((uint32)this);}
 
-   sigslot::signal5<uint32,SocketType,const char*,uint16,
-     size_t *> SignalSendDataToLowLayer;
-   bool SetPartnerSocket(talk_base::AsyncSocket *socket, SocketType socket_type);
+  void OnP2PRead(const char *data, uint16 len);
+  void OnP2PClose(P2PProxySession *p2p_proxy_session);
+  void OnP2PWrite(P2PProxySession *p2p_proxy_session);
+
+  sigslot::signal2<const char *, uint16> SignalReadMixData;
+  
+  virtual void OnP2PConnectSucceed(P2PProxySession *p2p_proxy_session) = 0;
+  virtual void OnP2PSocketConnectSucceed(P2PProxySession *p2p_proxy_session,
+    uint32 other_side_socket) = 0;
+  virtual void OnP2PSocketConnectFailure(P2PProxySession *p2p_proxy_session) 
+    = 0;
  public:
    //for AsyncSocket
    virtual talk_base::AsyncSocket* Accept(talk_base::SocketAddress* paddr);
-
    //for Socket Class
 
    // Returns the address to which the socket is bound.  If the socket is not
    // bound, then the any-address is returned.
    // Local address is the local peer address and port
-   virtual talk_base::SocketAddress GetLocalAddress();
+   virtual talk_base::SocketAddress GetLocalAddress() const;
 
    // Returns the address to which the socket is connected.  If the socket is
    // not connected, then the any-address is returned.
    // remote address is the relay connect address, not the remote peer address
-   virtual talk_base::SocketAddress GetRemoteAddress();
+   virtual talk_base::SocketAddress GetRemoteAddress() const;
 
    //IEEE Std 1003.1
    //Upon successful completion, bind() shall return 0; 
@@ -106,7 +117,8 @@ class AsyncP2PPackageSocket
 
    virtual int GetError() const;
    virtual void SetError(int error);
-
+   
+   virtual ConnState GetState() const ;
 
    // Fills in the given uint16 with the current estimate of the MTU along the
    // path to the address to which this socket is connected. NOTE: This method
@@ -121,21 +133,71 @@ class AsyncP2PPackageSocket
    //  OPT_IPV6_V6ONLY, // Whether the socket is IPv6 only.
    //  OPT_DSCP         // DSCP code
    //};
+   enum ConnState{
+     CS_SOCKET_CONNECTING,
+     CS_SOCKET_CONNECTED,
 
+     CS_P2P_CONNECTED,
+     CS_P2P_CONNECTING,
+
+     CS_CLOSED
+   };
    //If successful, return 0; otherwise return -1;
    virtual int GetOption(Option opt, int* value);
    virtual int SetOption(Option opt, int value);
-
-private:
-  int error_;
+protected:
+  void CreateP2PSystemCommand(uint32 command_type,
+    uint32 server_socket,uint32 client_socket,
+    const talk_base::SocketAddress &addr);
+protected:
+  int                       error_;
   ConnState                 connect_state_;
   talk_base::SocketAddress  remote_addr_;
   talk_base::SocketAddress  local_addr_;
-  talk_base::AsyncSocket    *partner_socket_;
-  SocketType                partner_socket_type_;
-  P2PConnectionManagement   *p2p_connection_management_;
+  uint32                    other_side_socket_;
+
+  P2PConnectionManagement     *p2p_connection_management_;
+  P2PConnectionImplementator  *p2p_connection_implementator_;
+  P2PProxySession             *p2p_proxy_session_;
 };
 
 
+//////////////////////////////////////////////////////////////////////////
+//
+//////////////////////////////////////////////////////////////////////////
+class P2PProxyStartSocket : public P2PProxySocket{
+public:
+  P2PProxyStartSocket();
 
-#endif // !ASYNC_P2P_PACKAGE_SOCKET_H_
+  int ConnectPeer(const std::string &addr_ide,
+     const std::string &proxy_type);
+  virtual void OnP2PConnectSucceed(P2PProxySession *p2p_proxy_session);
+
+  void OnP2PSocketConnectSucceed(P2PProxySession *p2p_proxy_session,
+    uint32 other_side_socket);
+
+  void OnP2PSocketConnectFailure(P2PProxySession *p2p_proxy_session);
+
+  virtual int Connect(const talk_base::SocketAddress &addr);
+  
+private:
+};
+
+//////////////////////////////////////////////////////////////////////////
+//P2P Proxy End Socket
+//////////////////////////////////////////////////////////////////////////
+class P2PProxyEndSocket : public P2PProxySocket{
+public:
+  P2PProxyEndSocket(P2PProxyClientSession *p2p_proxy_session,
+                               uint32 other_side_socket);
+  virtual void OnP2PSocketConnectSucceed(
+    P2PProxySession *p2p_proxy_session,uint32 other_side_socket){};
+  virtual void OnP2PSocketConnectFailure(
+    P2PProxySession *p2p_proxy_session){};
+
+  virtual void OnP2PConnectSucceed(P2PProxySession *p2p_proxy_session){};
+
+  void SocketConnectSucceed();
+  void SocketConnectFailure();
+};
+#endif // P2P_PROXY_SOCKET_H_

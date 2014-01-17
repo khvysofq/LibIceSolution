@@ -92,7 +92,14 @@ void P2PUserClient::Initiatlor(){
   std::transform(local_peer_name.begin(),local_peer_name.end(),
     local_peer_name.begin(),tolower);
   
-  p2p_server_addr_ = ReadingConfigureFile("configure.file",random_string);
+  srand(static_cast<unsigned int>(time(NULL)));
+  std::ostringstream random_ip_string;
+  random_ip_string << rand() %255 << ".";
+  random_ip_string << rand() %255 << ".";
+  random_ip_string << rand() %255 << ".";
+  random_ip_string << rand() %255;
+  p2p_server_addr_ = ReadingConfigureFile("configure.file",
+    random_ip_string.str());
 
   p2p_source_management_->SetLocalPeerName(local_peer_name);
   p2p_connection_management_->Initialize(signal_thread_,
@@ -112,10 +119,9 @@ void P2PUserClient::ConnectionToPeer(int peer_id){
   LOG_P2P(P2P_BASIC_PART_LOGIC) << "listen a local port " 
     << KLocalRTSPServer.ToString();
   
-  ProxyServerFactory::CreateRTSPProxyServer(signal_thread_->socketserver(),
+  ProxyServerFactory::CreateP2PRTSPProxyServer(signal_thread_->socketserver(),
     KLocalRTSPServer);
-
-  ProxyServerFactory::CreateHTTPProxyServer(signal_thread_->socketserver(),
+  ProxyServerFactory::CreateP2PHTTPProxyServer(signal_thread_->socketserver(),
     KLocalHTTPServer);
 }
 
@@ -166,17 +172,19 @@ const talk_base::SocketAddress P2PUserClient::ReadingConfigureFile(
     std::string server_name;
     std::string server_ip;
     uint16 server_port;
+    std::string server_ide;
 
     read_handle >> server_name;
     read_handle >> server_ip;
     read_handle >> server_port;
+    read_handle >> server_ide;
     if(server_name.empty() || server_ip.empty()){
       LOG(LS_ERROR) << "reading the server configure getting error";
       std::system("pause");
       std::exit(0);
     }
     p2p_source_management_->AddNewServerResource(server_name,
-      server_ip,server_port,random_string);
+      server_ip,server_port,server_ide);
   }
   return server_addr;
 }

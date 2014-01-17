@@ -30,34 +30,16 @@
     <ClInclude Include="p2p_user_client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="asynctcpsocketnormal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="senddatabuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sockettablemanagement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="proxysocketmanagement.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="networkbytebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="asyncrtspproxysocketserver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="p2psystemcommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="asyncrtspclientsocket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="proxyserverfactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="asyncp2ppackagesocket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="p2pconnectionmanagement.h">
@@ -75,12 +57,6 @@
     <ClInclude Include="datamultiplexmachine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="proxyp2psession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="p2pindependentconnectmanagement.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="proxyindependentsession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,7 +66,19 @@
     <ClInclude Include="tunnelsessionclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="httpproxysocket.h">
+    <ClInclude Include="p2pproxybinding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p2pproxysocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p2pproxyserver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p2pproxyserversocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p2pproxysession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -113,34 +101,16 @@
     <ClCompile Include="p2p_user_client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="asynctcpsocketnormal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="senddatabuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sockettablemanagement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="proxysocketmanagement.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="networkbytebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="asyncrtspproxysocketserver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="p2psystemcommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="asyncrtspclientsocket.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="proxyserverfactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="asyncp2ppackagesocket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="p2pconnectionmanagement.cpp">
@@ -158,12 +128,6 @@
     <ClCompile Include="datamultiplexmachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="proxyp2psession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="p2pindependentconnectmanagement.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="proxyindependentsession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -173,7 +137,19 @@
     <ClCompile Include="tunnelsessionclient.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="httpproxysocket.cpp">
+    <ClCompile Include="p2pproxybinding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p2pproxysocket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p2pproxyserver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p2pproxyserversocket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p2pproxysession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

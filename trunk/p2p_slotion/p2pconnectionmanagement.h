@@ -52,7 +52,7 @@
 
 class P2PSourceManagement;
 class ProxySocketBegin;
-class ProxyP2PSession;
+class P2PProxySession;
 
 
 
@@ -75,20 +75,19 @@ public:
   //is correct.
   //virtual bool Connect(ProxySocketBegin *proxy_socket_begin,
   //  const talk_base::SocketAddress& addr, ProxyP2PSession **proxy_p2p_session);
-  virtual ProxyP2PSession *ConnectBySourceIde(const std::string &source_id,
-    talk_base::SocketAddress *addr, const std::string &server_type,
-    bool *is_existed);
+  virtual P2PProxySession *ConnectBySourceIde(const std::string &source_id,
+    talk_base::SocketAddress *addr, const std::string &server_type);
 
 
   //There
   //bool CreateP2PConnectionImplementator(const std::string &remote_jid,
   //  talk_base::StreamInterface *stream);
   
-  bool CreateProxyP2PSession(const std::string &remote_jid,
+  bool CreateP2PProxySession(const std::string &remote_jid,
     talk_base::StreamInterface *stream);
-  void DeleteProxyP2PSession(ProxyP2PSession *proxy_p2p_session);
+  void DeleteP2PProxySession(P2PProxySession *p2p_proxy_session);
 
-  ProxyP2PSession *WhetherThePeerIsExisted(const std::string remote_peer_name);
+  P2PProxySession *WhetherThePeerIsExisted(const std::string remote_peer_name);
 private:
   P2PConnectionImplementator *IsPeerConnected(int remote_peer_id);
 
@@ -99,8 +98,8 @@ private:
 
 private:
 
-  typedef std::set<ProxyP2PSession *> ProxyP2PSessions;
-  ProxyP2PSessions    proxy_p2p_sessions_;
+  typedef std::set<P2PProxySession *> P2PProxySessions;
+  P2PProxySessions    p2p_proxy_sessions_;
   P2PSourceManagement *p2p_source_management_;
 
   AbstractICEConnection   *p2p_ice_connection_;

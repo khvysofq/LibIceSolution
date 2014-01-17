@@ -102,11 +102,8 @@ bool SendDataBuffer::SendDataUsedStream(talk_base::StreamInterface *stream){
       return true;
     talk_base::StreamResult res = stream->Write(p,size,&written,NULL);
     if(res == talk_base::SR_BLOCK){
-      LOG(LS_VERBOSE) << "The p2p socket block";
+      LOG(LS_WARNING) << "The p2p socket block";
       state_ = BLOCK_STATE;
-    }
-    else {
-      LOG(LS_VERBOSE) << "Send data length is " << written;
     }
     fifo_buffer_->ConsumeReadData(written);
   }

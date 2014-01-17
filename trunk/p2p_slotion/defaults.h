@@ -33,6 +33,37 @@
 #include "talk/base/stream.h"
 #include "talk/base/logging.h"
 
+//////////////////////////////////////////////////////////////////////////
+//
+//////////////////////////////////////////////////////////////////////////
+static const int P2P_SYSTEM_COMMAND_IDE         = 0X0F123456; 
+static const int P2P_SYSTEM_COMMAND_PADDING_BYTE= 0XFF;
+
+
+const uint32 P2P_SYSTEM_CREATE_RTSP_CLIENT         = 1;
+const uint32 P2P_SYSTEM_CREATE_CLIENT_SOCKET       = 1;
+
+const uint32 P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED = 2;
+const uint32 P2P_SYSTEM_CREATE_CLIENT_SUCCEED      = 2;
+const uint32 P2P_SYSTEM_CREATE_CLIENT_FAILURE      = 7;
+
+const uint32 P2P_SYSTEM_SOCKET_CLOSE        = 3;
+const uint32 P2P_SYSTEM_CLIENT_SOCKET_CLOSE        = 4;
+const uint32 P2P_SYSTEM_SERVER_SOCKET_CLOSE_SUCCEED= 5;
+const uint32 P2P_SYSTEM_CLIENT_SOCKET_CLOSE_SUCCEED= 6;
+const uint32 P2P_SYSTEM_SOCKET_CONNECT_FAILURE     = 7;
+struct P2PRTSPCommand{
+  uint32 p2p_system_command_ide_;
+  uint32 p2p_system_command_type_;
+  uint32 server_socket_;
+  uint32 client_socket_;
+  uint32 client_connection_ip_;
+  uint16 client_connection_port_;
+  uint16 padding_byte_;
+};
+
+
+const uint16 P2PRTSPCOMMAND_LENGTH = sizeof(P2PRTSPCommand);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -75,10 +106,18 @@ const uint32 P2P_PROXY_SOCKET_DATA   = ((0X1<<11));
 
 const uint32 P2P_CONNECT_LOGIC       = ((0X1<<12));
 
-const uint32 CURRENT_INFO_LEVEL = BASIC_INFOR|P2P_CONNECT_LOGIC
-  |P2P_PROXY_SOCKET_DATA;
+const uint32 P2P_HTTP_SOCKET_LOGIC   = ((0X1<<13));
+const uint32 P2P_HTTP_SOCKET_DATA    = ((0X1<<13));
 
-#define LOG_P2P(X) (!((X)&CURRENT_INFO_LEVEL))?(void)0:LOG_F(LS_INFO)
+
+
+//const uint32 CURRENT_INFO_LEVEL = BASIC_INFOR;
+
+const uint32 CURRENT_INFO_LEVEL = BASIC_INFOR|P2P_CONNECT_LOGIC
+  |P2P_PROXY_SOCKET_DATA|P2P_HTTP_SOCKET_LOGIC|P2P_HTTP_SOCKET_DATA
+  |P2P_PROXY_SOCKET_LOGIC|P2P_RTSP_LOCAL_SERVER;
+
+#define LOG_P2P(X) (!((X)&CURRENT_INFO_LEVEL))?(void)0:LOG_T_F(LS_INFO)
 
 //////////////////////////////////////////////////////////
 const int kDefaultServerPort = 8888;

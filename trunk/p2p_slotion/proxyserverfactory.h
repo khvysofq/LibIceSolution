@@ -42,15 +42,7 @@
 #include "talk/base/sigslot.h"
 #include "talk/base/socketaddress.h"
 
-#include "httpproxysocket.h"
-#include "asyncrtspproxysocketserver.h"
-#include "proxysocketmanagement.h"
-#include "mediator_pattern.h"
-
-class RTSPProxyServer;
-class ProxySocketManagement;
-class RTSPClientSocket;
-class ProxyP2PSession;
+#include "p2pproxyserver.h"
 
 
 class ProxyServerFactory
@@ -61,17 +53,12 @@ public:
   //TODO:(GuangleiHe) TIME: 11/20/2013
   //To manage the servers that to release those server together.
   ///////////////////////////////////////////////////////////////////////////
-  static RTSPProxyServer *CreateRTSPProxyServer(
+  
+  static P2PProxyServer *CreateP2PRTSPProxyServer(
     talk_base::SocketFactory *int_factory,
-    const talk_base::SocketAddress &local_rtsp_addr);
+    const talk_base::SocketAddress &local_http_addr);
 
-  static RTSPClientSocket *CreateRTSPClientSocket(
-    ProxyP2PSession *proxy_p2p_session,
-    talk_base::AsyncSocket *int_socket,
-    uint32 server_socket_number,
-    const talk_base::SocketAddress &server_rtsp_addr);
-
-  static HTTPProxyServer *CreateHTTPProxyServer(
+  static P2PProxyServer *CreateP2PHTTPProxyServer(
     talk_base::SocketFactory *int_factory,
     const talk_base::SocketAddress &local_http_addr);
 

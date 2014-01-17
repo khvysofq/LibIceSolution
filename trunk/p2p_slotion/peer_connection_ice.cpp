@@ -197,7 +197,7 @@ void PeerConnectionIce::OnIncomingTunnel(cricket::TunnelSessionClient* client,
   ASSERT(signal_thread_->IsCurrent());
   talk_base::StreamInterface *stream = client->AcceptTunnel(session);
   
-  p2p_connection_management_->CreateProxyP2PSession(jid.Str(),stream);
+  p2p_connection_management_->CreateP2PProxySession(jid.Str(),stream);
 }
 
 void PeerConnectionIce::OnMessage(talk_base::Message* msg){

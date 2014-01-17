@@ -100,10 +100,13 @@ void P2PConnectionImplementator::OnStreamEvent(
 {
   ASSERT(current_thread_->IsCurrent());
   ASSERT(stream_ == stream);
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Stream EVENT";
   if(state_ == STREAM_CLOSE && error == 0 
     && !(events & talk_base::SE_CLOSE)){
       state_ = STREAM_SUCCEED;
+      //send_data_buffer_->SetNormalState(); // There is not nature
       current_thread_->Post(this,SIGNAL_CONNECTSUCCEED);
+      //return;
   }
 
   if (events & talk_base::SE_READ) {
@@ -178,6 +181,8 @@ void P2PConnectionImplementator::MixSend(uint32 socket,SocketType socket_type,
     else
       *written = remain_buffer_length;
   }
+  
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Send PacketData";
   //The call will be call OnReceiveMultiplexData Function
   data_multiplex_machine_->PacketData(socket,socket_type,data,*written);
 }
@@ -203,6 +208,7 @@ void P2PConnectionImplementator::OnReceiveMultiplexData(const char *data,
     send_data_buffer_->SaveData(data,NETWORKHEADER_LENGTH);
     return ;
   }
+  LOG_P2P(P2P_PROXY_SOCKET_DATA) << "Send Multiplex data";
   send_data_buffer_->SaveData(data,len);
   send_data_buffer_->SendDataUsedStream(stream_);
 }
@@ -235,6 +241,8 @@ void P2PConnectionImplementator::MixReadStreamData(
   talk_base::StreamResult result = stream->Read(temp_read_buffer_,
     BUFFER_SIZE + 16,&res,NULL);
   
+  LOG_P2P(P2P_PROXY_SOCKET_DATA|P2P_PROXY_SOCKET_LOGIC) 
+    << "read data length is  " << res;
   if(res)
     data_multiplex_machine_->UnpackData(temp_read_buffer_,res);
 }
@@ -248,16 +256,18 @@ void P2PConnectionImplementator::IndependentReadStreamData(
 
 void P2PConnectionImplementator::OnMessage(talk_base::Message *msg){
   ASSERT(current_thread_->IsCurrent());
-  LOG_P2P(P2P_PROXY_SOCKET_DATA|P2P_PROXY_SOCKET_LOGIC) 
-    << "implementation event";
   switch(msg->message_id){
   case SIGNAL_READ:
     {
+      LOG_P2P(P2P_PROXY_SOCKET_DATA|P2P_PROXY_SOCKET_LOGIC) 
+        << "stream read event";
       OnReadStreamData(stream_);
       break;
     }
   case SIGNAL_WRITE:
     {
+      LOG_P2P(P2P_PROXY_SOCKET_DATA|P2P_PROXY_SOCKET_LOGIC) 
+        << "stream write event";
       SignalStreamWrite(stream_);
       break;
     }
@@ -275,6 +285,8 @@ void P2PConnectionImplementator::OnMessage(talk_base::Message *msg){
     }
   case SIGNAL_CONNECTSUCCEED:
     {
+      LOG_P2P(P2P_PROXY_SOCKET_DATA|P2P_PROXY_SOCKET_LOGIC) 
+        << "stream connect succeed";
       SignalConnectSucceed(stream_);
       break;
     }

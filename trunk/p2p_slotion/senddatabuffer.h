@@ -44,7 +44,6 @@
 class SendDataBuffer 
 {
 public:
-  SendDataBuffer();
   SendDataBuffer(size_t buffer_length = KBufferSize);
   ~SendDataBuffer();
   

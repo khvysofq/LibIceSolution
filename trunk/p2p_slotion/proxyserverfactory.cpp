@@ -33,35 +33,19 @@
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "proxyserverfactory.h"
-#include "asyncrtspproxysocketserver.h"
-#include "asyncrtspclientsocket.h"
-#include "proxyp2psession.h"
 
 
 //////////////////////////////////////////////////////////////////////////
-RTSPProxyServer *ProxyServerFactory::CreateRTSPProxyServer(
-  talk_base::SocketFactory *int_factory,
-  const talk_base::SocketAddress &local_rtsp_addr)
-{
-  LOG_P2P(BASIC_INFOR|P2P_RTSP_LOCAL_SERVER) << "Create RTSPProxyServer";
-  return new RTSPProxyServer(int_factory,local_rtsp_addr);
-}
-
-RTSPClientSocket* ProxyServerFactory::CreateRTSPClientSocket(
-  ProxyP2PSession *proxy_p2p_session,
-  talk_base::AsyncSocket *int_socket,
-  uint32 server_socket_number,
-  const talk_base::SocketAddress &server_rtsp_addr)
-{
-  LOG_P2P(BASIC_INFOR|P2P_RTSP_LOCAL_CLIENT) << "Create New Client Socket";
-  return new RTSPClientSocket(proxy_p2p_session,int_socket,
-    server_socket_number,server_rtsp_addr);
-}
-
-HTTPProxyServer *ProxyServerFactory::CreateHTTPProxyServer(
+P2PProxyServer *ProxyServerFactory::CreateP2PRTSPProxyServer(
     talk_base::SocketFactory *int_factory,
     const talk_base::SocketAddress &local_http_addr)
 {
-  LOG_P2P(BASIC_INFOR|P2P_RTSP_LOCAL_SERVER) << "Create HTTP Proxy Server";
-  return new HTTPProxyServer(int_factory,local_http_addr);
+  return new P2PRTSPProxyServer(int_factory,local_http_addr);
+}
+
+P2PProxyServer *ProxyServerFactory::CreateP2PHTTPProxyServer(
+    talk_base::SocketFactory *int_factory,
+    const talk_base::SocketAddress &local_http_addr)
+{
+  return new P2PHTTProxyServer(int_factory,local_http_addr);
 }

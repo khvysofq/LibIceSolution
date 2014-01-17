@@ -91,7 +91,7 @@ private:
 
 private:  // receive up date process
   NetworkHeader         *send_network_header_;
-  // help variable that convert the network header struct to NETWORK ORDER
+  // help variable that convert the network header structure to NETWORK ORDER
   talk_base::ByteBuffer *send_byte_buffer_;
 
 private:  // receive low layer process
