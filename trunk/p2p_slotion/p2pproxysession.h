@@ -61,6 +61,7 @@ public:
     const std::string &remote_peer_name,
     talk_base::Thread *signal_thread,
     talk_base::Thread *worker_thread,
+    std::string session_type,
     bool is_mix_data_mode = true);
   ~P2PProxySession();
 
@@ -82,6 +83,7 @@ public:
   }
   bool IsMe(const std::string remote_peer_name)const ;
   size_t CurrentConnectSize() const {return p2p_proxy_sockets_.size();}
+  const std::string GetSessionType() const{return session_type_;}
 
   void SendSystemCommand(const char *p, size_t len);
 
@@ -140,6 +142,7 @@ public:
 
   talk_base::Thread            *signal_thread_;
   talk_base::Thread            *worker_thread_;
+  std::string                  session_type_;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -151,6 +154,7 @@ public:
     const std::string &remote_peer_name,
     talk_base::Thread *signal_thread,
     talk_base::Thread *worker_thread,
+    std::string server_type,
     bool is_mix_data_mode = true);
 private:
   //p2p system management
@@ -163,6 +167,7 @@ public:
     const std::string &remote_peer_name,
     talk_base::Thread *signal_thread,
     talk_base::Thread *worker_thread,
+    std::string server_type,
     bool is_mix_data_mode = true);
 private:
   virtual bool ProceesSystemCommand(const char *data, uint16 len);

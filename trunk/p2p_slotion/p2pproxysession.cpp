@@ -40,7 +40,7 @@ const int CLOSE_ALL_PROXY_SOCKET  = 1;
 const int SEND_BUFFER_DATA        = 2;
 const int RELEASE_ALL             = 3;
 const int DELAYED_CLOSE           = 4;
-const int DELAYED_CLOSE_WAIT_TIME = 600 * 1000;
+const int DELAYED_CLOSE_WAIT_TIME = 60 * 1000;
 
 //////////////////////////////////////////////////////////////////////////
 //P2PCommand Data structure
@@ -60,10 +60,12 @@ P2PProxySession::P2PProxySession(talk_base::StreamInterface *stream,
                                  const std::string &remote_peer_name,
                                  talk_base::Thread *signal_thread,
                                  talk_base::Thread *worker_thread,
+                                 std::string session_type,
                                  bool is_mix_data_mode)
                                  :is_mix_data_mode_(is_mix_data_mode),
                                  worker_thread_(worker_thread),
                                  signal_thread_(signal_thread),
+                                 session_type_(session_type),
                                  state_(P2P_CONNECTING)
 {
   ASSERT(signal_thread_->IsCurrent());
@@ -228,7 +230,7 @@ void P2PProxySession::OnStreamWrite(talk_base::StreamInterface *stream){
     }
     P2PCommandData *p2p_command_data = command_data_buffers_.front();
 
-    p2p_connection_implementator_->PacketSend(0,TCP_SOCKET, 
+    p2p_connection_implementator_->Send(0,TCP_SOCKET, 
       p2p_command_data->data_,p2p_command_data->len_,&written);
     if(written == P2PRTSPCOMMAND_LENGTH){
       command_data_buffers_.pop();
@@ -302,9 +304,6 @@ void P2PProxySession::OnP2PConnectSucceed(talk_base::StreamInterface *stream){
 void P2PProxySession::IsAllProxySocketClosed(){
   ASSERT(signal_thread_->IsCurrent());
   if(p2p_proxy_sockets_.size() == 0){
-    LOG_P2P(P2P_PROXY_SOCKET_LOGIC | BASIC_INFOR) 
-      << "will destroy this session after " << DELAYED_CLOSE_WAIT_TIME/1000
-      << "s";
     ///////////////////////////////////////////////////////////////////////////
     //BUSINESS LOGIC NOTE (GuangleiHe, 12/5/2013)
     //Because to close a stream (a ICE p2p connection), the ice protect has it 
@@ -316,7 +315,20 @@ void P2PProxySession::IsAllProxySocketClosed(){
     if(state_ == P2P_CONNECTED){
       state_ = P2P_CLOSING;
     }
-    signal_thread_->PostDelayed(DELAYED_CLOSE_WAIT_TIME,this,DELAYED_CLOSE);
+    if(session_type_ == RTSP_SERVER){
+      signal_thread_->PostDelayed(DELAYED_CLOSE_WAIT_TIME,
+        this,DELAYED_CLOSE);
+    LOG_P2P(P2P_PROXY_SOCKET_LOGIC | BASIC_INFOR) 
+      << "will destroy this session after " << DELAYED_CLOSE_WAIT_TIME/1000
+      << "s";
+    }
+    else if(session_type_ == HTTP_SERVER){
+      signal_thread_->PostDelayed(DELAYED_CLOSE_WAIT_TIME * 10,
+      this,DELAYED_CLOSE);
+    LOG_P2P(P2P_PROXY_SOCKET_LOGIC | BASIC_INFOR) 
+      << "will destroy this session after " << DELAYED_CLOSE_WAIT_TIME/100
+      << "s";
+    }
     //signal_thread_->PostDelayed(1000 * 60,this,RELEASE_ALL);
   }
 }
@@ -325,7 +337,7 @@ void P2PProxySession::SendSystemCommand(const char *p, size_t len){
   ASSERT(state_ == P2P_CONNECTED);
   command_data_buffers_.push(new P2PCommandData(p,len));
   signal_thread_->Post(this,SEND_BUFFER_DATA);
-  LOG_P2P(P2P_PROXY_SOCKET_LOGIC | BASIC_INFOR) 
+  LOG_P2P(P2P_PROXY_SOCKET_LOGIC ) 
     << "command_data_buffers_.size() == " 
     << command_data_buffers_.size();
 }
@@ -405,7 +417,7 @@ void P2PProxySession::OnMessage(talk_base::Message *msg){
       }
       P2PCommandData *p2p_command_data = command_data_buffers_.front();
 
-      p2p_connection_implementator_->PacketSend(0,TCP_SOCKET, 
+      p2p_connection_implementator_->Send(0,TCP_SOCKET, 
         p2p_command_data->data_,p2p_command_data->len_,&written);
       if(written == P2PRTSPCOMMAND_LENGTH){
         command_data_buffers_.pop();
@@ -437,9 +449,10 @@ P2PProxyServerSession::P2PProxyServerSession(
     const std::string &remote_peer_name,
     talk_base::Thread *signal_thread,
     talk_base::Thread *worker_thread,
+    std::string server_type,
     bool is_mix_data_mode)
     :P2PProxySession(stream,remote_peer_name,signal_thread,
-    worker_thread,is_mix_data_mode)
+    worker_thread,server_type,is_mix_data_mode)
 {
 
 }
@@ -504,9 +517,10 @@ P2PProxyClientSession::P2PProxyClientSession(
     const std::string &remote_peer_name,
     talk_base::Thread *signal_thread,
     talk_base::Thread *worker_thread,
+    std::string server_type,
     bool is_mix_data_mode)
     :P2PProxySession(stream,remote_peer_name,signal_thread,
-    worker_thread,is_mix_data_mode)
+    worker_thread,server_type,is_mix_data_mode)
 {
 
 }

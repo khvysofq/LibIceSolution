@@ -78,9 +78,8 @@ private:
 //////////////////////////////////////////////////////////////////////////
 PeerConnectionIce::PeerConnectionIce(talk_base::Thread *signal_thread,
                                      talk_base::Thread *worker_thread)
-                                     :worker_thread_(worker_thread),
-                                     signal_thread_(signal_thread),
-                                     tunnel_session_client_(NULL)
+                                     :signal_thread_(signal_thread),
+                                     worker_thread_(worker_thread)
 {
   LOG_P2P(CREATE_DESTROY_INFOR | P2P_ICE_LOGIC_INFOR)
     << "Create PeerConnectIce object";
@@ -92,17 +91,17 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *signal_thread,
 
   //-----------------------Part 2: initialize ICE part
   basic_network_manager_  =   new talk_base::BasicNetworkManager();
-  //basic_prot_allocator_   =   new cricket::BasicPortAllocator(
-  //  basic_network_manager_,
-  //  new talk_base::BasicPacketSocketFactory(worker_thread),
-  //  KStunAddr);
-
   basic_prot_allocator_   =   new cricket::BasicPortAllocator(
     basic_network_manager_,
-    KStunAddr,
-    KRelayAddr,
-    KRelayAddr,
-    KRelayAddr);
+    new talk_base::BasicPacketSocketFactory(worker_thread),
+    KStunAddr);
+
+  //basic_prot_allocator_   =   new cricket::BasicPortAllocator(
+  //  basic_network_manager_,
+  //  KStunAddr,
+  //  KRelayAddr,
+  //  KRelayAddr,
+  //  KRelayAddr);
 
   //basic_prot_allocator_->set_flags(
   //  cricket::PORTALLOCATOR_USE_LARGE_SOCKET_SEND_BUFFERS);
@@ -126,6 +125,7 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *signal_thread,
 };
 
 void PeerConnectionIce::Destroy(){
+  ASSERT(signal_thread_->IsCurrent());
   LOG_P2P(CREATE_DESTROY_INFOR | P2P_ICE_LOGIC_INFOR)
     << "Destroy PeerConnectIce object";
   ASSERT(signal_thread_->IsCurrent());

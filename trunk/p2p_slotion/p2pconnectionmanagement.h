@@ -87,7 +87,8 @@ public:
     talk_base::StreamInterface *stream);
   void DeleteP2PProxySession(P2PProxySession *p2p_proxy_session);
 
-  P2PProxySession *WhetherThePeerIsExisted(const std::string remote_peer_name);
+  P2PProxySession *WhetherThePeerIsExisted(const std::string remote_peer_name,
+    const std::string server_type);
 private:
   P2PConnectionImplementator *IsPeerConnected(int remote_peer_id);
 

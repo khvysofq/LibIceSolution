@@ -214,6 +214,7 @@ const char SERVER_CONFIGURE[]        = "SERVER_CONFIGURE";
 
 const char RTSP_SERVER[]             = "RTSP_SERVER";
 const char HTTP_SERVER[]             = "HTTP_SERVER";
+const char NON_SERVER[]              = "NOT_SERVER";
 
 ////////////////////////////////////////////////////////////////////
 

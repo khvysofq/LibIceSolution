@@ -94,7 +94,7 @@ P2PProxySession * P2PConnectionManagement::ConnectBySourceIde(
 
   LOG_P2P(P2P_CONNECT_LOGIC) << "\t search peer name is" << remote_peer_name;
   //2. Whether the peer is connected
-  p2p_proxy_session = WhetherThePeerIsExisted(remote_peer_name);
+  p2p_proxy_session = WhetherThePeerIsExisted(remote_peer_name,server_type);
 
   //Existed
   if(p2p_proxy_session){
@@ -109,44 +109,44 @@ P2PProxySession * P2PConnectionManagement::ConnectBySourceIde(
   //Create ProxyP2PSession Object
   if(peer_connection_mode_ == MIX_DATA_MODE)
     p2p_proxy_session = new P2PProxyServerSession(stream,
-    remote_peer_name,signal_thread_,worker_thread_);
+    remote_peer_name,signal_thread_,worker_thread_,server_type);
   else
     p2p_proxy_session = new P2PProxyServerSession(stream,
-    remote_peer_name,signal_thread_,worker_thread_,false);
+    remote_peer_name,signal_thread_,worker_thread_,server_type,false);
 
   //Insert this session to session map
   p2p_proxy_sessions_.insert(p2p_proxy_session);
 
-  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "------------------------------";
-  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) <<"current proxy p2p session size = "
-    << p2p_proxy_sessions_.size();
-  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "------------------------------";
+  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"
+    <<"current proxy p2p session size = "
+    << p2p_proxy_sessions_.size()
+    << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
 
   return p2p_proxy_session;
 }
 
 P2PProxySession *P2PConnectionManagement::WhetherThePeerIsExisted(
-  const std::string remote_peer_name)
+  const std::string remote_peer_name,const std::string server_type)
 {
-  //TEST CONNECT
-  if(peer_connection_mode_ == INDEPENDENT_MODE)
-    return NULL;
-
   for(P2PProxySessions::iterator iter = p2p_proxy_sessions_.begin();
     iter != p2p_proxy_sessions_.end(); iter++)
   {
     if((*iter)->IsMe(remote_peer_name)){
-      if(peer_connection_mode_ == MIX_DATA_MODE){
-        LOG_P2P(P2P_CONNECT_LOGIC) << "MIX_DATA_MODE The session existed";
-        return (*iter);
-      }
-      else{
-        if((*iter)->CurrentConnectSize() == 0){
-          LOG_P2P(P2P_CONNECT_LOGIC) 
-            << "INDEPENDENT_MODE The session existed";
+
+      if(server_type == NON_SERVER)
+        return NULL;
+      else if(server_type == HTTP_SERVER){
+        if((*iter)->GetSessionType() == HTTP_SERVER){
           return (*iter);
         }
       }
+      else if(server_type == RTSP_SERVER){
+        if((*iter)->GetSessionType() == RTSP_SERVER
+          && (*iter)->CurrentConnectSize() == 0){
+            return (*iter);
+        }
+      }
+
     }
   }
   LOG_P2P(P2P_CONNECT_LOGIC) << "The session not existed";
@@ -162,15 +162,7 @@ bool P2PConnectionManagement::CreateP2PProxySession(
 {
   LOG_P2P(P2P_CONNECT_LOGIC) << "\t Start Create New Session";
   //1. Check the connection is existed.
-  P2PProxySession *p2p_proxy_session = WhetherThePeerIsExisted(
-    remote_jid);
-  if(p2p_proxy_session){
-    //never rech here
-    LOG(LS_ERROR) << "The peer is existed";
-    ASSERT(0);
-    return false;
-  }
-
+  P2PProxySession *p2p_proxy_session = NULL;
   ////2. create p2p connection implementator
   //P2PConnectionImplementator *p2p_connection_implementator =
   //  new P2PConnectionImplementator(remote_jid,stream);
@@ -178,10 +170,10 @@ bool P2PConnectionManagement::CreateP2PProxySession(
   //3. create proxy p2p session
   if(peer_connection_mode_ == MIX_DATA_MODE)
     p2p_proxy_session = new P2PProxyClientSession(stream,remote_jid,
-    signal_thread_,worker_thread_);
+    signal_thread_,worker_thread_,NON_SERVER);
   else
     p2p_proxy_session = new P2PProxyClientSession(stream,remote_jid,
-    signal_thread_,worker_thread_,false);
+    signal_thread_,worker_thread_,NON_SERVER,false);
 
 
   //4. register this proxy
@@ -194,11 +186,11 @@ bool P2PConnectionManagement::CreateP2PProxySession(
   //5. Then add this proxy p2p session to ProxyP2PSessions
   p2p_proxy_sessions_.insert(p2p_proxy_session);
 
-
-  LOG_P2P(P2P_CONNECT_LOGIC) << "------------------------------";
-  LOG_P2P(P2P_CONNECT_LOGIC) << __FUNCTION__ <<"current proxy p2p session size = " 
-    << p2p_proxy_sessions_.size();
-  LOG_P2P(P2P_CONNECT_LOGIC) << "------------------------------";
+  
+  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"
+    <<"current proxy p2p session size = "
+    << p2p_proxy_sessions_.size()
+    << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
 
   return true;
 }
@@ -215,10 +207,11 @@ void P2PConnectionManagement::DeleteP2PProxySession(
   }
   delete p2p_proxy_session;
   p2p_proxy_sessions_.erase(iter);
-  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "------------------------------";
-  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) <<"current proxy p2p session size = " 
-    << p2p_proxy_sessions_.size();
-  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "------------------------------";
+
+  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"
+    <<"current proxy p2p session size = "
+    << p2p_proxy_sessions_.size()
+    << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
 }
 
 

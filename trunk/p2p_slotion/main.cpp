@@ -45,13 +45,13 @@ int main(void)
   //command_thread->Post(&worker);
   
 
-  //talk_base::Thread *worker_thread = new talk_base::Thread();
-  //worker_thread->Start();
+  talk_base::Thread *worker_thread = new talk_base::Thread();
+  worker_thread->Start();
   //talk_base::Thread *stream_thread = new talk_base::Thread();
   //stream_thread->Start();
 
   
-  P2PUserClient p2p_user_client(main_thread,main_thread);
+  P2PUserClient p2p_user_client(main_thread,worker_thread);
   p2p_user_client.Initiatlor();
   p2p_user_client.StartRun();
   p2p_user_client.ConnectionToPeer(0);

@@ -35,7 +35,7 @@ P2PProxyBindBase::P2PProxyBindBase(talk_base::AsyncSocket * base_socket,
                                    P2PProxySocket *p2p_socket)
                                    :base_socket_(base_socket),
                                    p2p_socket_(p2p_socket),connected_(false),
-                                   out_buffer_(kBufferSize),
+                                   out_buffer_(1024),
                                    in_buffer_(kBufferSize)
 {
   base_socket->SignalReadEvent.connect(this, 
@@ -188,7 +188,7 @@ void P2PProxyBinding::OnServerSocketConnectRequest(P2PProxyServerSocket* socket,
                                                    const std::string &addr_ide) 
 {
   ASSERT(!connected_ && p2p_socket_.get() != NULL);
-  LOG_P2P(P2P_HTTP_SOCKET_LOGIC | BASIC_INFOR)
+  LOG_P2P(P2P_HTTP_SOCKET_LOGIC)
     << "Connect the peer resource";
   p2p_proxy_start_socket_->ConnectPeer(addr_ide,socket->GetProxyType());
   // TODO: handle errors here
@@ -239,7 +239,7 @@ P2PProxyClientSocketBinding::P2PProxyClientSocketBinding(
   :P2PProxyBindBase(client_socket,p2p_proxy_socket),
   p2p_proxy_end_socket_(p2p_proxy_socket)
 {
-  LOG_P2P(P2P_HTTP_SOCKET_LOGIC | BASIC_INFOR) << server_addr.ToString();
+  LOG_P2P(P2P_HTTP_SOCKET_LOGIC ) << server_addr.ToString();
   client_socket->SignalConnectEvent.connect(this,
     &P2PProxyClientSocketBinding::OnClientSocketConnect);
   client_socket->Connect(server_addr);
