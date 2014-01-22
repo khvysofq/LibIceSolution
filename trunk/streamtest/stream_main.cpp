@@ -562,7 +562,7 @@ int main(int argc, char **argv) {
   talk_base::LogMessage::LogThreads();
   talk_base::LogMessage::LogTimestamps();
 
-  // TODO: Default the username to the current users's name.
+  // TODO: Default the user name to the current users's name.
   
   gXmppHost = "42.121.127.71";
   gXmppPort = 5222;

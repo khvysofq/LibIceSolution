@@ -81,10 +81,10 @@ void P2PRTSPProxyServerSocket::SendConnectResult(int result,
 void P2PRTSPProxyServerSocket::ProcessInput(char* data, size_t* len)
 {
   data[*len] = '\0';
-  LOG_P2P(BASIC_INFOR) << "------------------------";
-  LOG_P2P(BASIC_INFOR) << "Original data is ";
-  LOG_P2P(BASIC_INFOR) << "\n" << data;
-  LOG_P2P(BASIC_INFOR) << "------------------------";
+  //LOG_P2P(BASIC_INFOR) << "------------------------";
+  //LOG_P2P(BASIC_INFOR) << "Original data is ";
+  //LOG_P2P(BASIC_INFOR) << "\n" << data;
+  //LOG_P2P(BASIC_INFOR) << "------------------------";
   if(strncmp(RTSP_HEADER,(const char *)data,RTSP_HEADER_LENGTH) == 0){
     if(!ParseRTSPRequest(data,len)){
       SignalCloseEvent(this,-1);
@@ -137,10 +137,10 @@ bool P2PRTSPProxyServerSocket::ParseRTSPRequest(char *data, size_t *len)
   }
   *len -= serouce_ide_len;
   
-  LOG_P2P(BASIC_INFOR) << "------------------------";
-  LOG_P2P(BASIC_INFOR) << "new data is";
-  LOG_P2P(BASIC_INFOR) << "\n" << data;
-  LOG_P2P(BASIC_INFOR) << "------------------------";
+  //LOG_P2P(BASIC_INFOR) << "------------------------";
+  //LOG_P2P(BASIC_INFOR) << "new data is";
+  //LOG_P2P(BASIC_INFOR) << "\n" << data;
+  //LOG_P2P(BASIC_INFOR) << "------------------------";
   if(!is_connect_){
     LOG_P2P(P2P_RTSP_LOCAL_SERVER) << "Connect the source " << source_ide;
     SignalConnectRequest(this,source_ide);
@@ -264,10 +264,10 @@ void P2PHTTPProxyServerSocket::ProcessInput(char* data, size_t* len)
     << "Read input data :"; 
 
   data[*len] = '\0';
-  LOG_P2P(BASIC_INFOR) << "------------------------";
-  LOG_P2P(BASIC_INFOR) << "Original data is ";
-  LOG_P2P(BASIC_INFOR) << "\n" << data;
-  LOG_P2P(BASIC_INFOR) << "------------------------";
+  //LOG_P2P(BASIC_INFOR) << "------------------------";
+  //LOG_P2P(BASIC_INFOR) << "Original data is ";
+  //LOG_P2P(BASIC_INFOR) << "\n" << data;
+  //LOG_P2P(BASIC_INFOR) << "------------------------";
 
   if(strncmp(HTTP_POST_HEADER,(const char *)data,
     HTTP_POST_HEADER_LENGTH) == 0){
@@ -284,10 +284,10 @@ void P2PHTTPProxyServerSocket::ProcessInput(char* data, size_t* len)
       }
   }
 
-  LOG_P2P(BASIC_INFOR) << "------------------------";
-  LOG_P2P(BASIC_INFOR) << "new data is ";
-  LOG_P2P(BASIC_INFOR) << "\n" << data;
-  LOG_P2P(BASIC_INFOR) << "------------------------";
+  //LOG_P2P(BASIC_INFOR) << "------------------------";
+  //LOG_P2P(BASIC_INFOR) << "new data is ";
+  //LOG_P2P(BASIC_INFOR) << "\n" << data;
+  //LOG_P2P(BASIC_INFOR) << "------------------------";
   SignalConnectReadEvent(this,(const void *)data,*len);
 }
 

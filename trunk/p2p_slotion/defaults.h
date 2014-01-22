@@ -111,17 +111,20 @@ const uint32 P2P_HTTP_SOCKET_DATA    = ((0X1<<13));
 
 
 
-//const uint32 CURRENT_INFO_LEVEL = BASIC_INFOR;
+const uint32 CURRENT_INFO_LEVEL = BASIC_INFOR;
 
-const uint32 CURRENT_INFO_LEVEL = BASIC_INFOR|P2P_CONNECT_LOGIC
-  |P2P_PROXY_SOCKET_DATA|P2P_HTTP_SOCKET_LOGIC|P2P_HTTP_SOCKET_DATA
-  |P2P_PROXY_SOCKET_LOGIC|P2P_RTSP_LOCAL_SERVER;
-
+//const uint32 CURRENT_INFO_LEVEL = BASIC_INFOR|P2P_CONNECT_LOGIC
+//  |P2P_PROXY_SOCKET_DATA|P2P_HTTP_SOCKET_LOGIC|P2P_HTTP_SOCKET_DATA
+//  |P2P_PROXY_SOCKET_LOGIC|P2P_RTSP_LOCAL_SERVER;
+#if LOGGING
 #define LOG_P2P(X) (!((X)&CURRENT_INFO_LEVEL))?(void)0:LOG_T_F(LS_INFO)
-
+#else
+#define LOG_P2P(X) LOG(LS_INFO)
+#endif
 //////////////////////////////////////////////////////////
 const int kDefaultServerPort = 8888;
 const talk_base::SocketAddress  KStunAddr("42.121.127.71",3478);
+const talk_base::SocketAddress  KRelayAddr("42.121.127.71",5568);
 
 const size_t DEAFULT_BUFFER_LENGTH = 64 * 1024;
 const int KBufferSize = 1024 * 4;

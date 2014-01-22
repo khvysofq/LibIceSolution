@@ -151,8 +151,15 @@ void P2PConnectionImplementator::OnStreamClosed(talk_base::StreamInterface* stre
   }
   current_thread_->Post(this,SIGNAL_CLOSE);
 }
+void P2PConnectionImplementator::DirectSend(const char *data,uint16 len,
+                                      size_t *written)
+{
+  ASSERT(current_thread_->IsCurrent());
+  stream_->Write(data,len,written,NULL);
+}
 
-void P2PConnectionImplementator::Send(uint32 socket,SocketType socket_type,
+
+void P2PConnectionImplementator::PacketSend(uint32 socket,SocketType socket_type,
                                       const char *data,uint16 len,
                                       size_t *written)
 {

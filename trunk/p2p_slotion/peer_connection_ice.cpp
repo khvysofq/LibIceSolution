@@ -92,11 +92,20 @@ PeerConnectionIce::PeerConnectionIce(talk_base::Thread *signal_thread,
 
   //-----------------------Part 2: initialize ICE part
   basic_network_manager_  =   new talk_base::BasicNetworkManager();
+  //basic_prot_allocator_   =   new cricket::BasicPortAllocator(
+  //  basic_network_manager_,
+  //  new talk_base::BasicPacketSocketFactory(worker_thread),
+  //  KStunAddr);
+
   basic_prot_allocator_   =   new cricket::BasicPortAllocator(
     basic_network_manager_,
-    new talk_base::BasicPacketSocketFactory(worker_thread),
-    KStunAddr);
+    KStunAddr,
+    KRelayAddr,
+    KRelayAddr,
+    KRelayAddr);
 
+  //basic_prot_allocator_->set_flags(
+  //  cricket::PORTALLOCATOR_USE_LARGE_SOCKET_SEND_BUFFERS);
   //initialize session manager
   session_manager_        =   new cricket::SessionManager(basic_prot_allocator_,
     worker_thread_);

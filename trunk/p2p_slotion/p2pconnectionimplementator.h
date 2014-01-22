@@ -59,7 +59,8 @@ public:
   };
 
   //
-  virtual void Send(uint32,SocketType,const char*,uint16,size_t *);
+  virtual void PacketSend(uint32,SocketType,const char*,uint16,size_t *);
+  virtual void DirectSend(const char *, uint16, size_t *);
 
   virtual void OnReceiveMultiplexData(const char *data, uint16 len); 
   sigslot::signal4<uint32 ,SocketType,const char *, uint16> SignalStreamRead;

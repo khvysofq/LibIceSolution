@@ -228,7 +228,7 @@ void P2PProxySession::OnStreamWrite(talk_base::StreamInterface *stream){
     }
     P2PCommandData *p2p_command_data = command_data_buffers_.front();
 
-    p2p_connection_implementator_->Send(0,TCP_SOCKET, 
+    p2p_connection_implementator_->PacketSend(0,TCP_SOCKET, 
       p2p_command_data->data_,p2p_command_data->len_,&written);
     if(written == P2PRTSPCOMMAND_LENGTH){
       command_data_buffers_.pop();
@@ -313,7 +313,9 @@ void P2PProxySession::IsAllProxySocketClosed(){
     ///////////////////////////////////////////////////////////////////////////
     //if(is_self_close)
     //  p2p_connection_implementator_->CloseStream();
-    state_ = P2P_CLOSING;
+    if(state_ == P2P_CONNECTED){
+      state_ = P2P_CLOSING;
+    }
     signal_thread_->PostDelayed(DELAYED_CLOSE_WAIT_TIME,this,DELAYED_CLOSE);
     //signal_thread_->PostDelayed(1000 * 60,this,RELEASE_ALL);
   }
@@ -403,7 +405,7 @@ void P2PProxySession::OnMessage(talk_base::Message *msg){
       }
       P2PCommandData *p2p_command_data = command_data_buffers_.front();
 
-      p2p_connection_implementator_->Send(0,TCP_SOCKET, 
+      p2p_connection_implementator_->PacketSend(0,TCP_SOCKET, 
         p2p_command_data->data_,p2p_command_data->len_,&written);
       if(written == P2PRTSPCOMMAND_LENGTH){
         command_data_buffers_.pop();
