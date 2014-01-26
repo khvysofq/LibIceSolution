@@ -35,8 +35,8 @@ P2PProxyServer::P2PProxyServer(
                                                     SOCK_STREAM)) {
   ASSERT(server_socket_.get() != NULL);
   ASSERT(int_addr.family() == AF_INET || int_addr.family() == AF_INET6);
-  LOG_P2P(P2P_HTTP_SOCKET_LOGIC | BASIC_INFOR) << "Listen port " 
-    << int_addr.ToSensitiveString();
+  std::cout << "Listen port " 
+    << int_addr.ToSensitiveString() << std::endl;
   server_socket_->Bind(int_addr);
   server_socket_->Listen(5);
   server_socket_->SignalReadEvent.connect(this, &P2PProxyServer::OnAcceptEvent);
@@ -51,8 +51,8 @@ P2PProxyServer::~P2PProxyServer() {
 
 void P2PProxyServer::OnAcceptEvent(talk_base::AsyncSocket* socket) {
   ASSERT(socket != NULL && socket == server_socket_.get());
-  LOG_P2P(P2P_HTTP_SOCKET_LOGIC | BASIC_INFOR) << "New request arrived "
-    << socket->GetRemoteAddress().ToString();
+  std::cout << "New request arrived "
+    << socket->GetRemoteAddress().ToString() << std::endl;
   talk_base::AsyncSocket* int_socket = socket->Accept(NULL);
   P2PProxyServerSocket* wrapped_socket = WrapSocket(int_socket);
   P2PProxyStartSocket  *ext_socket = new P2PProxyStartSocket();

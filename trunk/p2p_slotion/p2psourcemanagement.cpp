@@ -329,28 +329,28 @@ void P2PSourceManagement::ShowAllServerResourceInfor(
   for(ServerResources::const_iterator iter = server_resources.begin();
     iter != server_resources.end(); iter++)
   {
-    LOG_P2P(BASIC_INFOR) << SERVER_NAME << "\t" 
-      << (*iter)->server_name_;
-    LOG_P2P(BASIC_INFOR) << SERVER_IP << "\t" 
-      << (*iter)->server_ip_;
-    LOG_P2P(BASIC_INFOR) << SERVER_PORT << "\t" 
-      << (*iter)->server_port_;
-    LOG_P2P(BASIC_INFOR) << SOURCE_IDE << "\t" 
-      << (*iter)->server_ide_;
+    std::cout << SERVER_NAME << "\t" 
+      << (*iter)->server_name_ << std::endl;
+    std::cout << SERVER_IP << "\t" 
+      << (*iter)->server_ip_ << std::endl;
+    std::cout << SERVER_PORT << "\t" 
+      << (*iter)->server_port_ << std::endl;
+    std::cout << SOURCE_IDE << "\t" 
+      << (*iter)->server_ide_ << std::endl;
   }
 }
 
 void P2PSourceManagement::ShowAllInfors(){
-  LOG_P2P(BASIC_INFOR) << "----------------------------------";
+  std::cout << "----------------------------------";
   for(PeerResources::iterator iter = remote_peer_resources_.begin();
     iter != remote_peer_resources_.end(); iter++){
-      LOG_P2P(BASIC_INFOR) << "PEER_ID\t" << (*iter)->peer_id_;
-      LOG_P2P(BASIC_INFOR) << "PEER_JID\t" << (*iter)->peer_jid_;
-      LOG_P2P(BASIC_INFOR) << "..........................";
+      std::cout << "PEER_ID\t" << (*iter)->peer_id_ << std::endl;
+      std::cout << "PEER_JID\t" << (*iter)->peer_jid_ << std::endl;
+      std::cout << ".........................." << std::endl;
       ShowAllServerResourceInfor((*iter)->server_resources_);
-      LOG_P2P(BASIC_INFOR) << "..........................";
+      std::cout << ".........................." << std::endl;
   }
-  LOG_P2P(BASIC_INFOR) << "----------------------------------\n";
+  std::cout << "----------------------------------\n" << std::endl;
 }
 
 

@@ -46,9 +46,16 @@ namespace {
   // This is our magical hangup signal.
   const char kByeMessage[] = "BYE";
   // Delay between server connection retries, in milliseconds
-  const int kReconnectDelay = 2000;
-  const int SEND_MESSAGE    = 1;
+  const int kReconnectDelay   = 2000;
+  const int KHeartbeat        = 30 * 1000;
+  const int SEND_MESSAGE      = 1;
   const int RECONNECT_MESSAGE = 2;
+  const int HEARTBEAT         = 3;
+
+  const char HEARTBEAT_DATA[]           = "Hello";
+  const char HEARTBEAT_REPEAT[]         = "ok";
+  const size_t HEARBEAT_LENGTH          = 6;
+  const size_t HEARBEAT_REPEAT_LENGTH   = 3;
 
   talk_base::AsyncSocket* CreateClientSocket(int family) {
     //#ifdef WIN32
@@ -69,7 +76,8 @@ namespace {
 PeerConnectionServer::PeerConnectionServer()
   :resolver_(NULL),
   state_(NOT_CONNECTED),
-  my_id_(-1)
+  my_id_(-1),
+  has_heart_(false)
 {
   LOG_P2P(CREATE_DESTROY_INFOR | P2P_SERVER_LOGIC_INFOR)
     << "Create a p2p server object";
@@ -84,7 +92,7 @@ PeerConnectionServer::~PeerConnectionServer() {
 void PeerConnectionServer::InitSocketSignals() {
   LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "Initiator p2p server socket";
   ASSERT(control_socket_.get() != NULL);
-  ASSERT(hanging_get_.get() != NULL);                                                   
+  ASSERT(hanging_get_.get() != NULL);
   control_socket_->SignalCloseEvent.connect(this,
     &PeerConnectionServer::OnClose);
   hanging_get_->SignalCloseEvent.connect(this,
@@ -161,8 +169,7 @@ void PeerConnectionServer::OnResolveResult(talk_base::SignalThread *t) {
 }
 
 void PeerConnectionServer::DoConnect() {
-  LOG_P2P(BASIC_INFOR|P2P_SERVER_LOGIC_INFOR) << "\tLogin to "
-    <<server_address_.ToString();
+  std::cout << "\tLogin to " <<server_address_.ToString() << std::endl;
   control_socket_.reset(CreateClientSocket(server_address_.ipaddr().family()));
   hanging_get_.reset(CreateClientSocket(server_address_.ipaddr().family()));
   InitSocketSignals();
@@ -304,7 +311,10 @@ void PeerConnectionServer::OnHangingGetConnect(talk_base::AsyncSocket* socket) {
     "GET /wait?peer_id=%i HTTP/1.0\r\n\r\n", my_id_);
   int len = strlen(buffer);
   int sent = socket->Send(buffer, len);
-  
+  if(has_heart_ == false){
+    has_heart_ = true;
+    talk_base::Thread::Current()->PostDelayed(KHeartbeat,this,HEARTBEAT);
+  }
   ASSERT(sent == len);
   UNUSED2(sent, len);
 }
@@ -362,6 +372,10 @@ bool PeerConnectionServer::ReadIntoBuffer(talk_base::AsyncSocket* socket,
     int bytes = socket->Recv(buffer, sizeof(buffer));
     if (bytes <= 0)
       break;
+    if(strncmp(buffer,HEARTBEAT_REPEAT,HEARBEAT_REPEAT_LENGTH) == 0){
+      std::cout << "receive heartbeat" << std::endl;
+      return false;
+    }
     data->append(buffer, bytes);
   } while (true);
 
@@ -622,7 +636,7 @@ void PeerConnectionServer::OnClose(talk_base::AsyncSocket* socket, int err) {
 
 bool PeerConnectionServer::UpdataPeerInfor(const std::string &infor){
   LOG_P2P(P2P_SERVER_LOGIC_INFOR) << "put Update peer information to pending message";
-  LOG_P2P(BASIC_INFOR|P2P_SERVER_LOGIC_INFOR) << infor;
+  std::cout << infor << std::endl;
   std::string* msg = new std::string(infor);
   if (msg) {
     // For convenience, we always run the message through the queue.
@@ -699,6 +713,12 @@ void PeerConnectionServer::OnMessage(talk_base::Message* msg) {
     {
       //state_ = NOT_CONNECTED;
       DoConnect();
+      break;
+    }
+  case HEARTBEAT:
+    {
+      hanging_get_->Send(HEARTBEAT_DATA,HEARBEAT_LENGTH);
+      talk_base::Thread::Current()->PostDelayed(KHeartbeat,this,HEARTBEAT);
       break;
     }
   }

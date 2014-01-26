@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>f9330b92-1834-45c9-af0c-471ed16ba514</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>python_socketserver.py</StartupFile>
+    <StartupFile>python_gui.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="python_gui.py" />
+    <Compile Include="python_pro_manager.py" />
+    <Compile Include="python_pro_server.py" />
     <Compile Include="python_socketserver.py" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

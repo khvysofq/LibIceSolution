@@ -28,6 +28,11 @@
 #include "talk/base/socketfactory.h"
 
 #include "p2pproxybinding.h"
+
+const int MSG_DESTORY           = 0;
+const int MSG_P2P_SOCKET_WRITE  = 1;
+const int MSG_BASE_SOCKET_WRITE = 2;
+
 //////////////////////////////////////////////////////////////////////////
 //P2PProxyBindBase
 //////////////////////////////////////////////////////////////////////////
@@ -35,9 +40,10 @@ P2PProxyBindBase::P2PProxyBindBase(talk_base::AsyncSocket * base_socket,
                                    P2PProxySocket *p2p_socket)
                                    :base_socket_(base_socket),
                                    p2p_socket_(p2p_socket),connected_(false),
-                                   out_buffer_(1024),
-                                   in_buffer_(kBufferSize)
+                                   out_buffer_(296),
+                                   in_buffer_(kBufferSize << 2)
 {
+  current_thread_ = talk_base::Thread::Current();
   base_socket->SignalReadEvent.connect(this, 
     &P2PProxyBindBase::OnBaseSocketRead);
   base_socket->SignalWriteEvent.connect(this, 
@@ -53,6 +59,7 @@ P2PProxyBindBase::P2PProxyBindBase(talk_base::AsyncSocket * base_socket,
     &P2PProxyBindBase::OnP2PSocketWrite);
   p2p_socket_->SignalCloseEvent.connect(this, 
     &P2PProxyBindBase::OnP2PSocketClose);
+  
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -67,6 +74,7 @@ void P2PProxyBindBase::OnBaseSocketWrite(talk_base::AsyncSocket* socket) {
   LOG_P2P(P2P_HTTP_SOCKET_LOGIC )
     << "socket write event";
   Write(base_socket_.get(), &in_buffer_);
+  current_thread_->Post(this,MSG_BASE_SOCKET_WRITE);
 }
 
 void P2PProxyBindBase::OnBaseSocketClose(talk_base::AsyncSocket* socket, 
@@ -107,8 +115,7 @@ void P2PProxyBindBase::OnP2PSocketReadMixData(const char *data, uint16 len){
 }
 
 void P2PProxyBindBase::OnP2PSocketRead(talk_base::AsyncSocket* socket) {
-  LOG_P2P(P2P_HTTP_SOCKET_LOGIC )
-    << "socket read event";
+  LOG_P2P(P2P_HTTP_SOCKET_LOGIC ) << "socket read event";
   Read(p2p_socket_.get(), &in_buffer_);
   Write(base_socket_.get(), &in_buffer_);
 }
@@ -117,6 +124,7 @@ void P2PProxyBindBase::OnP2PSocketWrite(talk_base::AsyncSocket* socket) {
   LOG_P2P(P2P_HTTP_SOCKET_LOGIC )
     << "socket write event";
   Write(p2p_socket_.get(), &out_buffer_);
+  current_thread_->Post(this,MSG_P2P_SOCKET_WRITE);
 }
 
 void P2PProxyBindBase::OnP2PSocketClose(talk_base::AsyncSocket* socket, int err) {
@@ -157,12 +165,27 @@ void P2PProxyBindBase::Destroy() {
   p2p_socket_->Close();
   base_socket_->Close();
   LOG_P2P(P2P_HTTP_SOCKET_LOGIC ) << ">>>>> Start to close P2P Proxy Bind Base";
-  talk_base::Thread::Current()->Post(this);
+  current_thread_->Post(this,MSG_DESTORY);
 }
 
 void P2PProxyBindBase::OnMessage(talk_base::Message *msg){
   LOG_P2P(P2P_HTTP_SOCKET_LOGIC ) << "Delete P2P Proxy Bind Base";
-  delete this;
+  switch ((msg->message_id))
+  {
+  case MSG_DESTORY:
+    delete this;
+    break;
+  case MSG_P2P_SOCKET_WRITE:
+    Read(base_socket_.get(), &out_buffer_);
+    Write(p2p_socket_.get(), &out_buffer_);
+    break;
+  case MSG_BASE_SOCKET_WRITE:
+    Read(p2p_socket_.get(), &in_buffer_);
+    Write(base_socket_.get(), &in_buffer_);
+    break;
+  default:
+    break;
+  }
 }
 
 
@@ -215,8 +238,7 @@ void P2PProxyBinding::OnServerSocketConnectRead(P2PProxyServerSocket* socket,
 
 //////////////////////////////////////////////////////////////////////////
 void P2PProxyBinding::OnP2PSocketConnectSucceed(talk_base::AsyncSocket* socket) {
-  LOG_P2P(P2P_HTTP_SOCKET_LOGIC | BASIC_INFOR)
-    << "socket connect event";
+  std::cout << "socket connect event" << std::endl;
   ASSERT(socket != NULL);
   connected_ = true;
   server_socket_->SendConnectResult(0, socket->GetRemoteAddress().ToString());
@@ -246,8 +268,7 @@ P2PProxyClientSocketBinding::P2PProxyClientSocketBinding(
 }
 
 void P2PProxyClientSocketBinding::OnClientSocketConnect(talk_base::AsyncSocket *socket){
-  LOG_P2P(P2P_HTTP_SOCKET_LOGIC | BASIC_INFOR)
-    << "socket connect event";
+  std::cout  << "socket connect event" << std::endl;
   ASSERT(connected_ == false);
   connected_ = true;
   p2p_proxy_end_socket_->SocketConnectSucceed();
@@ -256,8 +277,7 @@ void P2PProxyClientSocketBinding::OnClientSocketConnect(talk_base::AsyncSocket *
 void P2PProxyClientSocketBinding::OnBaseSocketClose(talk_base::AsyncSocket* socket, 
                                                     int err) 
 {
-  LOG_P2P(P2P_HTTP_SOCKET_LOGIC | BASIC_INFOR)
-    << "socket close event";
+  std::cout << "socket close event" << std::endl;
   if(connected_ == false)
     p2p_proxy_end_socket_->SocketConnectFailure();
   Destroy();

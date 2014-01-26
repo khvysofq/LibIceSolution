@@ -171,6 +171,7 @@ class PeerConnectionServer : public talk_base::MessageHandler,
   std::string notification_data_;
   State state_;
   int   my_id_;
+  bool  has_heart_;
   std::deque<PendMessage *>       pending_messages_;
   P2PSourceManagement             *p2P_source_management_;
 };

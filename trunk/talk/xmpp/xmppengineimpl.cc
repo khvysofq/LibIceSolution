@@ -326,6 +326,24 @@ void XmppEngineImpl::IncomingStanza(const XmlElement* stanza) {
     // Only do this for IQ stanzas as messages should probably just be dropped
     // and presence stanzas should certainly be dropped.
     std::string type = stanza->Attr(QN_TYPE);
+    buzz::QName first_name = stanza->FirstElementName();
+    //handle with the ping message, add by guangleiHe(guangleihe@gmail.com)
+    if(stanza->Name() == QN_IQ && type == "get" && first_name == QN_PING){
+      //1. new iq
+      buzz::XmlElement iq(buzz::QN_IQ);
+      std::string id = stanza->Attr(QN_ID);
+      std::string to   = stanza->Attr(QN_FROM);
+      //3. add to
+      iq.AddAttr(QN_TO,to);
+      //4. Add id
+      iq.AddAttr(buzz::QN_ID,id);
+      //5. add type
+      iq.AddAttr(buzz::QN_TYPE,buzz::STR_RESULT);
+      //TODO£¬ maybe there has a bug, the memory is release before send this element
+      SendStanza(&iq);
+      return ;
+    }
+
     if (stanza->Name() == QN_IQ &&
         !(type == "error" || type == "result")) {
       SendStanzaError(stanza, XSE_FEATURE_NOT_IMPLEMENTED, STR_EMPTY);

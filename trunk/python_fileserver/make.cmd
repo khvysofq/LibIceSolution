@@ -1,0 +1,1 @@
+D:/PyInstaller-2.1/pyinstaller.py -F python_fileserver.py

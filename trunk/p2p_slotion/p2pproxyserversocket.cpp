@@ -260,8 +260,6 @@ void P2PHTTPProxyServerSocket::SendConnectResult(int result,
 
 void P2PHTTPProxyServerSocket::ProcessInput(char* data, size_t* len)
 {
-  LOG_P2P(P2P_HTTP_SOCKET_LOGIC | BASIC_INFOR | P2P_HTTP_SOCKET_DATA) 
-    << "Read input data :"; 
 
   data[*len] = '\0';
   //LOG_P2P(BASIC_INFOR) << "------------------------";

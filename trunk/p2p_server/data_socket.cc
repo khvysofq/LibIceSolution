@@ -35,7 +35,10 @@
 #endif
 
 #include "utils.h"
-
+const char HEARTBEAT_DATA[]           = "Hello";
+const char HEARTBEAT_REPEAT[]         = "ok";
+const size_t HEARBEAT_LENGTH          = 6;
+const size_t HEARBEAT_REPEAT_LENGTH   = 3;
 static const char kHeaderTerminator[] = "\r\n\r\n";
 static const int kHeaderTerminatorLength = sizeof(kHeaderTerminator) - 1;
 
@@ -107,7 +110,12 @@ bool DataSocket::OnDataAvailable(bool* close_socket) {
     *close_socket = true;
     return false;
   }
-
+  if(strncmp(buffer,HEARTBEAT_DATA,HEARBEAT_LENGTH) == 0){
+    printf("receive heartbeat packet\n");
+    send(socket_, HEARTBEAT_REPEAT, HEARBEAT_REPEAT_LENGTH, 0);
+    *close_socket = false;
+    return false;
+  }
   *close_socket = false;
 
   bool ret = true;

@@ -40,8 +40,8 @@
 
 SendDataBuffer::SendDataBuffer(size_t buffer_length)
   :buffer_length_(buffer_length + REMAIN_MIX_SIZE){
-  fifo_buffer_  = new talk_base::FifoBuffer(buffer_length_);
-  state_ = BLOCK_STATE;
+    fifo_buffer_  = new talk_base::FifoBuffer(buffer_length_);
+    state_ = BLOCK_STATE;
 }
 
 SendDataBuffer::~SendDataBuffer(){
@@ -95,19 +95,18 @@ bool SendDataBuffer::SendDataUsedStream(talk_base::StreamInterface *stream){
   if(state_ == BLOCK_STATE)
     return false;
   size_t size;
-  while(state_ != BLOCK_STATE){
-    size_t written = 0;
-    const void *p = fifo_buffer_->GetReadData(&size);
-    if(!size)
-      return true;
-    talk_base::StreamResult res = stream->Write(p,size,&written,NULL);
-    if(res == talk_base::SR_BLOCK){
-      LOG(LS_WARNING) << "The p2p socket block";
-      state_ = BLOCK_STATE;
-    }
-    fifo_buffer_->ConsumeReadData(written);
+  size_t written = 0;
+  const void *p = fifo_buffer_->GetReadData(&size);
+  if(!size)
+    return true;
+  talk_base::StreamResult res = stream->Write(p,size,&written,NULL);
+  if(res == talk_base::SR_BLOCK){
+    LOG(LS_WARNING) << "The p2p socket block";
+    state_ = BLOCK_STATE;
+    return false;
   }
-  return false;
+  fifo_buffer_->ConsumeReadData(written);
+  return true;
 }
 
 void SendDataBuffer::SetNormalState(){

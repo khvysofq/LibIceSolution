@@ -280,18 +280,17 @@ bool ProxySocketBegin::StartConnectBySourceIde(
   LOG_P2P(P2P_PROXY_SOCKET_DATA) << "\t Start Connect By Source"
     << std::endl;
 
-  bool is_existed;
+  //bool is_existed;
   ProxyP2PSession *proxy_p2p_session = 
     p2p_connection_management_->ConnectBySourceIde(source,&remote_peer_addr_,
-    server_type,&is_existed);
+    server_type);
 
   //If the Proxy p2p session created
   if(proxy_p2p_session){
     
   LOG_P2P(P2P_PROXY_SOCKET_LOGIC) << "inform peer connect succeed";
     SetProxyP2PSession(proxy_p2p_session);
-    if(is_existed)
-      OnP2PPeerConnectSucceed(proxy_p2p_session_);
+    OnP2PPeerConnectSucceed(proxy_p2p_session_);
     return true;
   }
   //else

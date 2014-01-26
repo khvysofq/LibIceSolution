@@ -77,6 +77,7 @@ protected:
   bool connected_;
   talk_base::FifoBuffer out_buffer_;
   talk_base::FifoBuffer in_buffer_;
+  talk_base::Thread     *current_thread_;
   DISALLOW_EVIL_CONSTRUCTORS(P2PProxyBindBase);
 };
 

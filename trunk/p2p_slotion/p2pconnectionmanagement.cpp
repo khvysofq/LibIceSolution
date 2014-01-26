@@ -98,7 +98,7 @@ P2PProxySession * P2PConnectionManagement::ConnectBySourceIde(
 
   //Existed
   if(p2p_proxy_session){
-    LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "The peer connection is existed";
+    std::cout << "The peer connection is existed" << std::endl;
     return p2p_proxy_session;
   }
 
@@ -116,11 +116,11 @@ P2PProxySession * P2PConnectionManagement::ConnectBySourceIde(
 
   //Insert this session to session map
   p2p_proxy_sessions_.insert(p2p_proxy_session);
-
-  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"
+  
+  std::cout << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"
     <<"current proxy p2p session size = "
     << p2p_proxy_sessions_.size()
-    << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
+    << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
 
   return p2p_proxy_session;
 }
@@ -187,10 +187,10 @@ bool P2PConnectionManagement::CreateP2PProxySession(
   p2p_proxy_sessions_.insert(p2p_proxy_session);
 
   
-  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"
+  std::cout << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"
     <<"current proxy p2p session size = "
     << p2p_proxy_sessions_.size()
-    << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
+    << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
 
   return true;
 }
@@ -208,10 +208,10 @@ void P2PConnectionManagement::DeleteP2PProxySession(
   delete p2p_proxy_session;
   p2p_proxy_sessions_.erase(iter);
 
-  LOG_P2P(P2P_CONNECT_LOGIC|BASIC_INFOR) << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"
+  std::cout << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"
     <<"current proxy p2p session size = "
     << p2p_proxy_sessions_.size()
-    << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
+    << "\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
 }
 
 

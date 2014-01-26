@@ -42,30 +42,7 @@
 /*
 
 */
-static const int P2P_SYSTEM_COMMAND_IDE         = 0X0F123456; 
-static const int P2P_SYSTEM_COMMAND_PADDING_BYTE= 0XFF;
 
-
-const int P2P_SYSTEM_CREATE_RTSP_CLIENT         = 1;
-const int P2P_SYSTEM_CREATE_RTSP_CLIENT_SUCCEED = 2;
-const int P2P_SYSTEM_SERVER_SOCKET_CLOSE        = 3;
-const int P2P_SYSTEM_CLIENT_SOCKET_CLOSE        = 4;
-const int P2P_SYSTEM_SERVER_SOCKET_CLOSE_SUCCEED= 5;
-const int P2P_SYSTEM_CLIENT_SOCKET_CLOSE_SUCCEED= 6;
-const int P2P_SYSTEM_SOCKET_CONNECT_FAILURE     = 7;
-struct P2PRTSPCommand{
-  uint32 p2p_system_command_ide_;
-  uint32 p2p_system_command_type_;
-  uint32 server_socket_;
-  uint32 client_socket_;
-  uint32 client_connection_ip_;
-  uint16 client_connection_port_;
-  uint16 padding_byte_;
-};
-
-
-const uint16 P2PRTSPCOMMAND_LENGTH 
-  = sizeof(P2PRTSPCommand);
 
 ///////////////////////////////////////////////////////////////////////////
 //TODO:(GuangleiHe) TIME: 12/1/2013

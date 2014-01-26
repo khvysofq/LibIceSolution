@@ -133,7 +133,8 @@ int main(int argc, char** argv) {
             } else if (s->PathEquals("/update")){
               printf("%s\n",s->data().c_str());
               clients.UpdateMemberInfor(s,member);
-            }else {
+            }
+            else {
               ChannelMember* target = clients.IsTargetedRequest(s);
               if (target) {
                 member->ForwardRequestToPeer(s, target);

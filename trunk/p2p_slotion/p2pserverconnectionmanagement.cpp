@@ -148,8 +148,7 @@ void P2PServerConnectionManagement::OnServerStatesChange(
   case STATES_P2P_SERVER_LOGIN_SUCCEED:
     {
       //
-      LOG_P2P(P2P_SERVER_MANAGER_LOGIC|BASIC_INFOR) 
-        << "STATES_P2P_SERVER_LOGIN_SUCCEED";
+      std::cout << "STATES_P2P_SERVER_LOGIN_SUCCEED" << std::endl;
       if(state_ != SERVER_CONNECTING){
         LOG(LS_ERROR) << "Has Error at here";
         return ;

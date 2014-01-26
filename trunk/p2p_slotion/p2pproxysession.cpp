@@ -110,6 +110,8 @@ bool P2PProxySession::RegisterP2PProxySocket(
   ASSERT(signal_thread_->IsCurrent());
   if(state_ == P2P_CLOSING)
     state_ = P2P_CONNECTED;
+  if(state_ == P2P_CLOSE)
+    return false;
   P2PProxySockets::iterator iter = p2p_proxy_sockets_.find(
     p2p_proxy_socket->GetSocketNumber());
 
@@ -121,11 +123,10 @@ bool P2PProxySession::RegisterP2PProxySocket(
   p2p_proxy_sockets_.insert(P2PProxySockets::value_type(
     p2p_proxy_socket->GetSocketNumber(),p2p_proxy_socket));
   
-  LOG_P2P(P2P_PROXY_SOCKET_LOGIC | BASIC_INFOR) 
-    << "\n********* \n"
+    std::cout << "\n********* \n"
     << "Current p2p socket size is "
     << p2p_proxy_sockets_.size()
-    << "\n*********";
+    << "\n*********" << std::endl;
 
   SignalPeerConnectSucceed.connect(p2p_proxy_socket,
     &P2PProxySocket::OnP2PConnectSucceed);
@@ -217,7 +218,8 @@ void P2PProxySession::CloseAllProxySokcet(
 
 void P2PProxySession::OnStreamWrite(talk_base::StreamInterface *stream){
   ASSERT(signal_thread_->IsCurrent());
-  ASSERT(state_ == P2P_CONNECTED);
+  if(state_ != P2P_CONNECTED)
+    return ;
   while(!command_data_buffers_.empty()){
     //send this string to remote peer
     size_t written;
@@ -315,19 +317,21 @@ void P2PProxySession::IsAllProxySocketClosed(){
     if(state_ == P2P_CONNECTED){
       state_ = P2P_CLOSING;
     }
+    else {
+      state_ = P2P_CLOSE;
+      Destory();
+    }
     if(session_type_ == RTSP_SERVER){
       signal_thread_->PostDelayed(DELAYED_CLOSE_WAIT_TIME,
         this,DELAYED_CLOSE);
-    LOG_P2P(P2P_PROXY_SOCKET_LOGIC | BASIC_INFOR) 
-      << "will destroy this session after " << DELAYED_CLOSE_WAIT_TIME/1000
-      << "s";
+      std::cout << "will destroy this session after " << DELAYED_CLOSE_WAIT_TIME/1000
+      << "s" << std::endl;
     }
     else if(session_type_ == HTTP_SERVER){
       signal_thread_->PostDelayed(DELAYED_CLOSE_WAIT_TIME * 10,
       this,DELAYED_CLOSE);
-    LOG_P2P(P2P_PROXY_SOCKET_LOGIC | BASIC_INFOR) 
-      << "will destroy this session after " << DELAYED_CLOSE_WAIT_TIME/100
-      << "s";
+     std::cout << "will destroy this session after " << DELAYED_CLOSE_WAIT_TIME/100
+      << "s" <<std::endl;
     }
     //signal_thread_->PostDelayed(1000 * 60,this,RELEASE_ALL);
   }
@@ -385,14 +389,12 @@ void P2PProxySession::OnMessage(talk_base::Message *msg){
   case DESTORY_SELFT:
     {
       if(p2p_connection_implementator_ != NULL){
-        LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC|BASIC_INFOR)
-          << "delete p2p connection implementation";
+         std::cout << "delete p2p connection implementation" << std::endl;
         delete p2p_connection_implementator_;
         p2p_connection_implementator_ = NULL;
       }
       if(p2p_proxy_sockets_.size() == 0){
-        LOG_P2P(CREATE_DESTROY_INFOR|P2P_PROXY_SOCKET_LOGIC|BASIC_INFOR)
-          << "delete proxy p2p session";
+        std::cout  << "delete proxy p2p session" << std::endl;
         p2p_connection_management_->DeleteP2PProxySession(this);
       }
       break;

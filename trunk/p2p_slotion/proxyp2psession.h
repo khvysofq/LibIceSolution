@@ -39,8 +39,10 @@
 
 #include "talk/base/basictypes.h"
 #include "talk/base/bytebuffer.h"
+
 #include "defaults.h"
 
+class P2PProxySocket;
 class ProxySocketBegin;
 class P2PConnectionImplementator;
 class P2PConnectionManagement;
@@ -130,7 +132,10 @@ private:
 
   static const size_t BUFFER_SIZE = KBufferSize;
   typedef std::map<uint32, ProxySocketBegin*> ProxySocketBeginMap;
+  typedef std::map<uint32, P2PProxySocket *> P2PProxySockets;
   ProxySocketBeginMap          proxy_socket_begin_map_;
+  P2PProxySockets              p2p_proxy_sockets_;
+
   talk_base::FifoBuffer        *command_send_buffer_;
 
   P2PConnectionImplementator   *p2p_connection_implementator_;
